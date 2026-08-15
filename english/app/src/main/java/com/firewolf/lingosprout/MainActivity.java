@@ -32,8 +32,8 @@ public final class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        configureWindow();
         setContentView(createStartupView());
+        configureWindow();
 
         Thread catalogLoader = new Thread(this::loadLearningContent, "word-catalog-loader");
         catalogLoader.start();
@@ -144,15 +144,16 @@ public final class MainActivity extends Activity {
 
     private void configureWindow() {
         Window window = getWindow();
+        View decorView = window.getDecorView();
         window.setStatusBarColor(Color.rgb(247, 250, 248));
         window.setNavigationBarColor(Color.rgb(247, 250, 248));
         if (android.os.Build.VERSION.SDK_INT >= 30) {
-            Api30WindowAppearance.apply(window);
+            Api30WindowAppearance.apply(decorView);
         } else if (android.os.Build.VERSION.SDK_INT >= 26) {
-            window.getDecorView().setSystemUiVisibility(
+            decorView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
         } else {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
         }
     }
 
@@ -160,8 +161,8 @@ public final class MainActivity extends Activity {
     private static final class Api30WindowAppearance {
         private Api30WindowAppearance() {}
 
-        static void apply(Window window) {
-            WindowInsetsController controller = window.getInsetsController();
+        static void apply(View decorView) {
+            WindowInsetsController controller = decorView.getWindowInsetsController();
             if (controller == null) return;
             int lightBars = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;

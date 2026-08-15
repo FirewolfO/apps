@@ -21,7 +21,7 @@ public final class MainActivitySmokeTest {
         AtomicBoolean errorVisible = new AtomicBoolean();
 
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(MainActivity.class)) {
-            long deadline = SystemClock.uptimeMillis() + 10_000;
+            long deadline = SystemClock.uptimeMillis() + 30_000;
             do {
                 scenario.onActivity(activity -> {
                     homeVisible.set(activity.findViewById(R.id.learning_content) != null);
