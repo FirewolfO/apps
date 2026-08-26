@@ -46,7 +46,12 @@ function routeAppId() {
   try { path = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, ''); }
   catch { return null; }
   if (!path || path === 'ALL' || path === 'oauth/callback') return '';
+  if (path === 'ai') return 'ai-workbench';
   return /^[a-z][a-z0-9-]{1,47}$/.test(path) ? path : null;
+}
+
+function appPagePath(appId) {
+  return appId === 'ai-workbench' ? '/ai' : `/${encodeURIComponent(appId)}`;
 }
 
 function updateIdentity() {
@@ -86,7 +91,7 @@ function render() {
     header.querySelector('.app-identity > span').textContent = app.name.slice(0, 1).toUpperCase();
     const appLink = header.querySelector('h2 a');
     appLink.textContent = app.name;
-    appLink.href = `/${encodeURIComponent(app.id)}`;
+    appLink.href = appPagePath(app.id);
     header.querySelector('.app-identity p').textContent = `${app.id}${app.description ? ` · ${app.description}` : ''}`;
     header.querySelector('.group-actions small').textContent = `${app.releases.length} 个版本`;
     const selectApp = header.querySelector('.select-app');

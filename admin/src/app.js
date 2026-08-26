@@ -194,6 +194,7 @@ export async function createApplication(config) {
     },
   }));
   app.get('/', (_request, response) => response.redirect('/ALL'));
+  app.get('/ai-workbench', (_request, response) => response.redirect('/ai'));
   const publicDirectory = new URL('../public', import.meta.url).pathname;
   app.use(express.static(publicDirectory, {
     extensions: ['html'],
