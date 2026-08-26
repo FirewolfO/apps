@@ -90,10 +90,10 @@ test('public visitors browse releases and only People administrators manage them
   const allPage = await request('/ALL');
   assert.match(allPage.body, /App Center/);
   assert.match(allPage.body, />管理APP</);
-  assert.match(allPage.body, /\/app\.js\?v=20260826\.3/);
+  assert.match(allPage.body, /\/app\.js\?v=20260826\.4/);
   assert.doesNotMatch(allPage.body, /class="brand"[^>]*href=/);
   assert.equal(allPage.response.headers.get('cache-control'), 'no-store');
-  const appScript = await request('/app.js?v=20260826.3');
+  const appScript = await request('/app.js?v=20260826.4');
   assert.equal(appScript.response.headers.get('cache-control'), 'no-store');
   assert.match(appScript.body, /function readSessionToken/);
   assert.match((await request('/yuque')).body, /App Center/);
@@ -116,38 +116,48 @@ test('public visitors browse releases and only People administrators manage them
   const me = await request('/api/auth/me', { headers: authorization });
   assert.equal(me.body.user.username, 'admin');
 
-  const upload = async version => {
+  const upload = async (version, versionCode) => {
     const form = new FormData();
     form.set('appId', 'yuque');
     form.set('name', '语雀');
     form.set('description', '企业即时通讯');
     form.set('version', version);
-    form.set('versionCode', version === '1.7.0' ? '10' : '9');
+    form.set('versionCode', String(versionCode));
     form.set('notes', `版本 ${version}`);
     form.set('apk', new Blob([Buffer.from('PK\u0003\u0004test')], { type: 'application/vnd.android.package-archive' }), `yuque-v${version}.apk`);
     return request('/api/admin/releases', { method: 'POST', headers: authorization, body: form });
   };
-  const first = await upload('1.6.1');
-  const second = await upload('1.7.0');
+  const first = await upload('1.6.1', 9);
+  const second = await upload('1.7.0', 10);
+  const third = await upload('1.8.0', 11);
+  const fourth = await upload('1.9.0', 12);
   assert.equal(first.response.status, 201);
   assert.equal(second.response.status, 201);
+  assert.equal(third.response.status, 201);
+  assert.equal(fourth.response.status, 201);
 
   const listing = await request('/api/apps');
   assert.equal(listing.body.apps[0].id, 'yuque');
   assert.equal(listing.body.apps[0].name, '语雀');
-  assert.equal(listing.body.apps[0].releases.length, 2);
-  assert.equal(listing.body.apps[0].latest.version, '1.7.0');
+  assert.equal(listing.body.apps[0].releases.length, 4);
+  assert.equal(listing.body.apps[0].latest.version, '1.9.0');
   const latest = await request('/api/apps/yuque/latest');
-  assert.equal(latest.body.release.versionCode, 10);
+  assert.equal(latest.body.release.versionCode, 12);
   const download = await fetch(base + latest.body.release.downloadUrl);
   assert.equal(download.status, 200);
   assert.equal(download.headers.get('content-type'), 'application/vnd.android.package-archive');
 
   const deletedSelected = await request('/api/admin/releases', {
     method: 'DELETE', headers: { ...authorization, 'content-type': 'application/json' },
-    body: JSON.stringify({ releaseIds: [first.body.release.id] }),
+    body: JSON.stringify({ releaseIds: [first.body.release.id, third.body.release.id, fourth.body.release.id] }),
   });
-  assert.deepEqual(deletedSelected.body.deleted, [first.body.release.id]);
+  assert.deepEqual(deletedSelected.body.deleted, [first.body.release.id, third.body.release.id, fourth.body.release.id]);
+  const afterSelectedDelete = await request('/api/apps');
+  assert.equal(afterSelectedDelete.body.apps.length, 1);
+  assert.deepEqual(afterSelectedDelete.body.apps[0].releases.map(release => release.id), [second.body.release.id]);
+  assert.equal(afterSelectedDelete.body.apps[0].latest.version, '1.7.0');
+  const survivingDownload = await fetch(base + afterSelectedDelete.body.apps[0].latest.downloadUrl);
+  assert.equal(survivingDownload.status, 200);
   const deletedApp = await request('/api/admin/apps/yuque', { method: 'DELETE', headers: authorization });
   assert.equal(deletedApp.body.deleted, 1);
 });

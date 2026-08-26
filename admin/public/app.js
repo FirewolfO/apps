@@ -142,9 +142,24 @@ async function loadApps() {
 }
 
 async function deleteSelected() {
-  if (!state.selected.size || !confirm(`确定删除所选 ${state.selected.size} 个版本吗？`)) return;
-  await api('/api/admin/releases', { method: 'DELETE', body: JSON.stringify({ releaseIds: [...state.selected] }) });
-  state.selected.clear();
+  const releaseIds = [...state.selected];
+  if (!releaseIds.length) return;
+  const selected = new Set(releaseIds);
+  const releases = state.apps.flatMap(app => app.releases
+    .filter(release => selected.has(release.id))
+    .map(release => `${app.name} v${release.version}`));
+  if (releases.length !== releaseIds.length) {
+    alert('部分所选版本已不存在，请刷新后重新选择');
+    await loadApps();
+    return;
+  }
+  if (!confirm(`确定删除以下 ${releaseIds.length} 个版本吗？\n\n${releases.join('\n')}`)) return;
+  const body = await api('/api/admin/releases', { method: 'DELETE', body: JSON.stringify({ releaseIds }) });
+  const deleted = new Set(Array.isArray(body.deleted) ? body.deleted : []);
+  if (deleted.size !== releaseIds.length || releaseIds.some(id => !deleted.has(id))) {
+    throw new Error('服务端删除结果与所选版本不一致，请刷新确认');
+  }
+  for (const id of releaseIds) state.selected.delete(id);
   await loadApps();
 }
 
