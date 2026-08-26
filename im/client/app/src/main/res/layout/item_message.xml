@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="4dp">
+    <TextView
+        android:id="@+id/avatar"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_gravity="start|bottom"
+        android:background="@drawable/bg_avatar"
+        android:gravity="center"
+        android:textColor="@color/teal_dark"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+    <LinearLayout
+        android:id="@+id/bubble"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:maxWidth="264dp"
+        android:orientation="vertical"
+        android:padding="10dp">
+        <TextView android:id="@+id/senderName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginBottom="4dp" android:textColor="@color/muted" android:textSize="11sp" android:visibility="gone" />
+        <FrameLayout android:id="@+id/mediaFrame" android:layout_width="220dp" android:layout_height="156dp" android:visibility="gone">
+            <ImageView android:id="@+id/mediaImage" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="媒体消息" android:scaleType="centerCrop" />
+            <TextView android:id="@+id/playBadge" android:layout_width="52dp" android:layout_height="52dp" android:layout_gravity="center" android:background="@drawable/bg_call_button" android:gravity="center" android:text="▶" android:textColor="@color/white" android:textSize="21sp" android:visibility="gone" />
+            <TextView android:id="@+id/mediaStatus" android:layout_width="wrap_content" android:layout_height="36dp" android:layout_gravity="center" android:background="#99000000" android:gravity="center" android:maxLines="1" android:paddingHorizontal="12dp" android:textColor="@color/white" android:textSize="12sp" android:visibility="gone" />
+        </FrameLayout>
+        <ProgressBar android:id="@+id/transferProgress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:layout_marginTop="5dp" android:indeterminateTint="@color/coral" android:max="100" android:progressTint="@color/coral" android:visibility="gone" />
+        <TextView android:id="@+id/content" android:layout_width="wrap_content" android:layout_height="wrap_content" android:autoLink="web" android:textColor="@color/ink" android:textIsSelectable="true" android:textSize="15sp" />
+        <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="end" android:layout_marginTop="4dp" android:gravity="center_vertical" android:orientation="horizontal">
+            <TextView android:id="@+id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/muted" android:textSize="11sp" />
+            <TextView android:id="@+id/status" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="6dp" android:maxLines="1" android:textSize="11sp" android:visibility="gone" />
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

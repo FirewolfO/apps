@@ -1,0 +1,27 @@
+name: app-center
+
+services:
+  app-center:
+    build: .
+    image: app-center:1.0.0
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      HOST: 0.0.0.0
+      DATA_DIR: /data
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123!}
+      SESSION_HOURS: ${SESSION_HOURS:-12}
+      MAX_APK_MB: ${MAX_APK_MB:-300}
+    ports:
+      - 127.0.0.1:18083:3000
+    volumes:
+      - app-center-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  app-center-data:

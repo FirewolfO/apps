@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/call_background">
+    <org.webrtc.SurfaceViewRenderer android:id="@+id/remoteVideo" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone" />
+    <LinearLayout android:id="@+id/audioIdentity" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="top" android:gravity="center_horizontal" android:orientation="vertical" android:paddingTop="132dp">
+        <TextView android:id="@+id/callAvatar" android:layout_width="112dp" android:layout_height="112dp" android:background="@drawable/bg_avatar_dark" android:gravity="center" android:textColor="@color/white" android:textSize="42sp" android:textStyle="bold" />
+        <TextView android:id="@+id/callName" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:textColor="@color/white" android:textSize="27sp" android:textStyle="bold" />
+        <TextView android:id="@+id/callStatus" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:textColor="#C8D8D5" android:textSize="15sp" />
+    </LinearLayout>
+    <org.webrtc.SurfaceViewRenderer android:id="@+id/localVideo" android:layout_width="112dp" android:layout_height="158dp" android:layout_gravity="top|end" android:layout_marginTop="68dp" android:layout_marginEnd="16dp" android:background="#1B2423" android:visibility="gone" />
+    <LinearLayout android:id="@+id/activeControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:gravity="center" android:orientation="horizontal" android:paddingBottom="48dp">
+        <TextView android:id="@+id/muteButton" android:layout_width="58dp" android:layout_height="58dp" android:layout_marginHorizontal="14dp" android:background="@drawable/bg_call_button" android:gravity="center" android:text="麦克风" android:textColor="@color/white" android:textSize="11sp" />
+        <TextView android:id="@+id/endButton" android:layout_width="64dp" android:layout_height="64dp" android:layout_marginHorizontal="14dp" android:background="@drawable/bg_call_end" android:gravity="center" android:text="挂断" android:textColor="@color/white" android:textSize="12sp" />
+        <TextView android:id="@+id/speakerButton" android:layout_width="58dp" android:layout_height="58dp" android:layout_marginHorizontal="14dp" android:background="@drawable/bg_call_button" android:gravity="center" android:text="扬声器" android:textColor="@color/white" android:textSize="11sp" />
+        <TextView android:id="@+id/switchCameraButton" android:layout_width="58dp" android:layout_height="58dp" android:layout_marginHorizontal="14dp" android:background="@drawable/bg_call_button" android:gravity="center" android:text="翻转" android:textColor="@color/white" android:textSize="11sp" android:visibility="gone" />
+    </LinearLayout>
+    <LinearLayout android:id="@+id/incomingControls" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_gravity="bottom" android:gravity="center" android:orientation="horizontal" android:paddingBottom="52dp" android:visibility="gone">
+        <TextView android:id="@+id/declineButton" android:layout_width="64dp" android:layout_height="64dp" android:layout_marginHorizontal="34dp" android:background="@drawable/bg_call_end" android:gravity="center" android:text="拒绝" android:textColor="@color/white" android:textSize="12sp" />
+        <TextView android:id="@+id/acceptButton" android:layout_width="64dp" android:layout_height="64dp" android:layout_marginHorizontal="34dp" android:background="@drawable/bg_call_accept" android:gravity="center" android:text="接听" android:textColor="@color/white" android:textSize="12sp" />
+    </LinearLayout>
+</FrameLayout>

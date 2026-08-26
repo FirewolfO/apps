@@ -1,0 +1,39 @@
+services:
+  server:
+    container_name: linkup-im
+    build: ./server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 3000
+      PUBLIC_URL: ${PUBLIC_URL:-http://localhost:3000}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required}
+      PEOPLE_API_BASE_URL: ${PEOPLE_API_BASE_URL:-http://people-edge:8082/api/open/people}
+      PEOPLE_CLIENT_ID: ${PEOPLE_CLIENT_ID:-linkup-im}
+      PEOPLE_CLIENT_SECRET: ${PEOPLE_CLIENT_SECRET:?PEOPLE_CLIENT_SECRET is required}
+      PEOPLE_REDIRECT_URI: ${PEOPLE_REDIRECT_URI:-https://im.lxvb.top/oauth/callback}
+      STUN_URLS: ${STUN_URLS:-stun:stun.l.google.com:19302}
+      TURN_URLS: ${TURN_URLS:-}
+      TURN_USERNAME: ${TURN_USERNAME:-}
+      TURN_CREDENTIAL: ${TURN_CREDENTIAL:-}
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - default
+      - people-services
+    volumes:
+      - im_data:/app/data
+
+volumes:
+  im_data:
+    external: true
+    name: linkup_im_data
+
+networks:
+  people-services:
+    external: true
+    name: people-services

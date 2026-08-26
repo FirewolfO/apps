@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ink">#17201F</color>
+    <color name="muted">#66716F</color>
+    <color name="line">#DCE2E0</color>
+    <color name="canvas">#F4F6F5</color>
+    <color name="surface">#FFFFFF</color>
+    <color name="teal">#176B63</color>
+    <color name="teal_dark">#0F514C</color>
+    <color name="teal_soft">#E4F1EF</color>
+    <color name="coral">#D8614D</color>
+    <color name="danger">#AD3B3B</color>
+    <color name="call_background">#102B29</color>
+    <color name="white">#FFFFFF</color>
+</resources>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="78dp"
+    android:background="@color/surface"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingHorizontal="16dp">
+    <TextView android:id="@+id/avatar" android:layout_width="50dp" android:layout_height="50dp" android:background="@drawable/bg_avatar" android:gravity="center" android:textColor="@color/teal_dark" android:textSize="18sp" android:textStyle="bold" />
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="13dp" android:layout_weight="1" android:orientation="vertical">
+        <TextView android:id="@+id/name" android:layout_width="match_parent" android:layout_height="wrap_content" android:ellipsize="end" android:maxLines="1" android:textColor="@color/ink" android:textSize="16sp" android:textStyle="bold" />
+        <TextView android:id="@+id/preview" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="5dp" android:ellipsize="end" android:maxLines="1" android:textColor="@color/muted" android:textSize="13sp" />
+    </LinearLayout>
+    <LinearLayout android:layout_width="wrap_content" android:layout_height="match_parent" android:gravity="end" android:orientation="vertical" android:paddingTop="16dp">
+        <TextView android:id="@+id/time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/muted" android:textSize="11sp" />
+        <TextView android:id="@+id/unread" android:layout_width="22dp" android:layout_height="22dp" android:layout_gravity="end" android:layout_marginTop="7dp" android:background="@drawable/bg_unread" android:gravity="center" android:textColor="@color/white" android:textSize="11sp" android:visibility="gone" />
+    </LinearLayout>
+</LinearLayout>
