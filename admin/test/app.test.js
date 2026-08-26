@@ -86,7 +86,15 @@ test('public visitors browse releases and only People administrators manage them
   const root = await fetch(base, { redirect: 'manual' });
   assert.equal(root.status, 302);
   assert.equal(root.headers.get('location'), '/ALL');
-  assert.match((await request('/ALL')).body, /App Center/);
+  const allPage = await request('/ALL');
+  assert.match(allPage.body, /App Center/);
+  assert.match(allPage.body, />管理APP</);
+  assert.match(allPage.body, /\/app\.js\?v=20260826\.2/);
+  assert.doesNotMatch(allPage.body, /class="brand"[^>]*href=/);
+  assert.equal(allPage.response.headers.get('cache-control'), 'no-store');
+  const appScript = await request('/app.js?v=20260826.2');
+  assert.equal(appScript.response.headers.get('cache-control'), 'no-store');
+  assert.match(appScript.body, /function readSessionToken/);
   assert.match((await request('/yuque')).body, /App Center/);
   assert.equal((await request('/api/apps')).body.apps.length, 0);
   assert.equal((await request('/api/auth/login', { method: 'POST' })).response.status, 404);

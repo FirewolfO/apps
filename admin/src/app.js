@@ -194,8 +194,19 @@ export async function createApplication(config) {
     },
   }));
   app.get('/', (_request, response) => response.redirect('/ALL'));
-  app.use(express.static(new URL('../public', import.meta.url).pathname, { extensions: ['html'], maxAge: '1h', index: false }));
-  app.get('/{*path}', (_request, response) => response.sendFile(new URL('../public/index.html', import.meta.url).pathname));
+  const publicDirectory = new URL('../public', import.meta.url).pathname;
+  app.use(express.static(publicDirectory, {
+    extensions: ['html'],
+    maxAge: 0,
+    index: false,
+    setHeaders(response) {
+      response.set('Cache-Control', 'no-store');
+    },
+  }));
+  app.get('/{*path}', (_request, response) => {
+    response.set('Cache-Control', 'no-store');
+    response.sendFile(path.join(publicDirectory, 'index.html'));
+  });
 
   app.use((error, _request, response, _next) => {
     if (error instanceof multer.MulterError && error.code === 'LIMIT_FILE_SIZE') return response.status(413).json({ error: `APK 不能超过 ${config.maxApkMb} MB` });

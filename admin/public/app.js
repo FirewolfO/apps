@@ -1,11 +1,26 @@
 const state = {
-  token: sessionStorage.getItem('app_center_token') || '',
+  token: readSessionToken(),
   user: null,
   apps: [],
   selected: new Set(),
 };
 const byId = id => document.getElementById(id);
 const isAdministrator = () => state.user?.role === 'admin';
+
+function readSessionToken() {
+  try { return sessionStorage.getItem('app_center_token') || ''; }
+  catch { return ''; }
+}
+
+function writeSessionToken(token) {
+  try { sessionStorage.setItem('app_center_token', token); }
+  catch {}
+}
+
+function removeSessionToken() {
+  try { sessionStorage.removeItem('app_center_token'); }
+  catch {}
+}
 
 async function api(path, options = {}) {
   const headers = new Headers(options.headers || {});
@@ -154,7 +169,7 @@ async function completeOAuth() {
   });
   state.token = body.token;
   state.user = body.user;
-  sessionStorage.setItem('app_center_token', state.token);
+  writeSessionToken(state.token);
   history.replaceState({}, '', body.redirect || '/ALL');
 }
 
@@ -164,7 +179,7 @@ byId('logoutButton').addEventListener('click', async () => {
   state.token = '';
   state.user = null;
   state.selected.clear();
-  sessionStorage.removeItem('app_center_token');
+  removeSessionToken();
   render();
 });
 byId('deleteSelected').addEventListener('click', () => deleteSelected().catch(error => alert(error.message)));
@@ -191,7 +206,7 @@ async function bootstrap() {
       try { state.user = (await api('/api/auth/me')).user; }
       catch {
         state.token = '';
-        sessionStorage.removeItem('app_center_token');
+        removeSessionToken();
       }
     }
     await loadApps();
