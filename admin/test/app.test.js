@@ -84,8 +84,9 @@ test('public visitors browse releases and only People administrators manage them
   };
 
   const root = await fetch(base, { redirect: 'manual' });
-  assert.equal(root.status, 302);
-  assert.equal(root.headers.get('location'), '/ALL');
+  assert.equal(root.status, 200);
+  assert.equal(await root.text(), '');
+  assert.equal(root.headers.get('cache-control'), 'no-store');
   const allPage = await request('/ALL');
   assert.match(allPage.body, /App Center/);
   assert.match(allPage.body, />管理APP</);

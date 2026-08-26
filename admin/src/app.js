@@ -193,7 +193,10 @@ export async function createApplication(config) {
       response.set('Content-Disposition', `attachment; filename="${path.basename(filename).replace(/[^A-Za-z0-9._-]/g, '_')}"`);
     },
   }));
-  app.get('/', (_request, response) => response.redirect('/ALL'));
+  app.get('/', (_request, response) => {
+    response.set('Cache-Control', 'no-store');
+    response.status(200).type('html').send('');
+  });
   app.get('/ai-workbench', (_request, response) => response.redirect('/ai'));
   const publicDirectory = new URL('../public', import.meta.url).pathname;
   app.use(express.static(publicDirectory, {
