@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.graphics.Color;
 import android.view.Gravity;
@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.linkup.im.databinding.ItemMessageBinding;
+import top.lxvb.yuque.databinding.ItemMessageBinding;
 
 import java.util.ArrayList;
 import java.util.List;

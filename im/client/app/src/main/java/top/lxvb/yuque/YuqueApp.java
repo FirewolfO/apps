@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.Manifest;
 import android.app.Activity;
@@ -18,7 +18,7 @@ import androidx.core.content.ContextCompat;
 
 import org.json.JSONObject;
 
-public final class LinkUpApp extends Application implements RealtimeClient.Listener, ApiClient.AuthListener, Application.ActivityLifecycleCallbacks {
+public final class YuqueApp extends Application implements RealtimeClient.Listener, ApiClient.AuthListener, Application.ActivityLifecycleCallbacks {
     private static final String INCOMING_CHANNEL = "incoming_calls";
     private static final String MESSAGE_CHANNEL = "messages_v1";
     private SessionStore session;

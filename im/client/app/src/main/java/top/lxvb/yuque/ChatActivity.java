@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -20,7 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.linkup.im.databinding.ActivityChatBinding;
+import top.lxvb.yuque.databinding.ActivityChatBinding;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -52,7 +52,7 @@ public final class ChatActivity extends AppCompatActivity implements RealtimeCli
         }
     };
     private ActivityChatBinding binding;
-    private LinkUpApp app;
+    private YuqueApp app;
     private MessageAdapter adapter;
     private String conversationId;
     private Models.User peer;
@@ -64,7 +64,7 @@ public final class ChatActivity extends AppCompatActivity implements RealtimeCli
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (LinkUpApp) getApplication();
+        app = (YuqueApp) getApplication();
         conversationId = getIntent().getStringExtra("conversationId");
         peer = new Models.User(
                 getIntent().getStringExtra("peerId"), getIntent().getStringExtra("peerUsername"),

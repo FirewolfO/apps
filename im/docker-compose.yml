@@ -1,6 +1,6 @@
 services:
   server:
-    container_name: linkup-im
+    container_name: yuque-im
     build: ./server
     restart: unless-stopped
     ports:

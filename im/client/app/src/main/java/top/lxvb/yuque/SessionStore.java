@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.content.Context;
 import android.content.SharedPreferences;

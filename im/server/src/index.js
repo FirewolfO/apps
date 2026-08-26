@@ -10,7 +10,7 @@ const realtime = new RealtimeHub(server, db, config);
 app.locals.realtime = realtime;
 
 server.listen(config.port, config.host, () => {
-  console.info(`LinkUp IM server listening on http://${config.host}:${config.port}`);
+  console.info(`Yuque IM server listening on http://${config.host}:${config.port}`);
 });
 
 function shutdown() {

@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.Manifest;
 import android.app.NotificationManager;
@@ -19,7 +19,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.linkup.im.databinding.ActivityCallBinding;
+import top.lxvb.yuque.databinding.ActivityCallBinding;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
@@ -53,7 +53,7 @@ import java.util.UUID;
 
 public final class CallActivity extends AppCompatActivity implements RealtimeClient.Listener {
     private ActivityCallBinding binding;
-    private LinkUpApp app;
+    private YuqueApp app;
     private String conversationId;
     private String peerId;
     private String peerName;
@@ -114,7 +114,7 @@ public final class CallActivity extends AppCompatActivity implements RealtimeCli
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (LinkUpApp) getApplication();
+        app = (YuqueApp) getApplication();
         conversationId = getIntent().getStringExtra("conversationId");
         peerId = getIntent().getStringExtra("peerId");
         peerName = getIntent().getStringExtra("peerName");

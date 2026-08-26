@@ -8,31 +8,24 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <main id="loginView" class="login-view">
-    <section class="login-panel">
-      <div class="brand-mark">AC</div>
-      <p class="eyebrow">LXVB MOBILE</p>
-      <h1>App Center</h1>
-      <p class="muted">移动应用发布管理</p>
-      <form id="loginForm">
-        <label>账号<input id="username" name="username" autocomplete="username" required></label>
-        <label>密码<input id="password" name="password" type="password" autocomplete="current-password" required></label>
-        <button type="submit">登录</button>
-      </form>
-      <p id="loginError" class="error" role="alert"></p>
-    </section>
-  </main>
-
-  <main id="workspace" class="workspace" hidden>
+  <main class="workspace">
     <header class="topbar">
-      <div><strong>App Center</strong><span>移动应用发布管理</span></div>
-      <div class="top-actions"><span id="identity">admin</span><button id="logoutButton" class="quiet" type="button">退出</button></div>
+      <a class="brand" href="/ALL"><strong>App Center</strong><span>移动应用中心</span></a>
+      <div class="top-actions">
+        <span id="identity" hidden></span>
+        <button id="loginButton" type="button">People 登录</button>
+        <button id="logoutButton" class="quiet" type="button" hidden>退出</button>
+      </div>
     </header>
     <section class="toolbar">
-      <div><p class="eyebrow">RELEASES</p><h1>应用版本</h1></div>
-      <div class="toolbar-actions"><button id="deleteSelected" class="danger" type="button" disabled>删除所选</button><button id="openUpload" type="button">上传版本</button></div>
+      <div><p id="pageEyebrow" class="eyebrow">ALL RELEASES</p><h1 id="pageTitle">全部应用</h1></div>
+      <div id="adminActions" class="toolbar-actions" hidden>
+        <button id="deleteSelected" class="danger" type="button" disabled>删除所选</button>
+        <button id="openUpload" type="button">上传版本</button>
+      </div>
     </section>
-    <section id="emptyState" class="empty-state" hidden><strong>暂无应用版本</strong><span>上传第一个 APK 后会按 App 自动分组</span></section>
+    <p id="pageError" class="page-error" role="alert" hidden></p>
+    <section id="emptyState" class="empty-state" hidden><strong id="emptyTitle">暂无应用版本</strong><span id="emptyDescription">应用发布后会在这里展示</span></section>
     <div id="appList" class="app-list"></div>
   </main>
 
@@ -40,10 +33,10 @@
     <form id="uploadForm" method="dialog">
       <header><div><p class="eyebrow">NEW RELEASE</p><h2>上传版本</h2></div><button id="closeUpload" class="icon-button" type="button" aria-label="关闭">×</button></header>
       <div class="form-grid">
-        <label>App ID<input name="appId" pattern="[a-z][a-z0-9-]{1,47}" placeholder="linkup-im" required></label>
-        <label>App 名称<input name="name" maxlength="80" placeholder="连线 IM" required></label>
+        <label>App ID<input name="appId" pattern="[a-z][a-z0-9-]{1,47}" placeholder="yuque" required></label>
+        <label>App 名称<input name="name" maxlength="80" placeholder="语雀" required></label>
         <label class="wide">应用说明<input name="description" maxlength="300" placeholder="企业即时通讯"></label>
-        <label>版本号<input name="version" placeholder="1.6.0" required></label>
+        <label>版本号<input name="version" placeholder="1.7.0" required></label>
         <label>版本代码<input name="versionCode" type="number" min="1" placeholder="10"></label>
         <label class="wide">更新说明<textarea name="notes" maxlength="1000" rows="4"></textarea></label>
         <label class="wide file-field">APK 安装包<input name="apk" type="file" accept=".apk,application/vnd.android.package-archive" required></label>

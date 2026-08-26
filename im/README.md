@@ -1,4 +1,4 @@
-# 连线 IM
+# 语雀 IM
 
 一套客户端、服务端完全分离的即时通讯应用。Android 客户端位于 `client/`，服务端位于 `server/`；账号统一由 People 管理，APK 统一由 App Center 管理。
 
@@ -53,7 +53,9 @@ Release 默认禁止明文 HTTP，正式构建应使用 HTTPS：
 ./gradlew assembleRelease -PIM_SERVER_URL=https://im.example.com
 ```
 
-版本检查固定访问 App Center 的 `GET https://apps.lxvb.top/api/apps/linkup-im/latest`，也可在构建时使用 `-PAPP_CENTER_URL=https://apps.example.com` 覆盖。
+Android 应用 ID 为 `top.lxvb.yuque`。版本检查固定访问 App Center 的 `GET https://apps.lxvb.top/api/apps/yuque/latest`，也可在构建时使用 `-PAPP_CENTER_URL=https://apps.example.com` 覆盖。
+
+旧版“连线”的应用 ID 为 `com.linkup.im`。Android 不允许不同应用 ID 的 APK 覆盖安装，因此迁移到语雀时需要单独安装新 APK；后续语雀版本可以通过 App Center 正常覆盖更新。
 
 ## 生产部署
 

@@ -7,15 +7,15 @@ def discoveryHost = providers.gradleProperty('IM_DISCOVERY_HOST').getOrElse('')
 def appCenterUrl = providers.gradleProperty('APP_CENTER_URL').getOrElse('https://apps.lxvb.top')
 
 android {
-    namespace 'com.linkup.im'
+    namespace 'top.lxvb.yuque'
     compileSdk 36
 
     defaultConfig {
-        applicationId 'com.linkup.im'
+        applicationId 'top.lxvb.yuque'
         minSdk 26
         targetSdk 36
-        versionCode 9
-        versionName '1.6.0'
+        versionCode 10
+        versionName '1.7.0'
 
         buildConfigField 'String', 'SERVER_URL', '"' + serverUrl + '"'
         buildConfigField 'String', 'DISCOVERY_HOST', '"' + discoveryHost + '"'

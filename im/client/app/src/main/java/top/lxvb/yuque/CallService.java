@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -15,7 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 
 public final class CallService extends Service {
-    static final String ACTION_STOP = "com.linkup.im.STOP_CALL_SERVICE";
+    static final String ACTION_STOP = "top.lxvb.yuque.STOP_CALL_SERVICE";
     private static final String CHANNEL_ID = "ongoing_calls";
     private static final int NOTIFICATION_ID = 4102;
 

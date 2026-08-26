@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

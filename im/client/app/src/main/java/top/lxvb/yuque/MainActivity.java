@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.Manifest;
 import android.app.DownloadManager;
@@ -25,7 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-import com.linkup.im.databinding.ActivityMainBinding;
+import top.lxvb.yuque.databinding.ActivityMainBinding;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -38,7 +38,7 @@ import java.util.Locale;
 public final class MainActivity extends AppCompatActivity implements RealtimeClient.Listener {
     private static final long UPDATE_CHECK_INTERVAL_MS = 6L * 60L * 60L * 1000L;
     private ActivityMainBinding binding;
-    private LinkUpApp app;
+    private YuqueApp app;
     private ConversationAdapter conversationAdapter;
     private ContactAdapter contactAdapter;
     private final Handler handler = new Handler(Looper.getMainLooper());
@@ -60,13 +60,13 @@ public final class MainActivity extends AppCompatActivity implements RealtimeCli
                 if (Build.VERSION.SDK_INT < 26 || getPackageManager().canRequestPackageInstalls()) {
                     downloadPendingUpdate();
                 } else {
-                    Toast.makeText(this, "需要允许连线安装应用后才能更新", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, "需要允许语雀安装应用后才能更新", Toast.LENGTH_LONG).show();
                 }
             });
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (LinkUpApp) getApplication();
+        app = (YuqueApp) getApplication();
         if (app.session().user() == null) {
             returnToLogin();
             return;
@@ -132,7 +132,7 @@ public final class MainActivity extends AppCompatActivity implements RealtimeCli
         String size = update.size > 0 ? "\n安装包大小：" + formatSize(update.size) : "";
         new MaterialAlertDialogBuilder(this)
                 .setTitle("发现新版本 " + update.version)
-                .setMessage("可以下载并覆盖安装最新版连线。" + size)
+                .setMessage("可以下载并安装最新版语雀。" + size)
                 .setNegativeButton("稍后", null)
                 .setPositiveButton("立即更新", (dialog, which) -> prepareUpdate(update))
                 .show();
@@ -158,7 +158,7 @@ public final class MainActivity extends AppCompatActivity implements RealtimeCli
 
         DownloadManager.Request request = new DownloadManager.Request(
                 Uri.parse(app.api().absoluteAppUrl(update.url)))
-                .setTitle("连线 " + update.version)
+                .setTitle("语雀 " + update.version)
                 .setDescription("正在下载安装包")
                 .setMimeType("application/vnd.android.package-archive")
                 .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)

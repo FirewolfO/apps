@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -6,17 +6,17 @@ import android.view.inputmethod.EditorInfo;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.linkup.im.databinding.ActivityLoginBinding;
+import top.lxvb.yuque.databinding.ActivityLoginBinding;
 
 import org.json.JSONObject;
 
 public final class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
-    private LinkUpApp app;
+    private YuqueApp app;
 
     @Override protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        app = (LinkUpApp) getApplication();
+        app = (YuqueApp) getApplication();
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Ui.edgeToEdge(this, binding.root);

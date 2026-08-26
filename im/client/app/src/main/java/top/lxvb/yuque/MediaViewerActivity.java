@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.app.DownloadManager;
 import android.content.ContentValues;
@@ -17,7 +17,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bumptech.glide.Glide;
-import com.linkup.im.databinding.ActivityMediaViewerBinding;
+import top.lxvb.yuque.databinding.ActivityMediaViewerBinding;
 
 import java.io.InputStream;
 import java.io.OutputStream;

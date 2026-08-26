@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -6,7 +6,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.linkup.im.databinding.ItemContactBinding;
+import top.lxvb.yuque.databinding.ItemContactBinding;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.linkup.im.databinding.ItemConversationBinding;
+import top.lxvb.yuque.databinding.ItemConversationBinding;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,5 +1,11 @@
-const state = { token: sessionStorage.getItem('app_center_token') || '', apps: [], selected: new Set() };
+const state = {
+  token: sessionStorage.getItem('app_center_token') || '',
+  user: null,
+  apps: [],
+  selected: new Set(),
+};
 const byId = id => document.getElementById(id);
+const isAdministrator = () => state.user?.role === 'admin';
 
 async function api(path, options = {}) {
   const headers = new Headers(options.headers || {});
@@ -20,42 +26,74 @@ function formatTime(value) {
   return new Intl.DateTimeFormat('zh-CN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 }
 
-function showLogin() {
-  byId('loginView').hidden = false;
-  byId('workspace').hidden = true;
+function routeAppId() {
+  let path = '';
+  try { path = decodeURIComponent(location.pathname).replace(/^\/+|\/+$/g, ''); }
+  catch { return null; }
+  if (!path || path === 'ALL' || path === 'oauth/callback') return '';
+  return /^[a-z][a-z0-9-]{1,47}$/.test(path) ? path : null;
 }
 
-function showWorkspace() {
-  byId('loginView').hidden = true;
-  byId('workspace').hidden = false;
+function updateIdentity() {
+  const authenticated = Boolean(state.user);
+  byId('identity').hidden = !authenticated;
+  byId('identity').textContent = authenticated ? state.user.displayName : '';
+  byId('loginButton').hidden = authenticated;
+  byId('logoutButton').hidden = !authenticated;
+  byId('adminActions').hidden = !isAdministrator();
 }
 
 function render() {
+  const selectedAppId = routeAppId();
+  const visibleApps = selectedAppId === '' ? state.apps : state.apps.filter(app => app.id === selectedAppId);
   const list = byId('appList');
   list.replaceChildren();
-  byId('emptyState').hidden = state.apps.length > 0;
   byId('deleteSelected').disabled = state.selected.size === 0;
-  for (const app of state.apps) {
+
+  if (selectedAppId === '') {
+    byId('pageEyebrow').textContent = 'ALL RELEASES';
+    byId('pageTitle').textContent = '全部应用';
+  } else {
+    const current = visibleApps[0];
+    byId('pageEyebrow').textContent = current ? current.id.toUpperCase() : 'APP NOT FOUND';
+    byId('pageTitle').textContent = current ? `${current.name}版本` : '应用不存在';
+  }
+  const isEmpty = visibleApps.length === 0;
+  byId('emptyState').hidden = !isEmpty;
+  byId('emptyTitle').textContent = selectedAppId !== '' && !visibleApps.length ? '未找到该应用' : '暂无应用版本';
+  byId('emptyDescription').textContent = selectedAppId !== '' && !visibleApps.length ? '请返回全部应用查看可用版本' : '应用发布后会在这里展示';
+
+  for (const app of visibleApps) {
     const section = document.createElement('section');
     section.className = 'app-group';
     const header = document.createElement('header');
-    header.innerHTML = `<div class="app-identity"><span>${app.name.slice(0, 1).toUpperCase()}</span><div><h2></h2><p></p></div></div><div class="group-actions"><small>${app.releases.length} 个版本</small><button class="quiet select-app" type="button">全选</button><button class="danger delete-app" type="button">删除 App</button></div>`;
-    header.querySelector('h2').textContent = app.name;
-    header.querySelector('p').textContent = `${app.id}${app.description ? ` · ${app.description}` : ''}`;
-    header.querySelector('.select-app').addEventListener('click', () => {
+    header.innerHTML = '<div class="app-identity"><span></span><div><h2><a></a></h2><p></p></div></div><div class="group-actions"><small></small><button class="quiet select-app" type="button">全选</button><button class="danger delete-app" type="button">删除 App</button></div>';
+    header.querySelector('.app-identity > span').textContent = app.name.slice(0, 1).toUpperCase();
+    const appLink = header.querySelector('h2 a');
+    appLink.textContent = app.name;
+    appLink.href = `/${encodeURIComponent(app.id)}`;
+    header.querySelector('.app-identity p').textContent = `${app.id}${app.description ? ` · ${app.description}` : ''}`;
+    header.querySelector('.group-actions small').textContent = `${app.releases.length} 个版本`;
+    const selectApp = header.querySelector('.select-app');
+    const deleteAppButton = header.querySelector('.delete-app');
+    selectApp.hidden = !isAdministrator();
+    deleteAppButton.hidden = !isAdministrator();
+    selectApp.addEventListener('click', () => {
       const allSelected = app.releases.every(item => state.selected.has(item.id));
       for (const item of app.releases) allSelected ? state.selected.delete(item.id) : state.selected.add(item.id);
       render();
     });
-    header.querySelector('.delete-app').addEventListener('click', () => deleteApp(app));
+    deleteAppButton.addEventListener('click', () => deleteApp(app));
     section.append(header);
+
     const table = document.createElement('div');
     table.className = 'release-table';
     for (const release of app.releases) {
       const row = document.createElement('label');
-      row.className = 'release-row';
-      row.innerHTML = `<input type="checkbox"><span class="version"></span><span class="release-note"></span><span class="release-meta"></span><a>下载</a>`;
+      row.className = `release-row${isAdministrator() ? ' manageable' : ''}`;
+      row.innerHTML = '<input type="checkbox"><span class="version"></span><span class="release-note"></span><span class="release-meta"></span><a>下载</a>';
       const checkbox = row.querySelector('input');
+      checkbox.hidden = !isAdministrator();
       checkbox.checked = state.selected.has(release.id);
       checkbox.addEventListener('change', () => {
         checkbox.checked ? state.selected.add(release.id) : state.selected.delete(release.id);
@@ -72,6 +110,7 @@ function render() {
     section.append(table);
     list.append(section);
   }
+  updateIdentity();
 }
 
 async function loadApps() {
@@ -95,25 +134,38 @@ async function deleteApp(app) {
   await loadApps();
 }
 
-byId('loginForm').addEventListener('submit', async event => {
-  event.preventDefault();
-  byId('loginError').textContent = '';
+async function startLogin() {
+  byId('loginButton').disabled = true;
   try {
-    const body = await api('/api/auth/login', {
-      method: 'POST', body: JSON.stringify({ username: byId('username').value, password: byId('password').value }),
-    });
-    state.token = body.token;
-    sessionStorage.setItem('app_center_token', state.token);
-    byId('identity').textContent = body.username;
-    showWorkspace();
-    await loadApps();
-  } catch (error) { byId('loginError').textContent = error.message; }
-});
+    const body = await api(`/api/auth/oauth/url?redirect=${encodeURIComponent(location.pathname)}`);
+    location.assign(body.url);
+  } catch (error) {
+    byId('pageError').textContent = error.message;
+    byId('pageError').hidden = false;
+    byId('loginButton').disabled = false;
+  }
+}
+
+async function completeOAuth() {
+  const query = new URLSearchParams(location.search);
+  const body = await api('/api/auth/oauth/callback', {
+    method: 'POST',
+    body: JSON.stringify({ code: query.get('code'), state: query.get('state') }),
+  });
+  state.token = body.token;
+  state.user = body.user;
+  sessionStorage.setItem('app_center_token', state.token);
+  history.replaceState({}, '', body.redirect || '/ALL');
+}
+
+byId('loginButton').addEventListener('click', startLogin);
 byId('logoutButton').addEventListener('click', async () => {
   try { await api('/api/auth/logout', { method: 'POST' }); } catch {}
   state.token = '';
+  state.user = null;
+  state.selected.clear();
   sessionStorage.removeItem('app_center_token');
-  showLogin();
+  render();
 });
 byId('deleteSelected').addEventListener('click', () => deleteSelected().catch(error => alert(error.message)));
 byId('openUpload').addEventListener('click', () => byId('uploadDialog').showModal());
@@ -132,14 +184,22 @@ byId('uploadForm').addEventListener('submit', async event => {
   finally { byId('submitUpload').disabled = false; }
 });
 
-if (state.token) {
-  api('/api/auth/me').then(body => {
-    byId('identity').textContent = body.username;
-    showWorkspace();
-    return loadApps();
-  }).catch(() => {
-    state.token = '';
-    sessionStorage.removeItem('app_center_token');
-    showLogin();
-  });
-} else showLogin();
+async function bootstrap() {
+  try {
+    if (location.pathname === '/oauth/callback') await completeOAuth();
+    else if (state.token) {
+      try { state.user = (await api('/api/auth/me')).user; }
+      catch {
+        state.token = '';
+        sessionStorage.removeItem('app_center_token');
+      }
+    }
+    await loadApps();
+  } catch (error) {
+    byId('pageError').textContent = error.message;
+    byId('pageError').hidden = false;
+    updateIdentity();
+  }
+}
+
+bootstrap();

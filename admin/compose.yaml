@@ -3,20 +3,27 @@ name: app-center
 services:
   app-center:
     build: .
-    image: app-center:1.0.0
+    image: app-center:1.1.0
     restart: unless-stopped
     environment:
       PORT: 3000
       HOST: 0.0.0.0
       DATA_DIR: /data
-      ADMIN_USERNAME: ${ADMIN_USERNAME:-admin}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123!}
       SESSION_HOURS: ${SESSION_HOURS:-12}
       MAX_APK_MB: ${MAX_APK_MB:-300}
+      PEOPLE_API_BASE_URL: ${PEOPLE_API_BASE_URL:-http://people-edge:8082/api/open/people}
+      PEOPLE_AUTHORIZE_URL: ${PEOPLE_AUTHORIZE_URL:-https://people.lxvb.top/oauth/authorize}
+      PEOPLE_CLIENT_ID: ${PEOPLE_CLIENT_ID:-app-center}
+      PEOPLE_CLIENT_SECRET: ${PEOPLE_CLIENT_SECRET:?set PEOPLE_CLIENT_SECRET}
+      PEOPLE_REDIRECT_URI: ${PEOPLE_REDIRECT_URI:-https://apps.lxvb.top/oauth/callback}
+      COOKIE_SECURE: "true"
     ports:
       - 127.0.0.1:18083:3000
     volumes:
       - app-center-data:/data
+    networks:
+      - default
+      - people-services
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/api/health"]
       interval: 20s
@@ -25,3 +32,8 @@ services:
 
 volumes:
   app-center-data:
+
+networks:
+  people-services:
+    external: true
+    name: people-services

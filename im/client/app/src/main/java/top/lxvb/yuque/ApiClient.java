@@ -1,4 +1,4 @@
-package com.linkup.im;
+package top.lxvb.yuque;
 
 import android.content.ContentResolver;
 import android.net.Uri;
@@ -206,7 +206,7 @@ final class ApiClient {
 
     void latestApp(JsonCallback callback) {
         Request request = new Request.Builder()
-                .url(BuildConfig.APP_CENTER_URL + "/api/apps/linkup-im/latest")
+                .url(BuildConfig.APP_CENTER_URL + "/api/apps/yuque/latest")
                 .get()
                 .build();
         execute(request, callback);
