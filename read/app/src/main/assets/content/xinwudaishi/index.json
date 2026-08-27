@@ -1,0 +1,401 @@
+{
+  "history": "新五代史",
+  "complete": true,
+  "provenance": {
+    "original": {
+      "sourceUrl": "https://osf.io/tp729/",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Sergey Zinin and Yang Xu, Corpus of Chinese Dynastic Histories",
+      "sourceFile": "19_xinwudaishi_full.txt",
+      "sha256": "1703eae10aa809be8e69720299556250612484b9b6280e1e9f0d71cb7a6f95d9",
+      "supplements": [],
+      "titleSource": {
+        "url": "https://zh.wikisource.org/wiki/%E6%96%B0%E4%BA%94%E4%BB%A3%E5%8F%B2",
+        "license": "CC BY-SA 4.0"
+      }
+    },
+    "vernacular": {
+      "sourceUrl": "https://huggingface.co/bangboom/chinese-translation-models",
+      "license": "Apache-2.0 and MIT",
+      "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+      "credit": "WebTrans, HistoryTrans reference pairs, and Qwen classical-Chinese translation model",
+      "translator": "Machine-assisted complete draft; not line-by-line human-reviewed",
+      "notice": "Exact licensed reference pairs were combined with two machine translation passes and deterministic preservation checks.",
+      "referenceDataset": "https://huggingface.co/datasets/HistoryTrans/Dataset",
+      "refineModel": "https://huggingface.co/rkingzhong/qwen2.5-3b-classical-chinese-trans"
+    }
+  },
+  "chapters": [
+    {
+      "index": 0,
+      "title": "卷1 梁本紀第一·太祖上",
+      "file": "0001.json"
+    },
+    {
+      "index": 1,
+      "title": "卷2 梁本紀第二·太祖下",
+      "file": "0002.json"
+    },
+    {
+      "index": 2,
+      "title": "卷3 梁本紀第三·末帝",
+      "file": "0003.json"
+    },
+    {
+      "index": 3,
+      "title": "卷4 唐本紀第四·莊宗上",
+      "file": "0004.json"
+    },
+    {
+      "index": 4,
+      "title": "卷5 唐本紀第五·莊宗下",
+      "file": "0005.json"
+    },
+    {
+      "index": 5,
+      "title": "卷6 唐本紀第六·明宗",
+      "file": "0006.json"
+    },
+    {
+      "index": 6,
+      "title": "卷7 唐本紀第七·愍帝 廢帝",
+      "file": "0007.json"
+    },
+    {
+      "index": 7,
+      "title": "卷8 晉本紀第八·高祖",
+      "file": "0008.json"
+    },
+    {
+      "index": 8,
+      "title": "卷9 晉本紀第九·出帝",
+      "file": "0009.json"
+    },
+    {
+      "index": 9,
+      "title": "卷10 漢本紀第十·高祖 隱帝",
+      "file": "0010.json"
+    },
+    {
+      "index": 10,
+      "title": "卷11 周本紀第十一·太祖",
+      "file": "0011.json"
+    },
+    {
+      "index": 11,
+      "title": "卷12 周本紀第十二·世宗 恭帝",
+      "file": "0012.json"
+    },
+    {
+      "index": 12,
+      "title": "卷13 梁家人傳第一",
+      "file": "0013.json"
+    },
+    {
+      "index": 13,
+      "title": "卷14 唐太祖家人傳第二",
+      "file": "0014.json"
+    },
+    {
+      "index": 14,
+      "title": "卷15 唐明宗家人傳第三",
+      "file": "0015.json"
+    },
+    {
+      "index": 15,
+      "title": "卷16 唐廢帝家人傳第四",
+      "file": "0016.json"
+    },
+    {
+      "index": 16,
+      "title": "卷17 晉家人傳第五",
+      "file": "0017.json"
+    },
+    {
+      "index": 17,
+      "title": "卷18 漢家人傳第六",
+      "file": "0018.json"
+    },
+    {
+      "index": 18,
+      "title": "卷19 周太祖家人傳第七",
+      "file": "0019.json"
+    },
+    {
+      "index": 19,
+      "title": "卷20 周世宗家人傳第八",
+      "file": "0020.json"
+    },
+    {
+      "index": 20,
+      "title": "卷21 梁臣傳第九·敬翔 朱珍 龐師古 葛從周 霍存 張存敬 符道昭 劉捍 寇彥卿",
+      "file": "0021.json"
+    },
+    {
+      "index": 21,
+      "title": "卷22 梁臣傳第十·康懷英 劉鄩 牛存節 張歸霸 王重師 徐懷玉",
+      "file": "0022.json"
+    },
+    {
+      "index": 22,
+      "title": "卷23 梁臣傳第十一·楊師厚 王景仁 賀瑰 王檀 馬嗣勳 王虔裕 謝彥章",
+      "file": "0023.json"
+    },
+    {
+      "index": 23,
+      "title": "卷24 唐臣傳第十二·郭崇韜 安重誨",
+      "file": "0024.json"
+    },
+    {
+      "index": 24,
+      "title": "卷25 唐臣傳第十三·周德威 符存審 史建瑭 王建及 元行欽 安金全 袁建豐 西方鄴",
+      "file": "0025.json"
+    },
+    {
+      "index": 25,
+      "title": "卷26 唐臣傳第十四·符習 烏震 孔謙 張延朗 李嚴 李仁矩 毛璋",
+      "file": "0026.json"
+    },
+    {
+      "index": 26,
+      "title": "卷27 唐臣傳第十五·朱弘昭 劉延朗 康思立 康義誠 藥彥稠",
+      "file": "0027.json"
+    },
+    {
+      "index": 27,
+      "title": "卷28 唐臣傳第十六·豆盧革 盧程 任圜 趙鳳 李襲吉 張憲 蕭希甫 劉贊 何瓚",
+      "file": "0028.json"
+    },
+    {
+      "index": 28,
+      "title": "卷29 晉臣傳第十七·桑維翰 景延廣 吳巒",
+      "file": "0029.json"
+    },
+    {
+      "index": 29,
+      "title": "卷30 漢臣傳第十八·蘇逢吉 史弘肇 楊邠 王章 劉銖 李業 聶文進 後贊 郭允明",
+      "file": "0030.json"
+    },
+    {
+      "index": 30,
+      "title": "卷31 周臣傳第十九·王朴 鄭仁誨 扈載",
+      "file": "0031.json"
+    },
+    {
+      "index": 31,
+      "title": "卷32 死節傳第二十·王彥章",
+      "file": "0032.json"
+    },
+    {
+      "index": 32,
+      "title": "卷33 死事傳第二十一·張源德 夏魯奇 姚洪 王思同 張敬達 翟進宗 沈斌 王清 史彥超 孫晟",
+      "file": "0033.json"
+    },
+    {
+      "index": 33,
+      "title": "卷34 一行傳第二十二·鄭遨 石昂 程福贇 李自倫",
+      "file": "0034.json"
+    },
+    {
+      "index": 34,
+      "title": "卷35 唐六臣傳第二十三·張文蔚 楊涉 張策 趙光逢 薛貽矩 蘇循",
+      "file": "0035.json"
+    },
+    {
+      "index": 35,
+      "title": "卷36 義兒傳第二十四·李嗣昭 李嗣本 李嗣恩 李存信 李存孝 李存進 李存璋 李存賢",
+      "file": "0036.json"
+    },
+    {
+      "index": 36,
+      "title": "卷37 伶官傳第二十五·周匝 敬新磨 景進 史彥瓊 郭從謙",
+      "file": "0037.json"
+    },
+    {
+      "index": 37,
+      "title": "卷38 宦者傳第二十六·張承業 張居翰",
+      "file": "0038.json"
+    },
+    {
+      "index": 38,
+      "title": "卷39 雜傳第二十七·王鎔 羅紹威 王處直 劉守光",
+      "file": "0039.json"
+    },
+    {
+      "index": 39,
+      "title": "卷40 雜傳第二十八·李茂貞 韓建 李仁福 韓遜 楊崇本 高萬興 溫韜",
+      "file": "0040.json"
+    },
+    {
+      "index": 40,
+      "title": "卷41 雜傳第二十九·盧光稠 譚全播 雷滿 鍾傳 趙匡凝",
+      "file": "0041.json"
+    },
+    {
+      "index": 41,
+      "title": "卷42 雜傳第三十·朱宣 王師範 李罕之 孟方立 王珂 趙犨 馮行襲",
+      "file": "0042.json"
+    },
+    {
+      "index": 42,
+      "title": "卷43 雜傳第三十一·氏叔琮 李彥威 李振 裴迪 韋震 孔循 孫德昭 王敬蕘 蔣殷",
+      "file": "0043.json"
+    },
+    {
+      "index": 43,
+      "title": "卷44 雜傳第三十二·劉知俊 丁會 賀德倫 閻寶 康延孝",
+      "file": "0044.json"
+    },
+    {
+      "index": 44,
+      "title": "卷45 雜傳第三十三·張全義 朱友謙 袁象先 朱漢賓 段凝 劉玘 周知裕 陸思鐸",
+      "file": "0045.json"
+    },
+    {
+      "index": 45,
+      "title": "卷46 雜傳第三十四·趙在禮 霍彥威 房知溫 王晏球 安重霸 王建立 康福 郭延魯",
+      "file": "0046.json"
+    },
+    {
+      "index": 46,
+      "title": "卷47 雜傳第三十五·華溫琪 萇從簡 張筠 楊彥詢 李周 劉處讓 李承約 張希崇 相里金 張廷蘊 馬全節 皇甫遇 安彥威 李瓊 劉景巖",
+      "file": "0047.json"
+    },
+    {
+      "index": 47,
+      "title": "卷48 雜傳第三十六·盧文進 李金全 楊思權 尹暉 王弘贄 劉審交 王周 高行周 白再榮 安叔千",
+      "file": "0048.json"
+    },
+    {
+      "index": 48,
+      "title": "卷49 雜傳第三十七·翟光鄴 馮暉 皇甫暉 唐景思 王進 常思 孫方諫",
+      "file": "0049.json"
+    },
+    {
+      "index": 49,
+      "title": "卷50 雜傳第三十八·王峻 王殷 劉詞 王環 折從阮",
+      "file": "0050.json"
+    },
+    {
+      "index": 50,
+      "title": "卷51 雜傳第三十九·朱守殷 董璋 范延光 婁繼英 安重榮 安從進 楊光遠",
+      "file": "0051.json"
+    },
+    {
+      "index": 51,
+      "title": "卷52 雜傳第四十·杜重威 李守貞 張彥澤",
+      "file": "0052.json"
+    },
+    {
+      "index": 52,
+      "title": "卷53 雜傳第四十一·王景崇 趙思綰 慕容彥超",
+      "file": "0053.json"
+    },
+    {
+      "index": 53,
+      "title": "卷54 雜傳第四十二·序言 馮道 李琪 鄭玨 李愚 盧導 司空頲",
+      "file": "0054.json"
+    },
+    {
+      "index": 54,
+      "title": "卷55 雜傳第四十三·劉昫 盧文紀 馬胤孫 姚顗 劉岳 馬縞 崔居儉 崔梲 李懌",
+      "file": "0055.json"
+    },
+    {
+      "index": 55,
+      "title": "卷56 雜傳第四十四·和凝 趙瑩 馮玉 盧質 呂琦 薛融 何澤 王權 史圭 龍敏",
+      "file": "0056.json"
+    },
+    {
+      "index": 56,
+      "title": "卷57 雜傳第四十五·李崧 李鏻 賈緯 段希堯 張允 王松 裴皞 王仁裕 裴羽 王延 馬重績 趙延義",
+      "file": "0057.json"
+    },
+    {
+      "index": 57,
+      "title": "卷58 新五代史考第一",
+      "file": "0058.json"
+    },
+    {
+      "index": 58,
+      "title": "卷59 司天考第二",
+      "file": "0059.json"
+    },
+    {
+      "index": 59,
+      "title": "卷60 職方考第三",
+      "file": "0060.json"
+    },
+    {
+      "index": 60,
+      "title": "卷61 吳世家第一·楊行密",
+      "file": "0061.json"
+    },
+    {
+      "index": 61,
+      "title": "卷62 南唐世家第二·李昪",
+      "file": "0062.json"
+    },
+    {
+      "index": 62,
+      "title": "卷63 前蜀世家第三·王建",
+      "file": "0063.json"
+    },
+    {
+      "index": 63,
+      "title": "卷64 後蜀世家第四·孟知祥",
+      "file": "0064.json"
+    },
+    {
+      "index": 64,
+      "title": "卷65 南漢世家第五·劉隱",
+      "file": "0065.json"
+    },
+    {
+      "index": 65,
+      "title": "卷66 楚世家第六·馬殷 劉言 周行逢",
+      "file": "0066.json"
+    },
+    {
+      "index": 66,
+      "title": "卷67 吳越世家第七·錢鏐",
+      "file": "0067.json"
+    },
+    {
+      "index": 67,
+      "title": "卷68 閩世家第八·王審知",
+      "file": "0068.json"
+    },
+    {
+      "index": 68,
+      "title": "卷69 南平世家第九·高季興",
+      "file": "0069.json"
+    },
+    {
+      "index": 69,
+      "title": "卷70 東漢世家第十·劉旻",
+      "file": "0070.json"
+    },
+    {
+      "index": 70,
+      "title": "卷71 十國世家年譜第十一",
+      "file": "0071.json"
+    },
+    {
+      "index": 71,
+      "title": "卷72 四夷附錄第一·契丹",
+      "file": "0072.json"
+    },
+    {
+      "index": 72,
+      "title": "卷73 四夷附錄第二·契丹",
+      "file": "0073.json"
+    },
+    {
+      "index": 73,
+      "title": "卷74 四夷附錄第三·奚 吐渾 達靼 党項 突厥 吐蕃 回鶻 于闐 高麗 渤海 新羅 黑水靺鞨 南詔蠻 牂牁 昆明 占城",
+      "file": "0074.json"
+    }
+  ]
+}

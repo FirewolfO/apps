@@ -1,0 +1,344 @@
+{
+  "schemaVersion": 1,
+  "expectedHistories": 24,
+  "expectedEditions": 48,
+  "expectedVolumes": 3213,
+  "histories": [
+    {
+      "id": "shiji",
+      "title": "史记",
+      "author": "司马迁",
+      "period": "西汉",
+      "volumes": 130,
+      "description": "上起黄帝，下迄汉武帝太初年间，中国第一部纪传体通史。",
+      "accent": "#9B3A2B",
+      "content": "shiji",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "hanshu",
+      "title": "汉书",
+      "author": "班固等",
+      "period": "东汉",
+      "volumes": 100,
+      "description": "记述西汉一朝历史，开创纪传体断代史体例。",
+      "accent": "#3E6259",
+      "content": "hanshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "houhanshu",
+      "title": "后汉书",
+      "author": "范晔等",
+      "period": "南朝宋",
+      "volumes": 120,
+      "description": "记述东汉兴亡，合范晔纪传与司马彪续汉志。",
+      "accent": "#62513D",
+      "content": "houhanshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "sanguozhi",
+      "title": "三国志",
+      "author": "陈寿",
+      "period": "西晋",
+      "volumes": 65,
+      "description": "分魏书、蜀书、吴书，记载三国时代人物与政局。",
+      "accent": "#40556F",
+      "content": "sanguozhi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "jinshu",
+      "title": "晋书",
+      "author": "房玄龄等",
+      "period": "唐",
+      "volumes": 130,
+      "description": "记述西晋、东晋及十六国历史。",
+      "accent": "#6A514D",
+      "content": "jinshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "songshu",
+      "title": "宋书",
+      "author": "沈约",
+      "period": "南朝梁",
+      "volumes": 100,
+      "description": "记述南朝刘宋一代史事，志书保存丰富制度材料。",
+      "accent": "#3F716A",
+      "content": "songshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "nanqishu",
+      "title": "南齐书",
+      "author": "萧子显",
+      "period": "南朝梁",
+      "volumes": 59,
+      "description": "记述南朝萧齐短暂一朝的政治与人物。",
+      "accent": "#86643B",
+      "content": "nanqishu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "liangshu",
+      "title": "梁书",
+      "author": "姚思廉",
+      "period": "唐",
+      "volumes": 56,
+      "description": "记述南朝梁代史事，文风简洁而多存梁人旧稿。",
+      "accent": "#55634A",
+      "content": "liangshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "chenshu",
+      "title": "陈书",
+      "author": "姚思廉",
+      "period": "唐",
+      "volumes": 36,
+      "description": "记述南朝陈自建国至归隋的历史。",
+      "accent": "#8C403E",
+      "content": "chenshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "weishu",
+      "title": "魏书",
+      "author": "魏收",
+      "period": "北齐",
+      "volumes": 114,
+      "description": "记述北魏及东魏历史，保存北朝民族与制度资料。",
+      "accent": "#5B5874",
+      "content": "weishu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "beiqishu",
+      "title": "北齐书",
+      "author": "李百药",
+      "period": "唐",
+      "volumes": 50,
+      "description": "记述北齐一代兴亡，承用李德林、李延寿等旧史。",
+      "accent": "#3F666F",
+      "content": "beiqishu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "zhoushu",
+      "title": "周书",
+      "author": "令狐德棻等",
+      "period": "唐",
+      "volumes": 50,
+      "description": "记述西魏、北周史事，保留关陇集团重要材料。",
+      "accent": "#70523A",
+      "content": "zhoushu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "suishu",
+      "title": "隋书",
+      "author": "魏徵等",
+      "period": "唐",
+      "volumes": 85,
+      "description": "记述隋朝兴亡，其中经籍志与诸制度志价值尤高。",
+      "accent": "#4B6654",
+      "content": "suishu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "nanshi",
+      "title": "南史",
+      "author": "李延寿",
+      "period": "唐",
+      "volumes": 80,
+      "description": "汇述宋、齐、梁、陈四朝历史，贯通南朝世系。",
+      "accent": "#7B4F59",
+      "content": "nanshi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "beishi",
+      "title": "北史",
+      "author": "李延寿",
+      "period": "唐",
+      "volumes": 100,
+      "description": "汇述北魏、西魏、东魏、北周、北齐与隋的历史。",
+      "accent": "#4D5D70",
+      "content": "beishi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "jiutangshu",
+      "title": "旧唐书",
+      "author": "刘昫等",
+      "period": "后晋",
+      "volumes": 200,
+      "description": "据唐代实录、国史编成，保存大量唐代原始史料。",
+      "accent": "#94623B",
+      "content": "jiutangshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "xintangshu",
+      "title": "新唐书",
+      "author": "欧阳修、宋祁等",
+      "period": "北宋",
+      "volumes": 225,
+      "description": "重修唐史，增设仪卫、选举、兵等志及宰相世系表。",
+      "accent": "#426B62",
+      "content": "xintangshu",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "jiuwudaishi",
+      "title": "旧五代史",
+      "author": "薛居正等",
+      "period": "北宋",
+      "volumes": 150,
+      "description": "分述梁、唐、晋、汉、周五代，后由永乐大典辑复。",
+      "accent": "#744546",
+      "content": "jiuwudaishi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "xinwudaishi",
+      "title": "新五代史",
+      "author": "欧阳修",
+      "period": "北宋",
+      "volumes": 74,
+      "description": "私撰五代史，以简严笔法寄寓褒贬。",
+      "accent": "#5A6071",
+      "content": "xinwudaishi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "songshi",
+      "title": "宋史",
+      "author": "脱脱等",
+      "period": "元",
+      "volumes": 496,
+      "description": "二十四史中卷帙最巨，记述北宋与南宋三百余年。",
+      "accent": "#477067",
+      "content": "songshi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "liaoshi",
+      "title": "辽史",
+      "author": "脱脱等",
+      "period": "元",
+      "volumes": 116,
+      "description": "记述契丹辽朝历史，兼具纪传、表志与国语解。",
+      "accent": "#795D3B",
+      "content": "liaoshi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "jin_history",
+      "title": "金史",
+      "author": "脱脱等",
+      "period": "元",
+      "volumes": 135,
+      "description": "记述女真金朝历史，以材料完备、叙事谨严著称。",
+      "accent": "#7D4937",
+      "content": "jin_history",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "yuanshi",
+      "title": "元史",
+      "author": "宋濂等",
+      "period": "明",
+      "volumes": 210,
+      "description": "明初据元代实录等仓促修成，保存元朝制度与人物资料。",
+      "accent": "#465B69",
+      "content": "yuanshi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    },
+    {
+      "id": "mingshi",
+      "title": "明史",
+      "author": "张廷玉等",
+      "period": "清",
+      "volumes": 332,
+      "description": "历时九十余年纂修，系统记载明代政治、制度与人物。",
+      "accent": "#8D3E34",
+      "content": "mingshi",
+      "availability": {
+        "originalComplete": true,
+        "vernacularComplete": true
+      }
+    }
+  ]
+}

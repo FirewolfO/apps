@@ -1,0 +1,31 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.firewolf.xiaolinstudy'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.firewolf.xiaolinstudy'
+        minSdk 23
+        targetSdk 35
+        versionCode 4
+        versionName '1.2.0'
+
+        testInstrumentationRunner 'android.test.InstrumentationTestRunner'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}

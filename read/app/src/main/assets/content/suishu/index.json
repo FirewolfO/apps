@@ -1,0 +1,456 @@
+{
+  "history": "隋书",
+  "complete": true,
+  "provenance": {
+    "original": {
+      "sourceUrl": "https://osf.io/tp729/",
+      "license": "CC BY 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
+      "credit": "Sergey Zinin and Yang Xu, Corpus of Chinese Dynastic Histories",
+      "sourceFile": "13_suishu_full.txt",
+      "sha256": "e7c2d37705d0fd561ae696fe38d83d7d5a135e8f899a6f08dec4573a34188fa7",
+      "supplements": [],
+      "titleSource": {
+        "url": "https://zh.wikisource.org/wiki/%E9%9A%8B%E6%9B%B8",
+        "license": "CC BY-SA 4.0"
+      }
+    },
+    "vernacular": {
+      "sourceUrl": "https://huggingface.co/bangboom/chinese-translation-models",
+      "license": "Apache-2.0 and MIT",
+      "licenseUrl": "https://www.apache.org/licenses/LICENSE-2.0",
+      "credit": "WebTrans, HistoryTrans reference pairs, and Qwen classical-Chinese translation model",
+      "translator": "Machine-assisted complete draft; not line-by-line human-reviewed",
+      "notice": "Exact licensed reference pairs were combined with two machine translation passes and deterministic preservation checks.",
+      "referenceDataset": "https://huggingface.co/datasets/HistoryTrans/Dataset",
+      "refineModel": "https://huggingface.co/rkingzhong/qwen2.5-3b-classical-chinese-trans"
+    }
+  },
+  "chapters": [
+    {
+      "index": 0,
+      "title": "卷1 帝紀第1 高祖上",
+      "file": "0001.json"
+    },
+    {
+      "index": 1,
+      "title": "卷2 帝紀第2 高祖下",
+      "file": "0002.json"
+    },
+    {
+      "index": 2,
+      "title": "卷3 帝紀第3 煬帝上",
+      "file": "0003.json"
+    },
+    {
+      "index": 3,
+      "title": "卷4 帝紀第4 煬帝下",
+      "file": "0004.json"
+    },
+    {
+      "index": 4,
+      "title": "卷5 帝紀第5 恭帝",
+      "file": "0005.json"
+    },
+    {
+      "index": 5,
+      "title": "卷6 志第1 禮儀一",
+      "file": "0006.json"
+    },
+    {
+      "index": 6,
+      "title": "卷7 志第2 禮儀二",
+      "file": "0007.json"
+    },
+    {
+      "index": 7,
+      "title": "卷8 志第3 禮儀三",
+      "file": "0008.json"
+    },
+    {
+      "index": 8,
+      "title": "卷9 志第4 禮儀四",
+      "file": "0009.json"
+    },
+    {
+      "index": 9,
+      "title": "卷10 志第5 禮儀五",
+      "file": "0010.json"
+    },
+    {
+      "index": 10,
+      "title": "卷11 志第6 禮儀六",
+      "file": "0011.json"
+    },
+    {
+      "index": 11,
+      "title": "卷12 志第7 禮儀七",
+      "file": "0012.json"
+    },
+    {
+      "index": 12,
+      "title": "卷13 志第8 音樂上",
+      "file": "0013.json"
+    },
+    {
+      "index": 13,
+      "title": "卷14 志第9 音樂中",
+      "file": "0014.json"
+    },
+    {
+      "index": 14,
+      "title": "卷15 志第10 音樂下",
+      "file": "0015.json"
+    },
+    {
+      "index": 15,
+      "title": "卷16 志第11 律曆上",
+      "file": "0016.json"
+    },
+    {
+      "index": 16,
+      "title": "卷17 志第12 律曆中",
+      "file": "0017.json"
+    },
+    {
+      "index": 17,
+      "title": "卷18 志第13 律曆下",
+      "file": "0018.json"
+    },
+    {
+      "index": 18,
+      "title": "卷19 志第14 天文上",
+      "file": "0019.json"
+    },
+    {
+      "index": 19,
+      "title": "卷20 志第15 天文中",
+      "file": "0020.json"
+    },
+    {
+      "index": 20,
+      "title": "卷21 志第16 天文下",
+      "file": "0021.json"
+    },
+    {
+      "index": 21,
+      "title": "卷22 志第17 五行上",
+      "file": "0022.json"
+    },
+    {
+      "index": 22,
+      "title": "卷23 志第18 五行下",
+      "file": "0023.json"
+    },
+    {
+      "index": 23,
+      "title": "卷24 志第19 食貨",
+      "file": "0024.json"
+    },
+    {
+      "index": 24,
+      "title": "卷25 志第20 刑法",
+      "file": "0025.json"
+    },
+    {
+      "index": 25,
+      "title": "卷26 志第21 百官上",
+      "file": "0026.json"
+    },
+    {
+      "index": 26,
+      "title": "卷27 志第22 百官中",
+      "file": "0027.json"
+    },
+    {
+      "index": 27,
+      "title": "卷28 志第23 百官下",
+      "file": "0028.json"
+    },
+    {
+      "index": 28,
+      "title": "卷29 志第24 地理上 雍州 梁州",
+      "file": "0029.json"
+    },
+    {
+      "index": 29,
+      "title": "卷30 志第25 地理中 豫州 兗州 冀州 青州",
+      "file": "0030.json"
+    },
+    {
+      "index": 30,
+      "title": "卷31 志第26 地理下 徐州 揚州 荊州",
+      "file": "0031.json"
+    },
+    {
+      "index": 31,
+      "title": "卷32 志第27 經籍一",
+      "file": "0032.json"
+    },
+    {
+      "index": 32,
+      "title": "卷33 志第28 經籍二",
+      "file": "0033.json"
+    },
+    {
+      "index": 33,
+      "title": "卷34 志第29 經籍三",
+      "file": "0034.json"
+    },
+    {
+      "index": 34,
+      "title": "卷35 志第30 經籍四",
+      "file": "0035.json"
+    },
+    {
+      "index": 35,
+      "title": "卷36 列傳第1 后妃 文獻獨孤皇后 煬帝蕭皇后",
+      "file": "0036.json"
+    },
+    {
+      "index": 36,
+      "title": "卷37 列傳第2 李穆 梁睿",
+      "file": "0037.json"
+    },
+    {
+      "index": 37,
+      "title": "卷38 列傳第3 劉昉 鄭譯 柳裘 皇甫績 盧賁",
+      "file": "0038.json"
+    },
+    {
+      "index": 38,
+      "title": "卷39 列傳第4 于義 陰壽 竇榮定 元景山 源雄 豆盧勣 賀若誼",
+      "file": "0039.json"
+    },
+    {
+      "index": 39,
+      "title": "卷40 列傳第5 梁士彥 宇文忻 王誼 元諧 王世積 虞慶則 元冑",
+      "file": "0040.json"
+    },
+    {
+      "index": 40,
+      "title": "卷41 列傳第6 高熲 蘇威",
+      "file": "0041.json"
+    },
+    {
+      "index": 41,
+      "title": "卷42 列傳第7 李德林",
+      "file": "0042.json"
+    },
+    {
+      "index": 42,
+      "title": "卷43 列傳第8 河間王弘 楊處綱 楊子崇 觀德王雄",
+      "file": "0043.json"
+    },
+    {
+      "index": 43,
+      "title": "卷44 列傳第9 滕穆王瓚 道悼王靜 衞昭王爽 蔡王智積",
+      "file": "0044.json"
+    },
+    {
+      "index": 44,
+      "title": "卷45 列傳第10 文四子",
+      "file": "0045.json"
+    },
+    {
+      "index": 45,
+      "title": "卷46 列傳第11 趙煚 趙芬 楊尚希 長孫平 元暉 韋師 楊异 蘇孝慈 李雄 張煚",
+      "file": "0046.json"
+    },
+    {
+      "index": 46,
+      "title": "卷47 列傳第12 韋世康 柳機",
+      "file": "0047.json"
+    },
+    {
+      "index": 47,
+      "title": "卷48 列傳第13 楊素",
+      "file": "0048.json"
+    },
+    {
+      "index": 48,
+      "title": "卷49 列傳第14 牛弘",
+      "file": "0049.json"
+    },
+    {
+      "index": 49,
+      "title": "卷50 列傳第15 宇文慶 李禮成 元孝矩 郭榮 龎晃 李安",
+      "file": "0050.json"
+    },
+    {
+      "index": 50,
+      "title": "卷51 列傳第16 長孫覽",
+      "file": "0051.json"
+    },
+    {
+      "index": 51,
+      "title": "卷52 列傳第17 韓擒虎 賀若弼",
+      "file": "0052.json"
+    },
+    {
+      "index": 52,
+      "title": "卷53 列傳第18 達奚長儒 賀婁子幹 史萬歳 劉方",
+      "file": "0053.json"
+    },
+    {
+      "index": 53,
+      "title": "卷54 列傳第19 王長述 李衍 伊婁謙 田仁恭 元亨 杜整 李徹 崔彭",
+      "file": "0054.json"
+    },
+    {
+      "index": 54,
+      "title": "卷55 列傳第20 杜彥 高勱 尒朱敞 周搖 獨孤揩 乞伏慧 張威 和洪 侯莫陳頴",
+      "file": "0055.json"
+    },
+    {
+      "index": 55,
+      "title": "卷56 列傳第21 盧愷 令狐熙 薛冑 宇文㢸 張衡 楊汪",
+      "file": "0056.json"
+    },
+    {
+      "index": 56,
+      "title": "卷57 列傳第22 盧思道 李孝貞 薛道衡",
+      "file": "0057.json"
+    },
+    {
+      "index": 57,
+      "title": "卷58 列傳第23 明克讓 魏澹 陸爽 杜臺卿 辛德源 柳䛒 許善心 李文博",
+      "file": "0058.json"
+    },
+    {
+      "index": 58,
+      "title": "卷59 列傳第24 煬帝三男",
+      "file": "0059.json"
+    },
+    {
+      "index": 59,
+      "title": "卷60 列傳第25 崔仲方 于仲文 段文振",
+      "file": "0060.json"
+    },
+    {
+      "index": 60,
+      "title": "卷61 列傳第26 宇文述 郭衍",
+      "file": "0061.json"
+    },
+    {
+      "index": 61,
+      "title": "卷62 列傳第27 王韶 元巖 劉行本 梁毗 柳彧 趙綽 裴肅",
+      "file": "0062.json"
+    },
+    {
+      "index": 62,
+      "title": "卷63 列傳第28 樊子蓋 史祥 元壽 楊義臣 衞玄 劉權",
+      "file": "0063.json"
+    },
+    {
+      "index": 63,
+      "title": "卷64 列傳第29 李圓通 陳茂 張定和 張奫 麥鐵杖 沈光 來護兒 魚俱羅 陳稜 王辯",
+      "file": "0064.json"
+    },
+    {
+      "index": 64,
+      "title": "卷65 列傳第30 周羅睺 周法尚 李景 慕容三藏 薛世雄 王仁恭 權武 吐萬緒 董純 趙才",
+      "file": "0065.json"
+    },
+    {
+      "index": 65,
+      "title": "卷66 列傳第31 李諤 鮑宏 裴政 柳莊 源師 郎茂 高構 張虔威 榮毗 陸知命 房彥謙",
+      "file": "0066.json"
+    },
+    {
+      "index": 66,
+      "title": "卷67 列傳第32 虞世基 裴蘊 裴矩",
+      "file": "0067.json"
+    },
+    {
+      "index": 67,
+      "title": "卷68 列傳第33 宇文愷 閻毗 何稠",
+      "file": "0068.json"
+    },
+    {
+      "index": 68,
+      "title": "卷69 列傳第34 王劭 袁充",
+      "file": "0069.json"
+    },
+    {
+      "index": 69,
+      "title": "卷70 列傳第35 楊玄感 李密",
+      "file": "0070.json"
+    },
+    {
+      "index": 70,
+      "title": "卷71 列傳第36 誠節 劉弘 皇甫誕 㳺元 馮慈明 張須陁 楊善會 獨孤盛 元文都 盧楚 劉子翊 堯君素",
+      "file": "0071.json"
+    },
+    {
+      "index": 71,
+      "title": "卷72 列傳第37 孝義 陸彦師 田徳懋 薛濬 王頒 楊慶 郭儁 田翼 紐囘 劉士儁 郎方貴 翟普林 李徳饒 華秋 徐孝肅",
+      "file": "0072.json"
+    },
+    {
+      "index": 72,
+      "title": "卷73 列傳第38 循吏 梁彦光 樊叔略 趙軌 房恭懿 公孫景茂 辛公義 柳儉 劉曠 王伽 魏徳深",
+      "file": "0073.json"
+    },
+    {
+      "index": 73,
+      "title": "卷74 列傳第39 酷吏 厙狄士文 田式 燕榮 趙仲卿 崔弘度 元弘嗣 王文同",
+      "file": "0074.json"
+    },
+    {
+      "index": 74,
+      "title": "卷75 列傳第40 儒林 元善 辛彦之 何妥 房暉逺 馬光 劉焯 劉炫 褚輝 顧彪 魯世達 張沖 王孝籍",
+      "file": "0075.json"
+    },
+    {
+      "index": 75,
+      "title": "卷76 列傳第41 文學 劉臻 王頍 崔儦 諸葛潁 孫萬壽 王貞 虞綽 王胄 庾自直 潘徽 杜正玄 常得志 尹式 劉善經 祖君彦 孔德紹 劉斌",
+      "file": "0076.json"
+    },
+    {
+      "index": 76,
+      "title": "卷77 列傳第42 隱逸 李士謙 崔廓 徐則 張文詡",
+      "file": "0077.json"
+    },
+    {
+      "index": 77,
+      "title": "卷78 列傳第43 藝術 庾季才 韋鼎 來和 蕭吉 張胄玄 許智藏 萬寶常",
+      "file": "0078.json"
+    },
+    {
+      "index": 78,
+      "title": "卷79 列傳第44 外戚 高祖外家吕氏 獨孤羅 蕭巋",
+      "file": "0079.json"
+    },
+    {
+      "index": 79,
+      "title": "卷80 列傳第45 列女 蘭陵公主 南陽公主 襄城王恪妃 華陽王楷妃 譙國夫人 鄭善果母 孝女王舜 韓覬妻 陸讓母 劉昶女 鍾士雄母 孝婦覃氏 元務光母 裴倫妻 趙元楷妻",
+      "file": "0080.json"
+    },
+    {
+      "index": 80,
+      "title": "卷81 列傳第46 東夷 高麗 百濟 新羅 靺鞨 流求國 倭國",
+      "file": "0081.json"
+    },
+    {
+      "index": 81,
+      "title": "卷82 列傳第47 南蠻 林邑 赤土 真臘 婆利",
+      "file": "0082.json"
+    },
+    {
+      "index": 82,
+      "title": "卷83 列傳第48 西域 吐谷渾 党項 髙昌 康國 安國 石國 女國 焉耆 龜兹 䟽勒 于闐 鏺汗 吐火羅 挹怛 米國 史國 曹國 何國 烏那曷 穆國 波斯 漕國 附國",
+      "file": "0083.json"
+    },
+    {
+      "index": 83,
+      "title": "卷84 列傳第49 北狄 突厥 西突厥 鐡勒 奚 契丹",
+      "file": "0084.json"
+    },
+    {
+      "index": 84,
+      "title": "卷85 列傳第50 序言 宇文化及 王充",
+      "file": "0085.json"
+    }
+  ]
+}

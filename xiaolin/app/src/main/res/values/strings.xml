@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">小林学习</string>
+    <string name="lesson_status">第 %1$d / %2$d 节\n%3$s</string>
+</resources>

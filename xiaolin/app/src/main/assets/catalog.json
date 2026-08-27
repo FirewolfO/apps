@@ -1,0 +1,1673 @@
+{
+  "generatedAt": "2026-08-16",
+  "groups": [
+    {
+      "title": "图解系列",
+      "description": "按知识体系学习小林图解内容",
+      "books": [
+        {
+          "title": "图解网络",
+          "description": "网络基础、HTTP、TCP、IP 与实战",
+          "homeUrl": "https://www.xiaolincoding.com/network/",
+          "sections": [
+            {
+              "title": "前言",
+              "articles": [
+                {
+                  "title": "图解网络介绍",
+                  "url": "https://www.xiaolincoding.com/network"
+                }
+              ]
+            },
+            {
+              "title": "基础篇",
+              "articles": [
+                {
+                  "title": "2.1 TCP/IP 网络模型有哪几层？",
+                  "url": "https://www.xiaolincoding.com/network/1_base/tcp_ip_model.html"
+                },
+                {
+                  "title": "2.2 键入网址到网页显示，期间发生了什么？",
+                  "url": "https://www.xiaolincoding.com/network/1_base/what_happen_url.html"
+                },
+                {
+                  "title": "2.3 Linux 系统是如何收发网络包的？",
+                  "url": "https://www.xiaolincoding.com/network/1_base/how_os_deal_network_package.html"
+                }
+              ]
+            },
+            {
+              "title": "应用层篇",
+              "articles": [
+                {
+                  "title": "3.1 HTTP 常见面试题",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http_interview.html"
+                },
+                {
+                  "title": "3.2 HTTP/1.1 如何优化？",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http_optimize.html"
+                },
+                {
+                  "title": "3.3 HTTPS RSA 握手解析",
+                  "url": "https://www.xiaolincoding.com/network/2_http/https_rsa.html"
+                },
+                {
+                  "title": "3.4 HTTPS ECDHE 握手解析",
+                  "url": "https://www.xiaolincoding.com/network/2_http/https_ecdhe.html"
+                },
+                {
+                  "title": "3.5 HTTPS 如何优化？",
+                  "url": "https://www.xiaolincoding.com/network/2_http/https_optimize.html"
+                },
+                {
+                  "title": "3.6 HTTP/2 牛逼在哪？",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http2.html"
+                },
+                {
+                  "title": "3.7 HTTP/3 强势来袭",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http3.html"
+                },
+                {
+                  "title": "3.8 既然有 HTTP 协议，为什么还要有 RPC？",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http_rpc.html"
+                },
+                {
+                  "title": "3.9 既然有 HTTP 协议，为什么还要有 WebSocket？",
+                  "url": "https://www.xiaolincoding.com/network/2_http/http_websocket.html"
+                }
+              ]
+            },
+            {
+              "title": "传输层篇",
+              "articles": [
+                {
+                  "title": "4.1 TCP 三次握手与四次挥手面试题",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_interview.html"
+                },
+                {
+                  "title": "4.2 TCP 重传、滑动窗口、流量控制、拥塞控制",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_feature.html"
+                },
+                {
+                  "title": "4.3 TCP 实战抓包分析",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_tcpdump.html"
+                },
+                {
+                  "title": "4.4 TCP 半连接队列和全连接队列",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_queue.html"
+                },
+                {
+                  "title": "4.5 如何优化 TCP?",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_optimize.html"
+                },
+                {
+                  "title": "4.6 如何理解是 TCP 面向字节流协议？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_stream.html"
+                },
+                {
+                  "title": "4.7 为什么 TCP 每次建立连接时，初始化序列号都要不一样呢？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/isn_deff.html"
+                },
+                {
+                  "title": "4.8 SYN 报文什么情况下会被丢弃？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/syn_drop.html"
+                },
+                {
+                  "title": "4.9 已建立连接的TCP，收到SYN会发生什么？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/challenge_ack.html"
+                },
+                {
+                  "title": "4.10 四次挥手中收到乱序的 FIN 包会如何处理？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/out_of_order_fin.html"
+                },
+                {
+                  "title": "4.11 在 TIME_WAIT 状态的 TCP 连接，收到 SYN 后会发生什么？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/time_wait_recv_syn.html"
+                },
+                {
+                  "title": "4.12 TCP 连接，一端断电和进程崩溃有什么区别？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_down_and_crash.html"
+                },
+                {
+                  "title": "4.13 拔掉网线后， 原本的 TCP 连接还存在吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_unplug_the_network_cable.html"
+                },
+                {
+                  "title": "4.14 tcptwreuse 为什么默认是关闭的？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_tw_reuse_close.html"
+                },
+                {
+                  "title": "4.15 HTTPS 中 TLS 和 TCP 能同时握手吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_tls.html"
+                },
+                {
+                  "title": "4.16 TCP Keepalive 和 HTTP Keep-Alive 是一个东西吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_http_keepalive.html"
+                },
+                {
+                  "title": "4.17 TCP 协议有什么缺陷？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_problem.html"
+                },
+                {
+                  "title": "4.18 如何基于 UDP 协议实现可靠传输？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/quic.html"
+                },
+                {
+                  "title": "4.19 TCP 和 UDP 可以使用同一个端口吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/port.html"
+                },
+                {
+                  "title": "4.20 服务端没有 listen，客户端发起连接建立，会发生什么？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_no_listen.html"
+                },
+                {
+                  "title": "4.21 没有 accept，能建立 TCP 连接吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_no_accpet.html"
+                },
+                {
+                  "title": "4.22 用了 TCP 协议，数据一定不会丢吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_drop.html"
+                },
+                {
+                  "title": "4.23 TCP 四次挥手，可以变成三次吗？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_three_fin.html"
+                },
+                {
+                  "title": "4.24 TCP 序列号和确认号是如何变化的？",
+                  "url": "https://www.xiaolincoding.com/network/3_tcp/tcp_seq_ack.html"
+                }
+              ]
+            },
+            {
+              "title": "网络层篇",
+              "articles": [
+                {
+                  "title": "5.1 IP 基础知识全家桶",
+                  "url": "https://www.xiaolincoding.com/network/4_ip/ip_base.html"
+                },
+                {
+                  "title": "5.2 ping 的工作原理",
+                  "url": "https://www.xiaolincoding.com/network/4_ip/ping.html"
+                },
+                {
+                  "title": "5.3 断网了，还能 ping 通 127.0.0.1 吗？",
+                  "url": "https://www.xiaolincoding.com/network/4_ip/ping_lo.html"
+                }
+              ]
+            },
+            {
+              "title": "学习心得",
+              "articles": [
+                {
+                  "title": "6.1 计算机网络怎么学？",
+                  "url": "https://www.xiaolincoding.com/network/5_learn/learn_network.html"
+                },
+                {
+                  "title": "6.2 画图经验分享",
+                  "url": "https://www.xiaolincoding.com/network/5_learn/draw.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "图解操作系统",
+          "description": "硬件、内存、进程、文件与 I/O",
+          "homeUrl": "https://www.xiaolincoding.com/os/",
+          "sections": [
+            {
+              "title": "前言",
+              "articles": [
+                {
+                  "title": "图解系统介绍",
+                  "url": "https://www.xiaolincoding.com/os"
+                }
+              ]
+            },
+            {
+              "title": "硬件结构篇",
+              "articles": [
+                {
+                  "title": "2.1 CPU 是如何执行程序的？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/how_cpu_run.html"
+                },
+                {
+                  "title": "2.2 磁盘比内存慢几万倍？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/storage.html"
+                },
+                {
+                  "title": "2.3 如何写出让 CPU 跑得更快的代码？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/how_to_make_cpu_run_faster.html"
+                },
+                {
+                  "title": "2.4 CPU 缓存一致性",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/cpu_mesi.html"
+                },
+                {
+                  "title": "2.5 CPU 是如何执行任务的？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/how_cpu_deal_task.html"
+                },
+                {
+                  "title": "2.6 什么是软中断？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/soft_interrupt.html"
+                },
+                {
+                  "title": "2.7  为什么 0.1 + 0.2 不等于 0.3 ？",
+                  "url": "https://www.xiaolincoding.com/os/1_hardware/float.html"
+                }
+              ]
+            },
+            {
+              "title": "系统结构篇",
+              "articles": [
+                {
+                  "title": "3.1 Linux 内核 vs Windows 内核",
+                  "url": "https://www.xiaolincoding.com/os/2_os_structure/linux_vs_windows.html"
+                }
+              ]
+            },
+            {
+              "title": "内存管理篇",
+              "articles": [
+                {
+                  "title": "4.1 为什么要有虚拟内存？",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/vmem.html"
+                },
+                {
+                  "title": "4.2 malloc 是如何分配内存的？",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/malloc.html"
+                },
+                {
+                  "title": "4.3 内存满了，会发生什么？",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/mem_reclaim.html"
+                },
+                {
+                  "title": "4.4 在 4GB 物理内存的机器上，申请 8G 内存会怎么样？",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/alloc_mem.html"
+                },
+                {
+                  "title": "4.5 如何避免预读失效和缓存污染的问题？",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/cache_lru.html"
+                },
+                {
+                  "title": "4.6 深入理解 Linux 虚拟内存管理",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/linux_mem.html"
+                },
+                {
+                  "title": "4.7 深入理解 Linux 物理内存管理",
+                  "url": "https://www.xiaolincoding.com/os/3_memory/linux_mem2.html"
+                }
+              ]
+            },
+            {
+              "title": "进程管理篇",
+              "articles": [
+                {
+                  "title": "5.1 进程、线程基础知识",
+                  "url": "https://www.xiaolincoding.com/os/4_process/process_base.html"
+                },
+                {
+                  "title": "5.2 进程间有哪些通信方式？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/process_commu.html"
+                },
+                {
+                  "title": "5.3 多线程冲突了怎么办？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/multithread_sync.html"
+                },
+                {
+                  "title": "5.4 怎么避免死锁？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/deadlock.html"
+                },
+                {
+                  "title": "5.5 什么是悲观锁、乐观锁？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/pessim_and_optimi_lock.html"
+                },
+                {
+                  "title": "5.6 一个进程最多可以创建多少个线程？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/create_thread_max.html"
+                },
+                {
+                  "title": "5.7 线程崩溃了，进程也会崩溃吗？",
+                  "url": "https://www.xiaolincoding.com/os/4_process/thread_crash.html"
+                }
+              ]
+            },
+            {
+              "title": "调度算法篇",
+              "articles": [
+                {
+                  "title": "6.1 进程调度/页面置换/磁盘调度算法",
+                  "url": "https://www.xiaolincoding.com/os/5_schedule/schedule.html"
+                }
+              ]
+            },
+            {
+              "title": "文件系统篇",
+              "articles": [
+                {
+                  "title": "7.1 文件系统全家桶",
+                  "url": "https://www.xiaolincoding.com/os/6_file_system/file_system.html"
+                },
+                {
+                  "title": "7.2 进程写文件时，进程发生了崩溃，已写入的数据会丢失吗？",
+                  "url": "https://www.xiaolincoding.com/os/6_file_system/pagecache.html"
+                }
+              ]
+            },
+            {
+              "title": "设备管理篇",
+              "articles": [
+                {
+                  "title": "8.1 键盘敲入 A 字母时，操作系统期间发生了什么？",
+                  "url": "https://www.xiaolincoding.com/os/7_device/device.html"
+                }
+              ]
+            },
+            {
+              "title": "网络系统篇",
+              "articles": [
+                {
+                  "title": "9.1 什么是零拷贝？",
+                  "url": "https://www.xiaolincoding.com/os/8_network_system/zero_copy.html"
+                },
+                {
+                  "title": "9.2 I/O 多路复用：select/poll/epoll",
+                  "url": "https://www.xiaolincoding.com/os/8_network_system/selete_poll_epoll.html"
+                },
+                {
+                  "title": "9.3 高性能网络模式：Reactor 和 Proactor",
+                  "url": "https://www.xiaolincoding.com/os/8_network_system/reactor.html"
+                },
+                {
+                  "title": "9.4 什么是一致性哈希？",
+                  "url": "https://www.xiaolincoding.com/os/8_network_system/hash.html"
+                }
+              ]
+            },
+            {
+              "title": "Linux 命令篇",
+              "articles": [
+                {
+                  "title": "10.1 如何查看网络的性能指标？",
+                  "url": "https://www.xiaolincoding.com/os/9_linux_cmd/linux_network.html"
+                },
+                {
+                  "title": "10.2  如何从日志分析 PV、UV？",
+                  "url": "https://www.xiaolincoding.com/os/9_linux_cmd/pv_uv.html"
+                }
+              ]
+            },
+            {
+              "title": "学习心得",
+              "articles": [
+                {
+                  "title": "11.1 操作系统怎么学？",
+                  "url": "https://www.xiaolincoding.com/os/10_learn/learn_os.html"
+                },
+                {
+                  "title": "11.2 画图经验分享",
+                  "url": "https://www.xiaolincoding.com/os/10_learn/draw.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "图解 MySQL",
+          "description": "索引、事务、锁、日志与架构",
+          "homeUrl": "https://www.xiaolincoding.com/mysql/",
+          "sections": [
+            {
+              "title": "前言",
+              "articles": [
+                {
+                  "title": "图解MySQL介绍",
+                  "url": "https://www.xiaolincoding.com/mysql"
+                }
+              ]
+            },
+            {
+              "title": "基础篇",
+              "articles": [
+                {
+                  "title": "执行一条 select 语句，期间发生了什么？",
+                  "url": "https://www.xiaolincoding.com/mysql/base/how_select.html"
+                },
+                {
+                  "title": "MySQL 一行记录是怎么存储的？",
+                  "url": "https://www.xiaolincoding.com/mysql/base/row_format.html"
+                }
+              ]
+            },
+            {
+              "title": "索引篇",
+              "articles": [
+                {
+                  "title": "索引常见面试题",
+                  "url": "https://www.xiaolincoding.com/mysql/index/index_interview.html"
+                },
+                {
+                  "title": "从数据页的角度看 B+ 树",
+                  "url": "https://www.xiaolincoding.com/mysql/index/page.html"
+                },
+                {
+                  "title": "为什么 MySQL 采用 B+ 树作为索引？",
+                  "url": "https://www.xiaolincoding.com/mysql/index/why_index_chose_bpuls_tree.html"
+                },
+                {
+                  "title": "MySQL 单表不要超过 2000W 行，靠谱吗？",
+                  "url": "https://www.xiaolincoding.com/mysql/index/2000w.html"
+                },
+                {
+                  "title": "索引失效有哪些？",
+                  "url": "https://www.xiaolincoding.com/mysql/index/index_lose.html"
+                },
+                {
+                  "title": "count(*) 和 count(1) 有什么区别？哪个性能最好？",
+                  "url": "https://www.xiaolincoding.com/mysql/index/count.html"
+                },
+                {
+                  "title": "MySQL 分页有什么性能问题？怎么优化？",
+                  "url": "https://www.xiaolincoding.com/mysql/index/limit.html"
+                }
+              ]
+            },
+            {
+              "title": "事务篇",
+              "articles": [
+                {
+                  "title": "事务隔离级别是怎么实现的？",
+                  "url": "https://www.xiaolincoding.com/mysql/transaction/mvcc.html"
+                },
+                {
+                  "title": "MySQL 可重复读隔离级别，完全解决幻读了吗？",
+                  "url": "https://www.xiaolincoding.com/mysql/transaction/phantom.html"
+                }
+              ]
+            },
+            {
+              "title": "锁篇",
+              "articles": [
+                {
+                  "title": "MySQL 有哪些锁？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/mysql_lock.html"
+                },
+                {
+                  "title": "MySQL 是怎么加锁的？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/how_to_lock.html"
+                },
+                {
+                  "title": "update 没加索引会锁全表？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/update_index.html"
+                },
+                {
+                  "title": "MySQL 记录锁+间隙锁可以防止删除操作而导致的幻读吗？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/lock_phantom.html"
+                },
+                {
+                  "title": "MySQL 死锁了，怎么办？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/deadlock.html"
+                },
+                {
+                  "title": "字节面试：加了什么锁，导致死锁的？",
+                  "url": "https://www.xiaolincoding.com/mysql/lock/show_lock.html"
+                }
+              ]
+            },
+            {
+              "title": "日志篇",
+              "articles": [
+                {
+                  "title": "MySQL 日志：undo log、redo log、binlog 有什么用？",
+                  "url": "https://www.xiaolincoding.com/mysql/log/how_update.html"
+                }
+              ]
+            },
+            {
+              "title": "内存篇",
+              "articles": [
+                {
+                  "title": "揭开 Buffer Pool  的面纱",
+                  "url": "https://www.xiaolincoding.com/mysql/buffer_pool/buffer_pool.html"
+                }
+              ]
+            },
+            {
+              "title": "架构篇",
+              "articles": [
+                {
+                  "title": "MySQL 架构是怎样的？",
+                  "url": "https://www.xiaolincoding.com/mysql/architecture/mysql_architecture.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "图解 Redis",
+          "description": "数据结构、持久化、高可用与缓存",
+          "homeUrl": "https://www.xiaolincoding.com/redis/",
+          "sections": [
+            {
+              "title": "前言",
+              "articles": [
+                {
+                  "title": "图解Redis介绍",
+                  "url": "https://www.xiaolincoding.com/redis"
+                }
+              ]
+            },
+            {
+              "title": "基础篇",
+              "articles": [
+                {
+                  "title": "什么是 Redis？",
+                  "url": "https://www.xiaolincoding.com/redis/base/wath_is_redis.html"
+                }
+              ]
+            },
+            {
+              "title": "面试篇",
+              "articles": [
+                {
+                  "title": "Redis 常见面试题",
+                  "url": "https://www.xiaolincoding.com/redis/base/redis_interview.html"
+                }
+              ]
+            },
+            {
+              "title": "数据类型篇",
+              "articles": [
+                {
+                  "title": "Redis 常见数据类型和应用场景",
+                  "url": "https://www.xiaolincoding.com/redis/data_struct/command.html"
+                },
+                {
+                  "title": "Redis 数据结构",
+                  "url": "https://www.xiaolincoding.com/redis/data_struct/data_struct.html"
+                }
+              ]
+            },
+            {
+              "title": "持久化篇",
+              "articles": [
+                {
+                  "title": "AOF 持久化是怎么实现的？",
+                  "url": "https://www.xiaolincoding.com/redis/storage/aof.html"
+                },
+                {
+                  "title": "RDB 快照是怎么实现的？",
+                  "url": "https://www.xiaolincoding.com/redis/storage/rdb.html"
+                },
+                {
+                  "title": "Redis 大 Key 对持久化有什么影响？",
+                  "url": "https://www.xiaolincoding.com/redis/storage/bigkey_aof_rdb.html"
+                }
+              ]
+            },
+            {
+              "title": "功能篇",
+              "articles": [
+                {
+                  "title": "Redis 过期删除策略和内存淘汰策略有什么区别？",
+                  "url": "https://www.xiaolincoding.com/redis/module/strategy.html"
+                },
+                {
+                  "title": "多节点争抢资源， Redis 分布式锁是怎么实现的？",
+                  "url": "https://www.xiaolincoding.com/redis/module/setnx.html"
+                }
+              ]
+            },
+            {
+              "title": "高可用篇",
+              "articles": [
+                {
+                  "title": "主从复制是怎么实现的？",
+                  "url": "https://www.xiaolincoding.com/redis/cluster/master_slave_replication.html"
+                },
+                {
+                  "title": "为什么要有哨兵？",
+                  "url": "https://www.xiaolincoding.com/redis/cluster/sentinel.html"
+                },
+                {
+                  "title": "为什么要有 Redis Cluster 集群？",
+                  "url": "https://www.xiaolincoding.com/redis/cluster/cluster.html"
+                },
+                {
+                  "title": "如何保证 Redis 分布式锁的高可用和高性能？",
+                  "url": "https://www.xiaolincoding.com/redis/cluster/redlock.html"
+                }
+              ]
+            },
+            {
+              "title": "缓存篇",
+              "articles": [
+                {
+                  "title": "什么是缓存雪崩、击穿、穿透？",
+                  "url": "https://www.xiaolincoding.com/redis/cluster/cache_problem.html"
+                },
+                {
+                  "title": "数据库和缓存如何保证一致性？",
+                  "url": "https://www.xiaolincoding.com/redis/architecture/mysql_redis_consistency.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "图解 Agent",
+          "description": "Agent、RAG 与工程方法论",
+          "homeUrl": "https://xiaolinnote.com/agent/",
+          "sections": [
+            {
+              "title": "Agent 概念与生态",
+              "articles": [
+                {
+                  "title": "AI Agent 是什么？Agent 面试题万字图解",
+                  "url": "https://xiaolinnote.com/agent/concept/agent.html"
+                },
+                {
+                  "title": "OpenClaw 是什么？OpenClaw 面试题万字图解",
+                  "url": "https://xiaolinnote.com/agent/concept/openclaw.html"
+                }
+              ]
+            },
+            {
+              "title": "RAG 检索增强",
+              "articles": [
+                {
+                  "title": "RAG 是什么？RAG 检索增强面试题万字图解",
+                  "url": "https://xiaolinnote.com/agent/rag/rag.html"
+                },
+                {
+                  "title": "GraphRAG 和 LightRAG 详解：原理、对比与选型",
+                  "url": "https://xiaolinnote.com/agent/rag/graphrag-lightrag.html"
+                }
+              ]
+            },
+            {
+              "title": "Agent 工程方法论",
+              "articles": [
+                {
+                  "title": "Harness Engineering 是什么？AI Agent 越用越聪明的秘密",
+                  "url": "https://xiaolinnote.com/agent/engineering/harness-engineering.html"
+                },
+                {
+                  "title": "Loop Engineering 是什么？AI 编程从 Prompt 到 Loop 的范式转变",
+                  "url": "https://xiaolinnote.com/agent/engineering/loop-engineering.html"
+                },
+                {
+                  "title": "Loop Engineering 怎么落地？一条从 0 到 1 的上手路径",
+                  "url": "https://xiaolinnote.com/agent/engineering/loop_engineering_handbook.html"
+                },
+                {
+                  "title": "Graph Engineering 是什么？一文讲透多 Agent 图式编排",
+                  "url": "https://xiaolinnote.com/agent/engineering/graph-engineering.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "图解 Claude Code",
+          "description": "使用技巧、源码解析与行业观察",
+          "homeUrl": "https://xiaolinnote.com/claudecode/",
+          "sections": [
+            {
+              "title": "Claude Code 基础入门",
+              "articles": [
+                {
+                  "title": "Claude Code 使用教程：新手入门必学的基础技巧",
+                  "url": "https://xiaolinnote.com/claudecode/basics/cc_use.html"
+                },
+                {
+                  "title": "Claude Code /powerup 教程：18 个官方互动课程全解析",
+                  "url": "https://xiaolinnote.com/claudecode/basics/cc_powerup.html"
+                },
+                {
+                  "title": "Claude Code 工程化指南：CLAUDE.md、Skills、Subagents、MCP、Hooks、Plugins 一篇讲透",
+                  "url": "https://xiaolinnote.com/claudecode/basics/cc_engineering.html"
+                }
+              ]
+            },
+            {
+              "title": "Claude Code 实践技巧",
+              "articles": [
+                {
+                  "title": "CLAUDE.md 指南：Claude Code 的项目记忆该怎么写？",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/cc_claude_md.html"
+                },
+                {
+                  "title": "Claude Code 大型代码库实战：百万行代码怎么扛得住？",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/cc_large_codebase.html"
+                },
+                {
+                  "title": "Claude Code Skill 揭秘：Skill 真的只是一份 markdown 吗？",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/cc_skills.html"
+                },
+                {
+                  "title": "SDD 规约驱动开发实战：在 Claude Code 里跑通先规约后编码",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/spec_driven_dev.html"
+                },
+                {
+                  "title": "grill-me 使用指南：写代码前，先让 Claude Code 审问你的需求",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/grill_me.html"
+                },
+                {
+                  "title": "superpowers vs grill-me：同一个需求实测，差距到底在哪？",
+                  "url": "https://xiaolinnote.com/claudecode/playbook/superpowers_vs_grillme.html"
+                }
+              ]
+            },
+            {
+              "title": "Claude Code 源码解析",
+              "articles": [
+                {
+                  "title": "Claude Code 源码拆解：51 万行泄漏代码里的架构设计",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_source.html"
+                },
+                {
+                  "title": "Claude Code 主循环 Query 图解：一轮对话是怎么跑起来的？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_query_loop.html"
+                },
+                {
+                  "title": "Claude Code 上下文管理图解：Compact 压缩机制怎么实现？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_compact.html"
+                },
+                {
+                  "title": "Claude Code 代码检索图解：为什么用 grep 而不用 RAG？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_grep.html"
+                },
+                {
+                  "title": "Claude Code 记忆机制图解：为什么不用向量数据库？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_memory.html"
+                },
+                {
+                  "title": "Claude Code 多 Agent 图解：SubAgent 实现机制怎么做？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_multi_agent.html"
+                },
+                {
+                  "title": "Claude Code Skill 原理图解：几个 Markdown 文件，怎么做到按需加载？",
+                  "url": "https://xiaolinnote.com/claudecode/source/cc_skill.html"
+                }
+              ]
+            },
+            {
+              "title": "Claude Code 提示词工程",
+              "articles": [
+                {
+                  "title": "Claude Fable 5 系统提示词详解：1600 行泄漏 prompt 里的工程干货",
+                  "url": "https://xiaolinnote.com/claudecode/prompt/fable5_prompt_leak_cl4.html"
+                }
+              ]
+            },
+            {
+              "title": "Claude Code 行业观察",
+              "articles": [
+                {
+                  "title": "Anthropic 40 万次会话研究：用好 AI 编程的关键不是会写代码",
+                  "url": "https://xiaolinnote.com/claudecode/insights/expertise_over_coding.html"
+                },
+                {
+                  "title": "Claude 5 上下文工程：为什么提示词越写越少？",
+                  "url": "https://xiaolinnote.com/claudecode/insights/claude5_context_engineering.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "后端八股面试系列",
+      "description": "按语言、岗位和公司整理面试内容",
+      "books": [
+        {
+          "title": "Java 后端面试题",
+          "description": "Java 核心、数据库、计算机基础与架构",
+          "homeUrl": "https://www.xiaolincoding.com/interview/",
+          "sections": [
+            {
+              "title": "Java面试篇",
+              "articles": [
+                {
+                  "title": "Java基础面试题",
+                  "url": "https://www.xiaolincoding.com/interview/java.html"
+                },
+                {
+                  "title": "Java集合面试题",
+                  "url": "https://www.xiaolincoding.com/interview/collections.html"
+                },
+                {
+                  "title": "Java并发编程面试题",
+                  "url": "https://www.xiaolincoding.com/interview/juc.html"
+                },
+                {
+                  "title": "Java虚拟机面试题",
+                  "url": "https://www.xiaolincoding.com/interview/jvm.html"
+                },
+                {
+                  "title": "Spring面试题",
+                  "url": "https://www.xiaolincoding.com/interview/spring.html"
+                }
+              ]
+            },
+            {
+              "title": "数据库面试篇",
+              "articles": [
+                {
+                  "title": "MySQL面试题",
+                  "url": "https://www.xiaolincoding.com/interview/mysql.html"
+                },
+                {
+                  "title": "Redis面试题",
+                  "url": "https://www.xiaolincoding.com/interview/redis.html"
+                }
+              ]
+            },
+            {
+              "title": "计算机基础面试篇",
+              "articles": [
+                {
+                  "title": "计算机网络面试题",
+                  "url": "https://www.xiaolincoding.com/interview/network.html"
+                },
+                {
+                  "title": "操作系统面试题",
+                  "url": "https://www.xiaolincoding.com/interview/os.html"
+                },
+                {
+                  "title": "数据结构与算法面试题",
+                  "url": "https://www.xiaolincoding.com/interview/data.html"
+                }
+              ]
+            },
+            {
+              "title": "架构设计面试篇",
+              "articles": [
+                {
+                  "title": "消息队列面试题",
+                  "url": "https://www.xiaolincoding.com/interview/mq.html"
+                },
+                {
+                  "title": "分布式面试题",
+                  "url": "https://www.xiaolincoding.com/interview/cap.html"
+                },
+                {
+                  "title": "系统设计面试题",
+                  "url": "https://www.xiaolincoding.com/interview/systemdesign.html"
+                }
+              ]
+            },
+            {
+              "title": "工具命令面试篇",
+              "articles": [
+                {
+                  "title": "Linux命令面试题",
+                  "url": "https://www.xiaolincoding.com/interview/linux.html"
+                },
+                {
+                  "title": "Git面试题",
+                  "url": "https://www.xiaolincoding.com/interview/git.html"
+                },
+                {
+                  "title": "Docker面试题",
+                  "url": "https://www.xiaolincoding.com/interview/docker.html"
+                }
+              ]
+            },
+            {
+              "title": "后端进阶面试篇",
+              "articles": [
+                {
+                  "title": "后端技术进阶之路",
+                  "url": "https://www.xiaolincoding.com/interview/win.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Golang 面试题",
+          "description": "Golang 高频面试知识点",
+          "homeUrl": "https://www.xiaolincoding.com/interview/golang.html",
+          "sections": [
+            {
+              "title": "Golang面试篇",
+              "articles": [
+                {
+                  "title": "Golang面试题",
+                  "url": "https://www.xiaolincoding.com/interview/golang.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "C++ 面试题",
+          "description": "C++ 高频面试知识点",
+          "homeUrl": "https://www.xiaolincoding.com/interview/cpp.html",
+          "sections": [
+            {
+              "title": "C++面试篇",
+              "articles": [
+                {
+                  "title": "C++面试题",
+                  "url": "https://www.xiaolincoding.com/interview/cpp.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "测试开发面试题",
+          "description": "业务测试、自动化与性能测试",
+          "homeUrl": "https://www.xiaolincoding.com/interview/test_dev.html",
+          "sections": [
+            {
+              "title": "测试开发面试篇",
+              "articles": [
+                {
+                  "title": "测试开发面试题全攻略",
+                  "url": "https://www.xiaolincoding.com/interview/test_dev.html"
+                },
+                {
+                  "title": "业务测试面试题",
+                  "url": "https://www.xiaolincoding.com/interview/business_testing.html"
+                },
+                {
+                  "title": "Python自动化测试面试题",
+                  "url": "https://www.xiaolincoding.com/interview/python_automation.html"
+                },
+                {
+                  "title": "Java自动化测试面试题",
+                  "url": "https://www.xiaolincoding.com/interview/java_automation.html"
+                },
+                {
+                  "title": "性能测试面试题",
+                  "url": "https://www.xiaolincoding.com/interview/performance_testing.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "大厂后端面经",
+          "description": "互联网、手机、通信、新能源与银行面经",
+          "homeUrl": "https://www.xiaolincoding.com/backend_interview/",
+          "sections": [
+            {
+              "title": "前言",
+              "articles": [
+                {
+                  "title": "互联网后端开发面试真题汇总",
+                  "url": "https://www.xiaolincoding.com/backend_interview"
+                }
+              ]
+            },
+            {
+              "title": "互联网大厂面经",
+              "articles": [
+                {
+                  "title": "腾讯 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/tencent.html"
+                },
+                {
+                  "title": "腾讯音乐 C++ 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/qqmusic.html"
+                },
+                {
+                  "title": "字节跳动 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/byte_dance.html"
+                },
+                {
+                  "title": "阿里云 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/aliyun.html"
+                },
+                {
+                  "title": "淘宝 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/taobao.html"
+                },
+                {
+                  "title": "蚂蚁金服 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/mayi.html"
+                },
+                {
+                  "title": "饿了么 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/elme.html"
+                },
+                {
+                  "title": "美团 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/meituan.html"
+                },
+                {
+                  "title": "快手 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/kuaishou.html"
+                },
+                {
+                  "title": "京东 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/jingdong.html"
+                },
+                {
+                  "title": "百度 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/baidu.html"
+                },
+                {
+                  "title": "滴滴 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/didi.html"
+                },
+                {
+                  "title": "虾皮 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/shopee.html"
+                },
+                {
+                  "title": "米哈游 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_giants/mihayou.html"
+                }
+              ]
+            },
+            {
+              "title": "互联网中厂面经",
+              "articles": [
+                {
+                  "title": "小红书 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/xiaohongshu.html"
+                },
+                {
+                  "title": "得物 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/dewu.html"
+                },
+                {
+                  "title": "B站 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/bilibili.html"
+                },
+                {
+                  "title": "贝壳 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/beike.html"
+                },
+                {
+                  "title": "携程 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/xiecheng.html"
+                },
+                {
+                  "title": "去哪儿 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/qunaer.html"
+                },
+                {
+                  "title": "同程旅行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/tongchenglvxing.html"
+                },
+                {
+                  "title": "唯品会 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/vipshop.html"
+                },
+                {
+                  "title": "作业帮 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/zuoyebang.html"
+                },
+                {
+                  "title": "好未来 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/haoweilai.html"
+                },
+                {
+                  "title": "腾讯云智 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/tencent_cloud_intelligence.html"
+                },
+                {
+                  "title": "海康威视 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/haikang.html"
+                },
+                {
+                  "title": "帆软 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/fanruan.html"
+                },
+                {
+                  "title": "4399 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/4399.html"
+                },
+                {
+                  "title": "58同城 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/58.html"
+                },
+                {
+                  "title": "虎牙 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/huya.html"
+                },
+                {
+                  "title": "科大讯飞 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/internet_medium/kedaxunfei.html"
+                }
+              ]
+            },
+            {
+              "title": "手机厂面经",
+              "articles": [
+                {
+                  "title": "小米 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/mobile/xiaomi.html"
+                },
+                {
+                  "title": "OPPO Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/mobile/oppo.html"
+                },
+                {
+                  "title": "vivo Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/mobile/vivo.html"
+                },
+                {
+                  "title": "荣耀 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/mobile/rouyao.html"
+                }
+              ]
+            },
+            {
+              "title": "通信硬件厂面经",
+              "articles": [
+                {
+                  "title": "华为 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/telecommunication/huawei.html"
+                },
+                {
+                  "title": "联想 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/telecommunication/lianxiang.html"
+                },
+                {
+                  "title": "深信服 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/telecommunication/shenxinfu.html"
+                },
+                {
+                  "title": "TP-Link Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/telecommunication/tplink.html"
+                }
+              ]
+            },
+            {
+              "title": "新能源厂面经",
+              "articles": [
+                {
+                  "title": "比亚迪 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/new_energy/biyadi.html"
+                },
+                {
+                  "title": "理想汽车 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/new_energy/lixiang.html"
+                },
+                {
+                  "title": "小鹏汽车 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/new_energy/xpeng.html"
+                },
+                {
+                  "title": "蔚来汽车 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/new_energy/weilai.html"
+                },
+                {
+                  "title": "极越汽车 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/new_energy/jiyue.html"
+                }
+              ]
+            },
+            {
+              "title": "银行面经",
+              "articles": [
+                {
+                  "title": "招银网络 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/china_merchants_bank.html"
+                },
+                {
+                  "title": "中国工商银行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/gongshang.html"
+                },
+                {
+                  "title": "上海银行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/shanghaibank.html"
+                },
+                {
+                  "title": "招商银行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/zhaoshangbank.html"
+                },
+                {
+                  "title": "平安银行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/pinganbank.html"
+                },
+                {
+                  "title": "微众银行 Java 面试",
+                  "url": "https://www.xiaolincoding.com/backend_interview/bank/weizhongbank.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AI Agent 面试八股系列",
+      "description": "Agent、RAG、工具调用与大模型工程",
+      "books": [
+        {
+          "title": "Agent 面试题",
+          "description": "架构、规划、记忆与多 Agent 协作",
+          "homeUrl": "https://xiaolinnote.com/ai/agent/agent_info.html",
+          "sections": [
+            {
+              "title": "全部问答",
+              "articles": [
+                {
+                  "title": "Agent 面试专题首页",
+                  "url": "https://xiaolinnote.com/ai/agent/agent_info.html"
+                },
+                {
+                  "title": "1. 什么是 Agent？与大模型有什么本质不同？",
+                  "url": "https://xiaolinnote.com/ai/agent/1_whatisagent.html"
+                },
+                {
+                  "title": "2. Agent 的基本架构由哪些核心组件构成？",
+                  "url": "https://xiaolinnote.com/ai/agent/2_components.html"
+                },
+                {
+                  "title": "3. Workflow，Agent，Tools 这三个的概念和区别介绍一下？",
+                  "url": "https://xiaolinnote.com/ai/agent/3_workflow_tools.html"
+                },
+                {
+                  "title": "4. 了解哪些其他的 Agent 设计范式？Agent 和 Workflow 的区别是什么？",
+                  "url": "https://xiaolinnote.com/ai/agent/4_patterns.html"
+                },
+                {
+                  "title": "5. Agent 推理模式有哪些？ReAct 是啥？具体是怎么实现的？",
+                  "url": "https://xiaolinnote.com/ai/agent/5_react.html"
+                },
+                {
+                  "title": "6. ReAct、Plan-and-Execute、Reflection 三种范式有什么核心区别？实际项目中该如何选型？",
+                  "url": "https://xiaolinnote.com/ai/agent/6_three_patterns.html"
+                },
+                {
+                  "title": "7. 复杂任务怎么做的任务拆分？为什么要拆分？效果如何提升？",
+                  "url": "https://xiaolinnote.com/ai/agent/7_tasksplit.html"
+                },
+                {
+                  "title": "8. 请你介绍一下 AI Agent 的记忆机制，并说明在实际开发中应该如何设计记忆模块？",
+                  "url": "https://xiaolinnote.com/ai/agent/8_memory.html"
+                },
+                {
+                  "title": "9. Agent 的长短期记忆系统怎么做的？记忆是怎么存的？粒度是多少？怎么用的？",
+                  "url": "https://xiaolinnote.com/ai/agent/9_memory_storage.html"
+                },
+                {
+                  "title": "10. 什么是 Multi-Agent？",
+                  "url": "https://xiaolinnote.com/ai/agent/10_multiagent.html"
+                },
+                {
+                  "title": "11. 说说 Single-Agent 和 Multi-Agent 的设计方案？",
+                  "url": "https://xiaolinnote.com/ai/agent/11_single_multi.html"
+                },
+                {
+                  "title": "12. Agent 记忆压缩通常有哪些方法？",
+                  "url": "https://xiaolinnote.com/ai/agent/12_memcompress.html"
+                },
+                {
+                  "title": "13. 在工程实践中，为什么有时候选择「手搓」Agent，而不是直接用成熟框架？",
+                  "url": "https://xiaolinnote.com/ai/agent/13_handcode.html"
+                },
+                {
+                  "title": "14. 如何赋予 LLM 规划能力？",
+                  "url": "https://xiaolinnote.com/ai/agent/14_planning.html"
+                },
+                {
+                  "title": "15. 讲讲 Agent 的反思机制？为什么要用反思？具体怎么实现？",
+                  "url": "https://xiaolinnote.com/ai/agent/15_reflection.html"
+                },
+                {
+                  "title": "16. 如何设计多 Agent 的协作与动态切换机制？",
+                  "url": "https://xiaolinnote.com/ai/agent/16_collab.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "RAG 面试题",
+          "description": "切分、向量检索、召回与评估",
+          "homeUrl": "https://xiaolinnote.com/ai/rag/rag_info.html",
+          "sections": [
+            {
+              "title": "全部问答",
+              "articles": [
+                {
+                  "title": "RAG 面试专题首页",
+                  "url": "https://xiaolinnote.com/ai/rag/rag_info.html"
+                },
+                {
+                  "title": "1. 什么是 RAG？详细描述一个完整 RAG 系统的详细工作流程？",
+                  "url": "https://xiaolinnote.com/ai/rag/1_whatisrag.html"
+                },
+                {
+                  "title": "2. 大模型的 RAG 主要用来解决什么问题？",
+                  "url": "https://xiaolinnote.com/ai/rag/2_rag_problems.html"
+                },
+                {
+                  "title": "3. 相比直接微调 LLM，RAG 解决了什么问题？微调和 RAG 各自的优劣势是什么？",
+                  "url": "https://xiaolinnote.com/ai/rag/3_rag_vs_finetune.html"
+                },
+                {
+                  "title": "4. RAG 中的文档是怎么存的？粒度是多大？详细说说文档切割（Chunking）策略？",
+                  "url": "https://xiaolinnote.com/ai/rag/4_chunking.html"
+                },
+                {
+                  "title": "5. 怎么规避语义被切割掉的问题？",
+                  "url": "https://xiaolinnote.com/ai/rag/5_semantic_cuts.html"
+                },
+                {
+                  "title": "6. 在 RAG 中 Embedding 究竟是什么？如何选择和评估一个 Embedding 模型？",
+                  "url": "https://xiaolinnote.com/ai/rag/6_embedding.html"
+                },
+                {
+                  "title": "7. Embedding 有哪几种算法你了解过吗？",
+                  "url": "https://xiaolinnote.com/ai/rag/7_embedding_algos.html"
+                },
+                {
+                  "title": "8. 什么是向量数据库？有没有做过向量数据库的对比选型？",
+                  "url": "https://xiaolinnote.com/ai/rag/8_vectordb.html"
+                },
+                {
+                  "title": "9. 讲讲你用的向量数据库？数据量级是多大？性能如何？遇到过性能瓶颈吗？",
+                  "url": "https://xiaolinnote.com/ai/rag/9_vectordb_practice.html"
+                },
+                {
+                  "title": "10. 你使用 RAG 给大模型一个输入，系统是怎样的工作流程？",
+                  "url": "https://xiaolinnote.com/ai/rag/10_online_workflow.html"
+                },
+                {
+                  "title": "11. 请你介绍一下向量检索和关键词检索的区别？",
+                  "url": "https://xiaolinnote.com/ai/rag/11_retrieval_types.html"
+                },
+                {
+                  "title": "12. 如何润色用户的 Query（Query Rewrite）？目的是什么？",
+                  "url": "https://xiaolinnote.com/ai/rag/12_query_rewrite.html"
+                },
+                {
+                  "title": "13. 什么是多路召回？具体怎么做？",
+                  "url": "https://xiaolinnote.com/ai/rag/13_multi_retrieval.html"
+                },
+                {
+                  "title": "14. RAG 检索优化策略有哪些？",
+                  "url": "https://xiaolinnote.com/ai/rag/14_retrieval_opt.html"
+                },
+                {
+                  "title": "15. 了解哪些更复杂的 RAG 范式？",
+                  "url": "https://xiaolinnote.com/ai/rag/15_advanced_paradigms.html"
+                },
+                {
+                  "title": "16. 在什么场景下，你会选择使用图数据库来增强传统的向量检索？",
+                  "url": "https://xiaolinnote.com/ai/rag/16_graph_db.html"
+                },
+                {
+                  "title": "17. 如何规避 RAG 系统中大模型的幻觉？",
+                  "url": "https://xiaolinnote.com/ai/rag/17_hallucination.html"
+                },
+                {
+                  "title": "18. 怎么量化你的 RAG 效果？",
+                  "url": "https://xiaolinnote.com/ai/rag/18_evaluation.html"
+                },
+                {
+                  "title": "19. RAG 知识库如何实现动态与持续更新？",
+                  "url": "https://xiaolinnote.com/ai/rag/19_dynamic_update.html"
+                },
+                {
+                  "title": "20. 在实际落地中，你觉得 RAG 最难的地方是哪里？",
+                  "url": "https://xiaolinnote.com/ai/rag/20_hardest_parts.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "LLM 工具调用面试题",
+          "description": "Function Calling、MCP 与工具编排",
+          "homeUrl": "https://xiaolinnote.com/ai/tools/tools_info.html",
+          "sections": [
+            {
+              "title": "全部问答",
+              "articles": [
+                {
+                  "title": "LLM 工具调用面试专题首页",
+                  "url": "https://xiaolinnote.com/ai/tools/tools_info.html"
+                },
+                {
+                  "title": "1. 什么是 Function Calling？原理是什么？",
+                  "url": "https://xiaolinnote.com/ai/tools/1_function_calling.html"
+                },
+                {
+                  "title": "2. LLM 是如何学会调用外部工具的？",
+                  "url": "https://xiaolinnote.com/ai/tools/2_llm_tool_learning.html"
+                },
+                {
+                  "title": "3. 大模型的 Function Call 能力是怎么训练出来的？",
+                  "url": "https://xiaolinnote.com/ai/tools/3_fc_training.html"
+                },
+                {
+                  "title": "4. 什么是 MCP（模型上下文协议）？讲讲它的核心内容？",
+                  "url": "https://xiaolinnote.com/ai/tools/4_what_is_mcp.html"
+                },
+                {
+                  "title": "5. MCP 由哪几部分组成？",
+                  "url": "https://xiaolinnote.com/ai/tools/5_mcp_components.html"
+                },
+                {
+                  "title": "6. MCP 和 Function Calling 有什么区别？有没有实际跑过 MCP？",
+                  "url": "https://xiaolinnote.com/ai/tools/6_mcp_vs_fc.html"
+                },
+                {
+                  "title": "7. Function Calling 也属于工具调用，请问什么场景下使用 Function Calling，什么场景下使用 MCP？",
+                  "url": "https://xiaolinnote.com/ai/tools/7_fc_vs_mcp_usage.html"
+                },
+                {
+                  "title": "8. 为什么有些特定的推理模型不支持 MCP 协议？",
+                  "url": "https://xiaolinnote.com/ai/tools/8_reasoning_no_mcp.html"
+                },
+                {
+                  "title": "9. Skill 是什么？",
+                  "url": "https://xiaolinnote.com/ai/tools/9_skill.html"
+                },
+                {
+                  "title": "10. MCP 和 Agent Skill 的区别是什么？",
+                  "url": "https://xiaolinnote.com/ai/tools/10_mcp_vs_skill.html"
+                },
+                {
+                  "title": "11. Function Calling、Skill、MCP 这三个有什么区别？",
+                  "url": "https://xiaolinnote.com/ai/tools/11_fc_skill_mcp.html"
+                },
+                {
+                  "title": "12. 什么是 A2A 协议？它和 MCP 协议的区别是什么？",
+                  "url": "https://xiaolinnote.com/ai/tools/12_a2a_protocol.html"
+                },
+                {
+                  "title": "13. MCP 协议通常采用什么通信方式？",
+                  "url": "https://xiaolinnote.com/ai/tools/13_mcp_transport.html"
+                },
+                {
+                  "title": "14. 说说 WebSocket 和 SSE 通信的区别及局限性？",
+                  "url": "https://xiaolinnote.com/ai/tools/14_sse_vs_websocket.html"
+                },
+                {
+                  "title": "15. 为什么要用 WebRTC 协议？它和 WebSocket 在 AI 对话流中的核心差异是什么？",
+                  "url": "https://xiaolinnote.com/ai/tools/15_webrtc_vs_ws.html"
+                },
+                {
+                  "title": "16. 有没有用过大模型的网关框架？网关层解决了什么问题？",
+                  "url": "https://xiaolinnote.com/ai/tools/16_llm_gateway.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "大模型工程面试题",
+          "description": "模型原理、推理、微调与工程实践",
+          "homeUrl": "https://xiaolinnote.com/ai/llm/llm_info.html",
+          "sections": [
+            {
+              "title": "全部问答",
+              "articles": [
+                {
+                  "title": "大模型工程面试专题首页",
+                  "url": "https://xiaolinnote.com/ai/llm/llm_info.html"
+                },
+                {
+                  "title": "1. 什么是大语言模型？和传统 NLP 模型有什么区别？",
+                  "url": "https://xiaolinnote.com/ai/llm/what_is_llm.html"
+                },
+                {
+                  "title": "2. 讲讲 Transformer 架构基本原理？Encoder 和 Decoder 是什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/transformer_architecture.html"
+                },
+                {
+                  "title": "3. 多头注意力（MHA）有哪些局限？MQA、GQA、Flash Attention 怎么解决？",
+                  "url": "https://xiaolinnote.com/ai/llm/mha_mqa_gqa_flash_attention.html"
+                },
+                {
+                  "title": "4. 大模型的位置编码是干什么用的？sin/cos、RoPE、ALiBi 有什么区别？",
+                  "url": "https://xiaolinnote.com/ai/llm/position_encoding.html"
+                },
+                {
+                  "title": "5. 什么是大模型项目的分词器？原理是什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/tokenizer.html"
+                },
+                {
+                  "title": "6. 大模型是怎么训练出来的？",
+                  "url": "https://xiaolinnote.com/ai/llm/llm_training.html"
+                },
+                {
+                  "title": "7. 什么是 Scaling Law？大模型的「涌现能力」是怎么回事？",
+                  "url": "https://xiaolinnote.com/ai/llm/scaling_law_emergence.html"
+                },
+                {
+                  "title": "8. 大模型微调的方案有哪些？",
+                  "url": "https://xiaolinnote.com/ai/llm/finetuning.html"
+                },
+                {
+                  "title": "9. 请讲一下 LoRA 技术，除了减少参数量，它还有哪些优点？",
+                  "url": "https://xiaolinnote.com/ai/llm/lora.html"
+                },
+                {
+                  "title": "10. SFT 之后还有哪些 Post-Training？RLHF、DPO、GRPO、拒绝采样什么关系？",
+                  "url": "https://xiaolinnote.com/ai/llm/post_training.html"
+                },
+                {
+                  "title": "11. 大模型的 DPO 和 PPO 的区别是什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/dpo_vs_ppo.html"
+                },
+                {
+                  "title": "12. 大模型生成文本时的解码策略有哪些？贪心、Beam Search、采样分别什么时候用？",
+                  "url": "https://xiaolinnote.com/ai/llm/decoding_strategies.html"
+                },
+                {
+                  "title": "13. 大模型的参数：温度值、Top-P、Top-K 分别是什么？各个场景下的最佳设置是什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/temperature_top_p_top_k.html"
+                },
+                {
+                  "title": "14. KV Cache 是什么？Prompt Caching 的原理是什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/kv_cache_prompt_caching.html"
+                },
+                {
+                  "title": "15. 大模型量化是什么？INT8/INT4/AWQ/GPTQ 怎么选？",
+                  "url": "https://xiaolinnote.com/ai/llm/quantization.html"
+                },
+                {
+                  "title": "16. 如何写好 Prompt？分享下 Prompt 工程实践经验？",
+                  "url": "https://xiaolinnote.com/ai/llm/prompt_engineering.html"
+                },
+                {
+                  "title": "17. 什么是 CoT？为啥效果好？它有什么缺点或局限性？",
+                  "url": "https://xiaolinnote.com/ai/llm/cot.html"
+                },
+                {
+                  "title": "18. 大模型为什么会出现幻觉？怎么缓解？",
+                  "url": "https://xiaolinnote.com/ai/llm/hallucination.html"
+                },
+                {
+                  "title": "19. MoE 混合专家模型是什么？DeepSeek V3、Qwen 为什么用 MoE？",
+                  "url": "https://xiaolinnote.com/ai/llm/moe.html"
+                },
+                {
+                  "title": "20. 大模型部署有哪些主流方案？vLLM、TGI、llama.cpp、SGLang 实际项目里怎么选？",
+                  "url": "https://xiaolinnote.com/ai/llm/deployment_frameworks.html"
+                },
+                {
+                  "title": "21. 大模型能力评测指标有哪些？",
+                  "url": "https://xiaolinnote.com/ai/llm/evaluation_metrics.html"
+                },
+                {
+                  "title": "22. 对比使用过哪些主流大模型？你们项目中最终选用了哪个模型？为什么？",
+                  "url": "https://xiaolinnote.com/ai/llm/model_selection.html"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "LangChain 框架面试题",
+          "description": "组件、链、Agent 与工程设计",
+          "homeUrl": "https://xiaolinnote.com/ai/langchain/langchain_info.html",
+          "sections": [
+            {
+              "title": "全部问答",
+              "articles": [
+                {
+                  "title": "LangChain 框架面试专题首页",
+                  "url": "https://xiaolinnote.com/ai/langchain/langchain_info.html"
+                },
+                {
+                  "title": "1. 你了解过哪些 AI Agent 开发框架？",
+                  "url": "https://xiaolinnote.com/ai/langchain/agent_frameworks.html"
+                },
+                {
+                  "title": "2. 如何理解 LangChain 中的 Chain？",
+                  "url": "https://xiaolinnote.com/ai/langchain/chain.html"
+                },
+                {
+                  "title": "3. LangChain 的底层架构与实现原理是什么？",
+                  "url": "https://xiaolinnote.com/ai/langchain/langchain_architecture.html"
+                },
+                {
+                  "title": "4. 使用 LangChain 构建 Agent 的核心步骤是什么？",
+                  "url": "https://xiaolinnote.com/ai/langchain/build_agent.html"
+                },
+                {
+                  "title": "5. 在 LangChain 中，如何为 Agent 注册工具？",
+                  "url": "https://xiaolinnote.com/ai/langchain/tool_registration.html"
+                },
+                {
+                  "title": "6. LangChain 如何实现短期记忆和长期记忆？",
+                  "url": "https://xiaolinnote.com/ai/langchain/memory.html"
+                },
+                {
+                  "title": "7. LangChain 和 LlamaIndex 有什么区别？",
+                  "url": "https://xiaolinnote.com/ai/langchain/langchain_vs_llamaindex.html"
+                },
+                {
+                  "title": "8. LangChain4j 主要解决了哪些问题？",
+                  "url": "https://xiaolinnote.com/ai/langchain/langchain4j.html"
+                },
+                {
+                  "title": "9. LangChain 和 LangGraph 的核心区别是什么？",
+                  "url": "https://xiaolinnote.com/ai/langchain/langchain_vs_langgraph.html"
+                },
+                {
+                  "title": "10. LangGraph 相比于 LangChain 有哪些核心优势？",
+                  "url": "https://xiaolinnote.com/ai/langchain/langgraph_advantages.html"
+                },
+                {
+                  "title": "11. LangChain 大版本升级有哪些核心变化？",
+                  "url": "https://xiaolinnote.com/ai/langchain/version_evolution.html"
+                },
+                {
+                  "title": "12. Deep Research 的实现逻辑和适用场景是什么？",
+                  "url": "https://xiaolinnote.com/ai/langchain/deep_research.html"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

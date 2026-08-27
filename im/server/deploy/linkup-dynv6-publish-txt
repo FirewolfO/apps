@@ -1,0 +1,42 @@
+#!/bin/sh
+
+set -u
+
+RECORD_DATA="${1:-}"
+ZONE_ID="5730481"
+RECORD_ID="91831588"
+TOKEN_FILE="${TOKEN_FILE:-/etc/dynv6/update.token}"
+CURL_BIN="${CURL_BIN:-/usr/sbin/curl}"
+
+case "$RECORD_DATA" in
+	https://*.trycloudflare.com) ;;
+	*)
+		echo "Invalid quick tunnel URL" >&2
+		exit 2
+		;;
+esac
+
+host="${RECORD_DATA#https://}"
+case "$host" in
+	*/*|*:*|*[!a-z0-9.-]*)
+		echo "Invalid quick tunnel hostname" >&2
+		exit 2
+		;;
+esac
+
+if [ ! -r "$TOKEN_FILE" ]; then
+	echo "Dynv6 token file is unreadable" >&2
+	exit 1
+fi
+token="$(sed -n '1p' "$TOKEN_FILE")"
+[ -n "$token" ] || exit 1
+payload="{\"name\":\"im-url\",\"type\":\"TXT\",\"data\":\"$RECORD_DATA\"}"
+
+{
+	printf 'url = "https://dynv6.com/api/v2/zones/%s/records/%s"\n' "$ZONE_ID" "$RECORD_ID"
+	printf 'header = "Authorization: Bearer %s"\n' "$token"
+	printf 'silent\nshow-error\nfail\nmax-time = 20\n'
+} | "$CURL_BIN" --config - --proto '=https' --tlsv1.2 \
+	--request PATCH \
+	--header 'Content-Type: application/json' \
+	--data "$payload" >/dev/null

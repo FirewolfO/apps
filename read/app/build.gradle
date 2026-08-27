@@ -1,0 +1,89 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'com.inkriver.historyreader'
+    compileSdk 36
+
+    defaultConfig {
+        applicationId 'com.inkriver.historyreader'
+        minSdk 30
+        targetSdk 36
+        versionCode 4
+        versionName '1.2.0'
+
+        testInstrumentationRunner 'android.test.InstrumentationTestRunner'
+    }
+
+    flavorDimensions 'platform'
+    productFlavors {
+        android11 {
+            dimension 'platform'
+            minSdk 30
+            targetSdk 30
+            versionNameSuffix '-android11'
+        }
+        android16 {
+            dimension 'platform'
+            minSdk 36
+            targetSdk 36
+            versionNameSuffix '-android16'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+}
+
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+}
+
+tasks.register('validateBundledCorpus') {
+    group = 'verification'
+    description = 'Checks catalog cardinality and prevents partial corpus data from being labeled complete.'
+    doLast {
+        def parser = new groovy.json.JsonSlurper()
+        def assets = file('src/main/assets')
+        def catalog = parser.parse(new File(assets, 'catalog.json'))
+        assert catalog.histories.size() == catalog.expectedHistories
+        assert catalog.expectedEditions == catalog.expectedHistories * 2
+        assert catalog.histories.collect { it.id }.toSet().size() == catalog.expectedHistories
+        assert catalog.histories.sum { it.volumes as int } == catalog.expectedVolumes
+        catalog.histories.each { history ->
+            def historyDir = new File(assets, 'content/' + history.content)
+            def indexFile = new File(historyDir, 'index.json')
+            assert indexFile.isFile(): "Missing content index: ${history.content}"
+            def content = parser.parse(indexFile)
+            assert content.history == history.title
+            assert content.chapters && !content.chapters.isEmpty()
+            content.chapters.each { chapter ->
+                assert chapter.title?.trim()
+                assert chapter.file?.trim()
+                def volumeFile = new File(historyDir, chapter.file)
+                assert volumeFile.isFile(): "Missing volume: ${history.content}/${chapter.file}"
+                def volume = parser.parse(volumeFile)
+                assert volume.index == chapter.index
+                assert volume.title?.trim()
+                assert volume.original?.trim()
+                assert volume.vernacular?.trim()
+                assert volume.original.trim() != volume.vernacular.trim()
+            }
+            if (history.availability.originalComplete || history.availability.vernacularComplete) {
+                assert content.chapters.size() == history.volumes:
+                        "${history.title} is marked complete but has ${content.chapters.size()}/${history.volumes} volumes"
+            }
+        }
+    }
+}
+
+tasks.named('preBuild').configure {
+    dependsOn tasks.named('validateBundledCorpus')
+}
