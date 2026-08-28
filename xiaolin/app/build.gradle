@@ -10,8 +10,9 @@ android {
         applicationId 'com.firewolf.xiaolinstudy'
         minSdk 23
         targetSdk 35
-        versionCode 4
-        versionName '1.2.0'
+        versionCode 5
+        versionName '1.3.0'
+        buildConfigField 'String', 'APP_CENTER_URL', '"https://apps.lxvb.top"'
 
         testInstrumentationRunner 'android.test.InstrumentationTestRunner'
     }
@@ -23,6 +24,10 @@ android {
 
     testOptions {
         unitTests.returnDefaultValues = true
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 }
 

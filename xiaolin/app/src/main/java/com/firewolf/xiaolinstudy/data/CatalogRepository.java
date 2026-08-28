@@ -18,8 +18,16 @@ public final class CatalogRepository {
     private CatalogRepository() {}
 
     public static List<CatalogGroup> load(Context context) {
+        return load(context, "catalog.json");
+    }
+
+    public static List<CatalogGroup> load(Context context, boolean compactMode) {
+        return load(context, compactMode ? "compact_catalog.json" : "catalog.json");
+    }
+
+    private static List<CatalogGroup> load(Context context, String assetName) {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(
-                context.getAssets().open("catalog.json"), StandardCharsets.UTF_8))) {
+                context.getAssets().open(assetName), StandardCharsets.UTF_8))) {
             StringBuilder json = new StringBuilder();
             char[] buffer = new char[4096];
             int count;
@@ -61,9 +69,27 @@ public final class CatalogRepository {
         List<CatalogArticle> articles = new ArrayList<>();
         for (int index = 0; index < values.length(); index++) {
             JSONObject value = values.getJSONObject(index);
-            articles.add(new CatalogArticle(value.getString("title"), value.getString("url")));
+            JSONObject diagram = value.optJSONObject("diagram");
+            articles.add(new CatalogArticle(value.getString("title"), value.getString("url"),
+                    value.optString("summary", ""), value.optString("answer", ""),
+                    readStrings(value.optJSONArray("keyPoints")),
+                    readStrings(value.optJSONArray("followUps")),
+                    value.optString("pitfall", ""), value.optString("sourceUrl", ""),
+                    diagram == null ? "" : diagram.optString("title", ""),
+                    diagram == null ? Collections.emptyList()
+                            : readStrings(diagram.optJSONArray("nodes"))));
         }
         return new CatalogSection(json.getString("title"), articles);
+    }
+
+    private static List<String> readStrings(JSONArray values) {
+        if (values == null) return Collections.emptyList();
+        List<String> result = new ArrayList<>();
+        for (int index = 0; index < values.length(); index++) {
+            String value = values.optString(index, "").trim();
+            if (!value.isEmpty()) result.add(value);
+        }
+        return result;
     }
 
     public static final class CatalogGroup {
@@ -130,13 +156,45 @@ public final class CatalogRepository {
     public static final class CatalogArticle {
         private final String title;
         private final String url;
+        private final String summary;
+        private final String answer;
+        private final List<String> keyPoints;
+        private final List<String> followUps;
+        private final String pitfall;
+        private final String sourceUrl;
+        private final String diagramTitle;
+        private final List<String> diagramNodes;
 
         CatalogArticle(String title, String url) {
+            this(title, url, "", "", Collections.emptyList(), Collections.emptyList(),
+                    "", "", "", Collections.emptyList());
+        }
+
+        CatalogArticle(String title, String url, String summary, String answer,
+                       List<String> keyPoints, List<String> followUps, String pitfall,
+                       String sourceUrl, String diagramTitle, List<String> diagramNodes) {
             this.title = title;
             this.url = url;
+            this.summary = summary;
+            this.answer = answer;
+            this.keyPoints = Collections.unmodifiableList(new ArrayList<>(keyPoints));
+            this.followUps = Collections.unmodifiableList(new ArrayList<>(followUps));
+            this.pitfall = pitfall;
+            this.sourceUrl = sourceUrl;
+            this.diagramTitle = diagramTitle;
+            this.diagramNodes = Collections.unmodifiableList(new ArrayList<>(diagramNodes));
         }
 
         public String getTitle() { return title; }
         public String getUrl() { return url; }
+        public String getSummary() { return summary; }
+        public String getAnswer() { return answer; }
+        public List<String> getKeyPoints() { return keyPoints; }
+        public List<String> getFollowUps() { return followUps; }
+        public String getPitfall() { return pitfall; }
+        public String getSourceUrl() { return sourceUrl; }
+        public String getDiagramTitle() { return diagramTitle; }
+        public List<String> getDiagramNodes() { return diagramNodes; }
+        public boolean isCompact() { return !answer.isEmpty(); }
     }
 }

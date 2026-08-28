@@ -15,7 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 public final class ProgressStore {
-    private static final String PREFS = "xiaolin_learning_progress";
+    private static final String FULL_PREFS = "xiaolin_learning_progress";
+    private static final String COMPACT_PREFS = "xiaolin_learning_progress_compact";
     private static final String COMPLETED = "completed_urls";
     private static final String TITLES = "page_titles";
     private static final String VISITED_AT = "visited_at";
@@ -27,7 +28,15 @@ public final class ProgressStore {
     private final SharedPreferences preferences;
 
     public ProgressStore(Context context) {
-        preferences = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        this(context, false);
+    }
+
+    public ProgressStore(Context context, boolean compactMode) {
+        preferences = context.getSharedPreferences(preferencesName(compactMode), Context.MODE_PRIVATE);
+    }
+
+    static String preferencesName(boolean compactMode) {
+        return compactMode ? COMPACT_PREFS : FULL_PREFS;
     }
 
     public void recordVisit(String rawUrl, String rawTitle) {

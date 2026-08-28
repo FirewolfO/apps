@@ -4,15 +4,21 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.content.res.ColorStateList;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
+import android.provider.Settings;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,7 +43,10 @@ import android.widget.Toast;
 
 import com.firewolf.xiaolinstudy.data.PageRecord;
 import com.firewolf.xiaolinstudy.data.ProgressStore;
+import com.firewolf.xiaolinstudy.data.CompactHtmlRenderer;
+import com.firewolf.xiaolinstudy.data.StudyModeStore;
 import com.firewolf.xiaolinstudy.data.UrlTools;
+import com.firewolf.xiaolinstudy.data.VersionTools;
 import com.firewolf.xiaolinstudy.data.CatalogRepository;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogArticle;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogBook;
@@ -46,15 +55,32 @@ import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogSection;
 import com.firewolf.xiaolinstudy.data.CatalogNavigator;
 import com.firewolf.xiaolinstudy.web.StudyWebView;
 
+import org.json.JSONObject;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public final class MainActivity extends Activity {
     private static final int TAB_HOME = 0;
     private static final int TAB_CATALOG = 1;
     private static final int TAB_RECORDS = 2;
+    private static final int INSTALL_PERMISSION_REQUEST = 4103;
+    private static final String COMPACT_ORIGIN = "https://compact.xiaolin/";
+    private static final long UPDATE_CHECK_INTERVAL_MS = 15 * 60 * 1000L;
+    private static final long UPDATE_DOWNLOAD_POLL_MS = 750L;
+    static final String UPDATE_PREFERENCES = "xiaolin_app_update";
+    static final String UPDATE_DOWNLOAD_ID = "update_download_id";
+    static final String UPDATE_READY_ID = "update_ready_id";
 
     private static final int COLOR_BG = Color.rgb(246, 247, 245);
     private static final int COLOR_SURFACE = Color.WHITE;
@@ -66,6 +92,8 @@ public final class MainActivity extends Activity {
     private static final int COLOR_DIVIDER = Color.rgb(227, 231, 228);
 
     private ProgressStore progressStore;
+    private StudyModeStore studyModeStore;
+    private boolean compactMode;
     private List<CatalogGroup> catalogGroups;
     private CatalogNavigator catalogNavigator;
     private CatalogGroup selectedCatalogGroup;
@@ -86,21 +114,41 @@ public final class MainActivity extends Activity {
     private TextView pageStatus;
     private ImageButton previousLessonButton;
     private ImageButton nextLessonButton;
+    private ImageButton refreshButton;
+    private ImageButton externalButton;
     private Button completionButton;
     private CatalogNavigator.Position currentCatalogPosition;
+    private CatalogArticle currentArticle;
     private String currentUrl;
     private String currentTitle;
     private boolean legacyWebFallback;
 
+    private final ExecutorService networkExecutor = Executors.newSingleThreadExecutor();
+    private final Handler updateHandler = new Handler(Looper.getMainLooper());
+    private final Runnable updateDownloadPoll = this::resumeDownloadedUpdate;
+    private AppUpdate pendingUpdate;
+    private AppUpdate availableUpdate;
+    private boolean checkingForUpdate;
+    private boolean updateDownloadAuthorized;
+    private long lastUpdateCheckAt;
+    private String promptedVersion = "";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        progressStore = new ProgressStore(this);
-        catalogGroups = CatalogRepository.load(this);
-        catalogNavigator = new CatalogNavigator(catalogGroups);
+        studyModeStore = new StudyModeStore(this);
+        compactMode = studyModeStore.isCompactMode();
+        loadCatalogForMode();
         createShell();
         configureWindow();
         showNativeTab(TAB_HOME);
+        checkForUpdate(false);
+    }
+
+    private void loadCatalogForMode() {
+        progressStore = new ProgressStore(this, compactMode);
+        catalogGroups = CatalogRepository.load(this, compactMode);
+        catalogNavigator = new CatalogNavigator(catalogGroups);
     }
 
     private void createShell() {
@@ -127,7 +175,7 @@ public final class MainActivity extends Activity {
         nav.setElevation(dp(10));
 
         addNavItem(nav, TAB_HOME, "首页", R.drawable.ic_home);
-        addNavItem(nav, TAB_CATALOG, "全部内容", R.drawable.ic_library);
+        addNavItem(nav, TAB_CATALOG, compactMode ? "重点目录" : "全部内容", R.drawable.ic_library);
         addNavItem(nav, TAB_RECORDS, "学习记录", R.drawable.ic_check);
         return nav;
     }
@@ -202,6 +250,9 @@ public final class MainActivity extends Activity {
     }
 
     private void updateBottomNavigation() {
+        String catalogLabel = compactMode ? "重点目录" : "全部内容";
+        navLabels[TAB_CATALOG].setText(catalogLabel);
+        navItems[TAB_CATALOG].setContentDescription(catalogLabel);
         for (int index = 0; index < navItems.length; index++) {
             boolean selected = index == activeTab;
             int color = selected ? COLOR_BRAND : COLOR_MUTED;
@@ -215,19 +266,25 @@ public final class MainActivity extends Activity {
     }
 
     private View createHomeScreen() {
-        LinearLayout page = pageWithToolbar("小林学习", "后端图解 · 面试八股 · AI Agent");
+        LinearLayout page = pageWithToolbar("小林学习",
+                compactMode ? "精简版 · 77 个面试重点 · 离线速记" : "完整版 · 后端图解 · 面试八股 · AI Agent");
         ScrollView scroll = new ScrollView(this);
         scroll.setFillViewport(true);
         LinearLayout body = vertical();
         body.setPadding(dp(20), dp(18), dp(20), dp(28));
 
-        body.addView(text("今天学到哪了？", 25, COLOR_INK, Typeface.BOLD), wrapParams());
-        TextView intro = text("把零散阅读变成看得见的积累", 14, COLOR_MUTED, Typeface.NORMAL);
+        body.addView(text(compactMode ? "快速准备，抓住重点" : "今天学到哪了？",
+                25, COLOR_INK, Typeface.BOLD), wrapParams());
+        TextView intro = text(compactMode
+                        ? "30 秒回答 · 核心要点 · 常见追问 · 易错提醒"
+                        : "把零散阅读变成看得见的积累",
+                14, COLOR_MUTED, Typeface.NORMAL);
         LinearLayout.LayoutParams introParams = wrapParams();
         introParams.topMargin = dp(5);
         body.addView(intro, introParams);
 
-        body.addView(createStatsPanel(), topMargin(dp(18)));
+        body.addView(createStudyModeSwitcher(), topMargin(dp(18)));
+        body.addView(createStatsPanel(), topMargin(dp(12)));
 
         String lastUrl = progressStore.getLastUrl();
         if (lastUrl != null) {
@@ -235,23 +292,98 @@ public final class MainActivity extends Activity {
             body.addView(createContinueCard(lastUrl, progressStore.getLastTitle()), topMargin(dp(10)));
         }
 
-        body.addView(sectionTitle("学习系列", "查看全部"), topMargin(dp(24)));
+        body.addView(sectionTitle(compactMode ? "重点系列" : "学习系列", "查看全部"), topMargin(dp(24)));
         for (int index = 0; index < catalogGroups.size(); index++) {
             body.addView(createCatalogGroupRow(catalogGroups.get(index), index),
                     topMargin(index == 0 ? dp(10) : dp(8)));
         }
 
-        TextView source = text("内容来源  xiaolincoding.com · xiaolinnote.com",
+        TextView source = text(compactMode
+                        ? "精简摘要离线可读 · 深入学习可跳转小林原文"
+                        : "内容来源  xiaolincoding.com · xiaolinnote.com",
                 12, COLOR_MUTED, Typeface.NORMAL);
         source.setGravity(Gravity.CENTER);
         LinearLayout.LayoutParams sourceParams = matchWrapParams();
         sourceParams.topMargin = dp(26);
         body.addView(source, sourceParams);
 
+        TextView version = text("当前版本 " + BuildConfig.VERSION_NAME + " · 检查更新",
+                12, COLOR_BRAND, Typeface.BOLD);
+        version.setGravity(Gravity.CENTER);
+        version.setPadding(dp(12), dp(12), dp(12), dp(12));
+        version.setOnClickListener(view -> checkForUpdate(true));
+        body.addView(version, topMargin(dp(6)));
+
         scroll.addView(body, matchWrapParams());
         page.addView(scroll, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
         return page;
+    }
+
+    private View createStudyModeSwitcher() {
+        LinearLayout card = vertical();
+        card.setPadding(dp(14), dp(13), dp(14), dp(13));
+        card.setBackground(rounded(COLOR_SURFACE, 10, 1, COLOR_DIVIDER));
+
+        LinearLayout choices = new LinearLayout(this);
+        choices.setOrientation(LinearLayout.HORIZONTAL);
+        choices.addView(studyModeButton("完整版", false),
+                new LinearLayout.LayoutParams(0, dp(42), 1f));
+        LinearLayout.LayoutParams compactParams = new LinearLayout.LayoutParams(0, dp(42), 1f);
+        compactParams.leftMargin = dp(8);
+        choices.addView(studyModeButton("精简版", true), compactParams);
+        card.addView(choices, matchWrapParams());
+
+        TextView hint = text(compactMode
+                        ? "当前为精简版：77 个重点与 28 张关键图示，进度单独保存"
+                        : "当前为完整版：307 篇原站目录，保留原有阅读进度",
+                12, COLOR_MUTED, Typeface.NORMAL);
+        hint.setGravity(Gravity.CENTER);
+        card.addView(hint, topMargin(dp(9)));
+        return card;
+    }
+
+    private Button studyModeButton(String label, boolean targetCompactMode) {
+        boolean selected = compactMode == targetCompactMode;
+        Button button = new Button(this);
+        button.setAllCaps(false);
+        button.setText(label);
+        button.setTextSize(14);
+        button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+        button.setTextColor(selected ? Color.WHITE : COLOR_MUTED);
+        button.setBackground(rounded(selected ? COLOR_BRAND : Color.rgb(240, 243, 241),
+                9, selected ? 0 : 1, COLOR_DIVIDER));
+        button.setOnClickListener(view -> switchStudyMode(targetCompactMode));
+        return button;
+    }
+
+    private void switchStudyMode(boolean targetCompactMode) {
+        if (compactMode == targetCompactMode) return;
+        saveCurrentReadingPosition();
+        destroyReader();
+        compactMode = targetCompactMode;
+        studyModeStore.setCompactMode(compactMode);
+        loadCatalogForMode();
+        selectedCatalogGroup = null;
+        selectedCatalogBook = null;
+        showingRecentRecords = false;
+        activeTab = TAB_HOME;
+        renderNativeScreen();
+        Toast.makeText(this, compactMode
+                ? "已切换精简版，进度与完整版互不影响"
+                : "已切换完整版，原有进度已保留", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showStudyModeChooser() {
+        new AlertDialog.Builder(this)
+                .setTitle("切换学习版本")
+                .setSingleChoiceItems(new String[]{"完整版 · 307 篇原文目录", "精简版 · 77 个面试重点"},
+                        compactMode ? 1 : 0, (dialog, which) -> {
+                            dialog.dismiss();
+                            switchStudyMode(which == 1);
+                        })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private View createStatsPanel() {
@@ -264,7 +396,8 @@ public final class MainActivity extends Activity {
         LinearLayout completed = vertical();
         completed.addView(text(String.valueOf(progressStore.completedCount()), 30,
                 Color.WHITE, Typeface.BOLD), wrapParams());
-        completed.addView(text("已完成", 12, Color.rgb(210, 235, 226), Typeface.NORMAL), wrapParams());
+        completed.addView(text(compactMode ? "重点已掌握" : "已完成", 12,
+                Color.rgb(210, 235, 226), Typeface.NORMAL), wrapParams());
         panel.addView(completed, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -276,7 +409,8 @@ public final class MainActivity extends Activity {
         visited.setPadding(dp(22), 0, 0, 0);
         visited.addView(text(String.valueOf(progressStore.visitedCount()), 30,
                 Color.WHITE, Typeface.BOLD), wrapParams());
-        visited.addView(text("已浏览", 12, Color.rgb(210, 235, 226), Typeface.NORMAL), wrapParams());
+        visited.addView(text(compactMode ? "重点已浏览" : "已浏览", 12,
+                Color.rgb(210, 235, 226), Typeface.NORMAL), wrapParams());
         panel.addView(visited, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -322,8 +456,9 @@ public final class MainActivity extends Activity {
     }
 
     private View createCatalogScreen() {
-        LinearLayout page = pageWithToolbar("全部内容",
-                catalogGroups.size() + " 个系列 · " + totalCatalogArticles() + " 篇");
+        LinearLayout page = pageWithToolbar(compactMode ? "重点目录" : "全部内容",
+                catalogGroups.size() + " 个系列 · " + totalCatalogArticles()
+                        + (compactMode ? " 个重点" : " 篇"));
         ScrollView scroll = new ScrollView(this);
         LinearLayout body = vertical();
         body.setPadding(dp(20), dp(18), dp(20), dp(30));
@@ -347,7 +482,8 @@ public final class MainActivity extends Activity {
 
     private View createCatalogGroupScreen(CatalogGroup group) {
         LinearLayout page = pageWithBackToolbar(group.getTitle(),
-                group.getBooks().size() + " 个专题 · " + group.articleCount() + " 篇",
+                group.getBooks().size() + " 个专题 · " + group.articleCount()
+                        + (compactMode ? " 个重点" : " 篇"),
                 () -> {
                     selectedCatalogGroup = null;
                     renderNativeScreen();
@@ -369,7 +505,8 @@ public final class MainActivity extends Activity {
 
     private View createCatalogBookScreen(CatalogBook book) {
         LinearLayout page = pageWithBackToolbar(book.getTitle(),
-                book.getSections().size() + " 个章节 · " + book.articleCount() + " 篇",
+                book.getSections().size() + " 个章节 · " + book.articleCount()
+                        + (compactMode ? " 个重点" : " 篇"),
                 () -> {
                     selectedCatalogBook = null;
                     renderNativeScreen();
@@ -403,7 +540,7 @@ public final class MainActivity extends Activity {
     private View createCatalogGroupRow(CatalogGroup group, int index) {
         int completed = completedCount(group);
         String progress = group.getBooks().size() + " 个专题 · " + group.articleCount()
-                + " 篇 · 已完成 " + completed;
+                + (compactMode ? " 个重点" : " 篇") + " · 已完成 " + completed;
         return createCatalogNavigationRow(group.getTitle(), group.getDescription(), progress,
                 catalogColor(index), () -> showCatalogGroup(group));
     }
@@ -411,7 +548,7 @@ public final class MainActivity extends Activity {
     private View createCatalogBookRow(CatalogBook book, int index) {
         int completed = completedCount(book);
         String progress = book.getSections().size() + " 个章节 · " + book.articleCount()
-                + " 篇 · 已完成 " + completed;
+                + (compactMode ? " 个重点" : " 篇") + " · 已完成 " + completed;
         return createCatalogNavigationRow(book.getTitle(), book.getDescription(), progress,
                 catalogColor(index), () -> showCatalogBook(book));
     }
@@ -466,7 +603,8 @@ public final class MainActivity extends Activity {
         row.setOnClickListener(view -> openReader(article.getUrl()));
 
         ImageView icon = new ImageView(this);
-        icon.setImageResource(completed ? R.drawable.ic_check : R.drawable.ic_globe);
+        icon.setImageResource(completed ? R.drawable.ic_check
+                : compactMode ? R.drawable.ic_library : R.drawable.ic_globe);
         int iconColor = completed ? COLOR_BRAND : Color.rgb(54, 101, 166);
         icon.setColorFilter(iconColor);
         icon.setPadding(dp(8), dp(8), dp(8), dp(8));
@@ -479,6 +617,14 @@ public final class MainActivity extends Activity {
         title.setMaxLines(3);
         title.setEllipsize(android.text.TextUtils.TruncateAt.END);
         copy.addView(title, matchWrapParams());
+        if (compactMode && !article.getSummary().isEmpty()) {
+            TextView summary = text(article.getSummary(), 12, COLOR_MUTED, Typeface.NORMAL);
+            summary.setMaxLines(2);
+            summary.setEllipsize(android.text.TextUtils.TruncateAt.END);
+            LinearLayout.LayoutParams summaryParams = matchWrapParams();
+            summaryParams.topMargin = dp(4);
+            copy.addView(summary, summaryParams);
+        }
         TextView status = text(completed ? "已完成" : "未完成", 12,
                 completed ? COLOR_BRAND_DARK : COLOR_MUTED, Typeface.NORMAL);
         LinearLayout.LayoutParams statusParams = wrapParams();
@@ -495,7 +641,8 @@ public final class MainActivity extends Activity {
     }
 
     private View createRecordsScreen() {
-        LinearLayout page = pageWithToolbar("学习记录", progressStore.completedCount() + " 篇已完成");
+        LinearLayout page = pageWithToolbar("学习记录", progressStore.completedCount()
+                + (compactMode ? " 个重点已完成" : " 篇已完成"));
         LinearLayout controls = new LinearLayout(this);
         controls.setOrientation(LinearLayout.HORIZONTAL);
         controls.setPadding(dp(20), dp(14), dp(20), dp(6));
@@ -574,7 +721,8 @@ public final class MainActivity extends Activity {
         row.setOnClickListener(view -> openReader(record.getUrl()));
 
         ImageView icon = new ImageView(this);
-        icon.setImageResource(completedRecord ? R.drawable.ic_check : R.drawable.ic_globe);
+        icon.setImageResource(completedRecord ? R.drawable.ic_check
+                : compactMode ? R.drawable.ic_library : R.drawable.ic_globe);
         int iconColor = completedRecord ? COLOR_BRAND : Color.rgb(54, 101, 166);
         icon.setColorFilter(iconColor);
         icon.setPadding(dp(8), dp(8), dp(8), dp(8));
@@ -633,12 +781,16 @@ public final class MainActivity extends Activity {
         toolbar.addView(titleBlock, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
-        ImageButton refresh = iconButton(R.drawable.ic_refresh, "刷新");
-        refresh.setOnClickListener(view -> webView.reload());
-        toolbar.addView(refresh, new LinearLayout.LayoutParams(dp(48), dp(52)));
-        ImageButton external = iconButton(R.drawable.ic_open_external, "在浏览器中打开");
-        external.setOnClickListener(view -> openExternal(currentUrl));
-        toolbar.addView(external, new LinearLayout.LayoutParams(dp(48), dp(52)));
+        refreshButton = iconButton(R.drawable.ic_refresh, "刷新");
+        refreshButton.setOnClickListener(view -> {
+            if (currentArticle != null && currentArticle.isCompact()) loadArticle(currentArticle);
+            else webView.reload();
+        });
+        toolbar.addView(refreshButton, new LinearLayout.LayoutParams(dp(48), dp(52)));
+        externalButton = iconButton(R.drawable.ic_open_external, "在浏览器中打开");
+        externalButton.setOnClickListener(view -> openExternal(currentArticle != null
+                && currentArticle.isCompact() ? currentArticle.getSourceUrl() : currentUrl));
+        toolbar.addView(externalButton, new LinearLayout.LayoutParams(dp(48), dp(52)));
         screen.addView(toolbar, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(56)));
 
@@ -712,7 +864,7 @@ public final class MainActivity extends Activity {
             @Override
             public boolean onConsoleMessage(ConsoleMessage message) {
                 String text = message == null ? "" : message.message();
-                if (!legacyWebFallback && text.contains("Unexpected token =>")) {
+                if (!compactMode && !legacyWebFallback && text.contains("Unexpected token =>")) {
                     legacyWebFallback = true;
                     webView.getSettings().setJavaScriptEnabled(false);
                     webView.post(() -> {
@@ -761,6 +913,10 @@ public final class MainActivity extends Activity {
     private boolean handleRequestedUri(Uri uri) {
         if (uri == null) return true;
         String url = uri.toString();
+        if (compactMode && !url.startsWith(COMPACT_ORIGIN)) {
+            openExternal(url);
+            return true;
+        }
         if (UrlTools.isWebUrl(url)) {
             saveCurrentReadingPosition();
             return false;
@@ -774,9 +930,13 @@ public final class MainActivity extends Activity {
         String normalized = UrlTools.normalize(url);
         boolean changed = currentUrl == null || !UrlTools.normalize(currentUrl).equals(normalized);
         currentUrl = url;
-        currentTitle = UrlTools.displayTitle(title, url);
+        currentArticle = catalogNavigator.find(url) == null
+                ? currentArticle : catalogNavigator.find(url).getArticle();
+        currentTitle = currentArticle != null && currentArticle.isCompact()
+                ? currentArticle.getTitle() : UrlTools.displayTitle(title, url);
         readerTitle.setText(currentTitle);
-        readerSource.setText(hostFor(url));
+        readerSource.setText(currentArticle != null && currentArticle.isCompact()
+                ? "精简版 · 离线速记" : hostFor(url));
         progressStore.recordVisit(url, currentTitle);
         updateCompletionButton();
         if (restorePosition && changed) {
@@ -794,6 +954,15 @@ public final class MainActivity extends Activity {
         }
         contentContainer.addView(readerScreen, matchParams());
         String target = url == null ? UrlTools.HOME_URL : url;
+        CatalogNavigator.Position targetPosition = catalogNavigator.find(target);
+        CatalogArticle targetArticle = targetPosition == null ? null : targetPosition.getArticle();
+        if (targetArticle != null && targetArticle.isCompact()) {
+            loadArticle(targetArticle);
+            webView.onResume();
+            webView.requestFocus();
+            return;
+        }
+        currentArticle = targetArticle;
         if (webView.getUrl() == null || !UrlTools.normalize(webView.getUrl()).equals(UrlTools.normalize(target))) {
             currentUrl = null;
             webView.loadUrl(target);
@@ -804,6 +973,19 @@ public final class MainActivity extends Activity {
         }
         webView.onResume();
         webView.requestFocus();
+    }
+
+    private void loadArticle(CatalogArticle article) {
+        currentArticle = article;
+        currentUrl = article.getUrl();
+        currentTitle = article.getTitle();
+        readerTitle.setText(currentTitle);
+        readerSource.setText("精简版 · 离线速记");
+        webProgress.setVisibility(View.VISIBLE);
+        webView.loadDataWithBaseURL(article.getUrl(), CompactHtmlRenderer.render(article),
+                "text/html", "UTF-8", null);
+        int savedY = progressStore.getScrollPosition(article.getUrl());
+        if (savedY > 0) webView.postDelayed(() -> webView.scrollTo(0, savedY), 220);
     }
 
     private void closeReader() {
@@ -854,13 +1036,17 @@ public final class MainActivity extends Activity {
         }
         saveCurrentReadingPosition();
         readerTitle.setText(target.getTitle());
-        readerSource.setText(hostFor(target.getUrl()));
+        readerSource.setText(target.isCompact() ? "精简版 · 离线速记" : hostFor(target.getUrl()));
         completionButton.setEnabled(false);
         completionButton.setAlpha(0.55f);
         configureLessonButton(previousLessonButton, null, "上一节");
         configureLessonButton(nextLessonButton, null, "下一节");
         webProgress.setVisibility(View.VISIBLE);
-        webView.loadUrl(target.getUrl());
+        if (target.isCompact()) loadArticle(target);
+        else {
+            currentArticle = target;
+            webView.loadUrl(target.getUrl());
+        }
     }
 
     private void updateCompletionButton() {
@@ -922,12 +1108,206 @@ public final class MainActivity extends Activity {
         }
     }
 
+    private void checkForUpdate(boolean userInitiated) {
+        if (checkingForUpdate) {
+            if (userInitiated) Toast.makeText(this, "正在检查新版本", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        checkingForUpdate = true;
+        lastUpdateCheckAt = System.currentTimeMillis();
+        networkExecutor.execute(() -> {
+            AppUpdate update = null;
+            try {
+                URL endpoint = new URL(BuildConfig.APP_CENTER_URL + "/api/apps/xiaolin/latest");
+                HttpURLConnection connection = (HttpURLConnection) endpoint.openConnection();
+                connection.setConnectTimeout(8000);
+                connection.setReadTimeout(8000);
+                connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("User-Agent", "XiaolinStudyAndroid/" + BuildConfig.VERSION_NAME);
+                if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                    try (InputStream body = connection.getInputStream()) {
+                        JSONObject release = new JSONObject(readBody(body)).optJSONObject("release");
+                        if (release != null) update = AppUpdate.from(release);
+                    }
+                }
+                connection.disconnect();
+            } catch (Exception ignored) {
+                // Update checks are best-effort and never block local study.
+            }
+            AppUpdate result = update;
+            runOnUiThread(() -> {
+                checkingForUpdate = false;
+                if (result == null || !result.isValid()) {
+                    if (userInitiated) Toast.makeText(this, "暂时无法获取版本信息", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                if (VersionTools.isNewer(result.version, BuildConfig.VERSION_NAME)) {
+                    availableUpdate = result;
+                    if (userInitiated || !result.version.equals(promptedVersion)) {
+                        promptedVersion = result.version;
+                        showUpdatePrompt(result);
+                    }
+                } else if (userInitiated) {
+                    Toast.makeText(this, "当前已是最新版本 " + BuildConfig.VERSION_NAME,
+                            Toast.LENGTH_SHORT).show();
+                }
+            });
+        });
+    }
+
+    private static String readBody(InputStream input) throws Exception {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[4096];
+        int count;
+        while ((count = input.read(buffer)) != -1) output.write(buffer, 0, count);
+        return output.toString(StandardCharsets.UTF_8.name());
+    }
+
+    private void showUpdatePrompt(AppUpdate update) {
+        if (isFinishing() || isDestroyed()) return;
+        String size = update.size > 0 ? "\n安装包大小：" + formatSize(update.size) : "";
+        new AlertDialog.Builder(this)
+                .setTitle("发现新版本 " + update.version)
+                .setMessage("是否下载并覆盖安装新版小林学习？只有点击“同意并下载”后才开始下载。"
+                        + "\n完整版和精简版进度均保存在本机，覆盖升级不会清除；请不要先卸载旧版。" + size
+                        + (update.notes.isEmpty() ? "" : "\n\n更新内容：\n" + update.notes))
+                .setNegativeButton("稍后", null)
+                .setPositiveButton("同意并下载", (dialog, which) -> prepareUpdate(update))
+                .show();
+    }
+
+    private void prepareUpdate(AppUpdate update) {
+        pendingUpdate = update;
+        updateDownloadAuthorized = true;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && !getPackageManager().canRequestPackageInstalls()) {
+            startActivityForResult(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                    Uri.parse("package:" + getPackageName())), INSTALL_PERMISSION_REQUEST);
+            return;
+        }
+        downloadPendingUpdate();
+    }
+
+    private void downloadPendingUpdate() {
+        if (!updateDownloadAuthorized || pendingUpdate == null) return;
+        AppUpdate update = pendingUpdate;
+        pendingUpdate = null;
+        updateDownloadAuthorized = false;
+        String filename = update.filename.replaceAll("[^A-Za-z0-9._-]", "_");
+        if (!filename.toLowerCase(Locale.ROOT).endsWith(".apk")) filename += ".apk";
+        String downloadUrl = update.url.startsWith("http://") || update.url.startsWith("https://")
+                ? update.url : BuildConfig.APP_CENTER_URL + (update.url.startsWith("/") ? "" : "/") + update.url;
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl))
+                .setTitle("小林学习 " + update.version)
+                .setDescription("正在下载安装包")
+                .setMimeType("application/vnd.android.package-archive")
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI
+                        | DownloadManager.Request.NETWORK_MOBILE)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        File downloadDir = getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        if (downloadDir != null) {
+            File previous = new File(downloadDir, filename);
+            if (previous.exists() && !previous.delete()) {
+                Toast.makeText(this, "无法替换旧安装包", Toast.LENGTH_LONG).show();
+                return;
+            }
+            request.setDestinationInExternalFilesDir(this, Environment.DIRECTORY_DOWNLOADS, filename);
+        }
+        try {
+            long id = ((DownloadManager) getSystemService(DOWNLOAD_SERVICE)).enqueue(request);
+            getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit()
+                    .putLong(UPDATE_DOWNLOAD_ID, id).remove(UPDATE_READY_ID).apply();
+            updateHandler.removeCallbacks(updateDownloadPoll);
+            updateHandler.postDelayed(updateDownloadPoll, UPDATE_DOWNLOAD_POLL_MS);
+            Toast.makeText(this, "新版本开始下载", Toast.LENGTH_LONG).show();
+        } catch (RuntimeException error) {
+            Toast.makeText(this, "无法开始下载", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean resumeDownloadedUpdate() {
+        updateHandler.removeCallbacks(updateDownloadPoll);
+        long readyID = getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE)
+                .getLong(UPDATE_READY_ID, -1);
+        if (readyID >= 0) {
+            openDownloadedUpdate(readyID);
+            return true;
+        }
+        long downloadID = getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE)
+                .getLong(UPDATE_DOWNLOAD_ID, -1);
+        if (downloadID < 0) return false;
+
+        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        int status = DownloadManager.STATUS_FAILED;
+        try (Cursor cursor = manager.query(new DownloadManager.Query().setFilterById(downloadID))) {
+            if (cursor.moveToFirst()) {
+                status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+            }
+        } catch (RuntimeException error) {
+            updateHandler.postDelayed(updateDownloadPoll, UPDATE_DOWNLOAD_POLL_MS);
+            return true;
+        }
+        if (status == DownloadManager.STATUS_SUCCESSFUL) {
+            getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit()
+                    .remove(UPDATE_DOWNLOAD_ID).putLong(UPDATE_READY_ID, downloadID).apply();
+            openDownloadedUpdate(downloadID);
+        } else if (status == DownloadManager.STATUS_FAILED) {
+            getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit()
+                    .remove(UPDATE_DOWNLOAD_ID).remove(UPDATE_READY_ID).apply();
+            Toast.makeText(this, "新版本下载失败，请稍后重试", Toast.LENGTH_LONG).show();
+        } else {
+            updateHandler.postDelayed(updateDownloadPoll, UPDATE_DOWNLOAD_POLL_MS);
+        }
+        return true;
+    }
+
+    private void openDownloadedUpdate(long downloadID) {
+        DownloadManager manager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        Uri apk = manager.getUriForDownloadedFile(downloadID);
+        if (apk == null) {
+            getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit().remove(UPDATE_READY_ID).apply();
+            Toast.makeText(this, "无法打开安装包", Toast.LENGTH_LONG).show();
+            return;
+        }
+        getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit().remove(UPDATE_READY_ID).apply();
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW)
+                    .setDataAndType(apk, "application/vnd.android.package-archive")
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        } catch (RuntimeException error) {
+            getSharedPreferences(UPDATE_PREFERENCES, MODE_PRIVATE).edit()
+                    .putLong(UPDATE_READY_ID, downloadID).apply();
+            Toast.makeText(this, "无法打开安装包", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String formatSize(long bytes) {
+        if (bytes < 1024L * 1024L) return Math.max(1, bytes / 1024L) + " KB";
+        return String.format(Locale.CHINA, "%.1f MB", bytes / 1024d / 1024d);
+    }
+
     private void openExternal(String url) {
         if (url == null || url.trim().isEmpty()) return;
         try {
             startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
         } catch (ActivityNotFoundException error) {
             Toast.makeText(this, "没有可打开此链接的应用", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode != INSTALL_PERMISSION_REQUEST) return;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O
+                || getPackageManager().canRequestPackageInstalls()) {
+            downloadPendingUpdate();
+        } else {
+            updateDownloadAuthorized = false;
+            pendingUpdate = null;
+            Toast.makeText(this, "需要允许小林学习安装应用后才能更新", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -953,6 +1333,8 @@ public final class MainActivity extends Activity {
         copy.addView(sub, subParams);
         bar.addView(copy, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        bar.addView(studyModeChip(), wrapParams());
 
         page.addView(bar, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
@@ -986,6 +1368,8 @@ public final class MainActivity extends Activity {
         bar.addView(copy, new LinearLayout.LayoutParams(0,
                 ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
+        bar.addView(studyModeChip(), wrapParams());
+
         page.addView(bar, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(64)));
         return page;
@@ -1004,6 +1388,18 @@ public final class MainActivity extends Activity {
             row.addView(actionView, wrapParams());
         }
         return row;
+    }
+
+    private TextView studyModeChip() {
+        TextView chip = text(compactMode ? "精简版" : "完整版", 12,
+                compactMode ? Color.WHITE : COLOR_BRAND_DARK, Typeface.BOLD);
+        chip.setGravity(Gravity.CENTER);
+        chip.setPadding(dp(11), dp(7), dp(11), dp(7));
+        chip.setBackground(rounded(compactMode ? COLOR_BRAND : Color.rgb(234, 245, 240),
+                20, compactMode ? 0 : 1, Color.rgb(179, 218, 202)));
+        chip.setContentDescription("当前为" + (compactMode ? "精简版" : "完整版") + "，点击切换");
+        chip.setOnClickListener(view -> showStudyModeChooser());
+        return chip;
     }
 
     private ImageButton iconButton(int iconResource, String description) {
@@ -1173,6 +1569,15 @@ public final class MainActivity extends Activity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (resumeDownloadedUpdate()) return;
+        if (System.currentTimeMillis() - lastUpdateCheckAt >= UPDATE_CHECK_INTERVAL_MS) {
+            checkForUpdate(false);
+        }
+    }
+
+    @Override
     protected void onPause() {
         saveCurrentReadingPosition();
         super.onPause();
@@ -1180,13 +1585,62 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        updateHandler.removeCallbacks(updateDownloadPoll);
+        networkExecutor.shutdownNow();
+        destroyReader();
+        super.onDestroy();
+    }
+
+    private void destroyReader() {
         if (webView != null) {
             webView.stopLoading();
             webView.setWebChromeClient(null);
             webView.setWebViewClient(null);
             webView.destroy();
         }
-        super.onDestroy();
+        webView = null;
+        readerScreen = null;
+        webProgress = null;
+        readerTitle = null;
+        readerSource = null;
+        pageStatus = null;
+        previousLessonButton = null;
+        nextLessonButton = null;
+        refreshButton = null;
+        externalButton = null;
+        completionButton = null;
+        currentCatalogPosition = null;
+        currentArticle = null;
+        currentUrl = null;
+        currentTitle = null;
+    }
+
+    private static final class AppUpdate {
+        final String version;
+        final String filename;
+        final String url;
+        final String notes;
+        final long size;
+
+        AppUpdate(String version, String filename, String url, String notes, long size) {
+            this.version = version;
+            this.filename = filename;
+            this.url = url;
+            this.notes = notes;
+            this.size = size;
+        }
+
+        static AppUpdate from(JSONObject release) {
+            return new AppUpdate(release.optString("version", "").trim(),
+                    release.optString("filename", "xiaolin-update.apk").trim(),
+                    release.optString("downloadUrl", "").trim(),
+                    release.optString("notes", "").trim(), release.optLong("size", 0));
+        }
+
+        boolean isValid() {
+            return !version.isEmpty() && !filename.isEmpty() && !url.isEmpty()
+                    && url.length() <= 2048 && filename.length() <= 180;
+        }
     }
 
 }

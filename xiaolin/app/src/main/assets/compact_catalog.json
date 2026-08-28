@@ -1,0 +1,1792 @@
+{
+  "generatedAt": "2026-08-28",
+  "edition": "compact",
+  "groups": [
+    {
+      "title": "计算机基础速记",
+      "description": "网络、操作系统、MySQL、Redis 的面试主干",
+      "books": [
+        {
+          "title": "计算机网络",
+          "description": "把访问链路、HTTP、TCP 和网络排障压缩成高频回答",
+          "homeUrl": "https://www.xiaolincoding.com/network/",
+          "sections": [
+            {
+              "title": "协议与访问链路",
+              "articles": [
+                {
+                  "title": "TCP/IP 四层模型与一次封装",
+                  "url": "https://compact.xiaolin/network/tcp-ip-layers",
+                  "summary": "先说每层职责，再说数据如何逐层加头、到端后逐层解包。",
+                  "answer": "TCP/IP 常按应用层、传输层、网络层、网络接口层理解；应用数据经过 TCP/UDP、IP 和链路层逐层封装，接收端反向解封装。",
+                  "keyPoints": [
+                    "应用层定义业务语义，如 HTTP、DNS。",
+                    "传输层负责端到端通信，TCP 提供可靠字节流，UDP 提供尽力而为的报文。",
+                    "网络层用 IP 完成跨网段路由，链路层在当前链路交付帧。"
+                  ],
+                  "followUps": [
+                    "交换机和路由器分别工作在哪？交换机主要看 MAC，路由器主要看 IP。",
+                    "为什么 IP 还需要 MAC？IP 负责全局寻址，MAC 负责当前链路下一跳交付。"
+                  ],
+                  "pitfall": "不要机械背 OSI 七层；面试中要能把协议、设备和故障定位映射到具体层。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/",
+                  "diagram": {
+                    "title": "数据封装方向",
+                    "nodes": [
+                      "HTTP 数据",
+                      "TCP 段",
+                      "IP 包",
+                      "以太网帧"
+                    ]
+                  }
+                },
+                {
+                  "title": "浏览器输入 URL 后发生什么",
+                  "url": "https://compact.xiaolin/network/url-journey",
+                  "summary": "用 DNS、连接、请求、服务端处理、渲染五段回答，HTTPS 再补 TLS。",
+                  "answer": "浏览器解析 URL 和缓存后做 DNS 查询，拿到 IP 后建立 TCP，HTTPS 还要完成 TLS；随后发送 HTTP 请求，经网关和服务处理返回资源，浏览器解析并渲染页面。",
+                  "keyPoints": [
+                    "DNS 会依次命中浏览器、系统、路由器和递归解析器缓存。",
+                    "连接可能复用，HTTP/2、HTTP/3 会改变多路复用和传输层细节。",
+                    "服务端通常还经历负载均衡、鉴权、缓存、数据库和下游调用。"
+                  ],
+                  "followUps": [
+                    "如何定位慢？分解 DNS、建连、TLS、TTFB、下载和渲染耗时。",
+                    "状态码在哪一阶段出现？HTTP 请求到达应用或代理后。"
+                  ],
+                  "pitfall": "不要只回答 DNS 和 TCP 三次握手，服务端链路与浏览器渲染同样是高频追问。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/",
+                  "diagram": {
+                    "title": "一次访问的主链路",
+                    "nodes": [
+                      "DNS 解析",
+                      "TCP / TLS",
+                      "HTTP 请求",
+                      "服务处理",
+                      "解析渲染"
+                    ]
+                  }
+                },
+                {
+                  "title": "HTTP/1.1、HTTP/2、HTTP/3",
+                  "url": "https://compact.xiaolin/network/http-versions",
+                  "summary": "比较连接复用、队头阻塞、头部压缩和底层传输即可。",
+                  "answer": "HTTP/1.1 支持长连接但并发常靠多连接；HTTP/2 在单 TCP 上用二进制帧多路复用并压缩头部；HTTP/3 基于 QUIC/UDP，让不同流不再共享 TCP 层队头阻塞。",
+                  "keyPoints": [
+                    "HTTP/2 的流互不阻塞只发生在应用层，丢包仍会让同一 TCP 连接等待。",
+                    "HTTP/3 把可靠性、拥塞控制和 TLS 1.3 整合进 QUIC。",
+                    "版本升级不改变 HTTP 方法、状态码和语义。"
+                  ],
+                  "followUps": [
+                    "为什么 HTTP/2 仍可能慢？TCP 丢包、单连接拥塞、服务端优先级实现都可能影响。",
+                    "QUIC 为什么迁移网络更快？连接 ID 不绑定固定四元组。"
+                  ],
+                  "pitfall": "不要说 HTTP/2 完全没有队头阻塞；它仍受 TCP 队头阻塞影响。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/"
+                },
+                {
+                  "title": "HTTPS 与 TLS 握手",
+                  "url": "https://compact.xiaolin/network/https-tls",
+                  "summary": "核心是证书验证身份、密钥协商得到会话密钥、对称加密传数据。",
+                  "answer": "HTTPS 是 HTTP 运行在 TLS 上：客户端验证证书链和域名，通过密钥交换协商共享秘密，再派生对称会话密钥；后续数据同时获得机密性、完整性和身份认证。",
+                  "keyPoints": [
+                    "证书由受信 CA 签名，浏览器用内置根证书验证证书链。",
+                    "真正的大量数据用对称加密，因为性能远高于非对称加密。",
+                    "TLS 1.3 减少握手往返，并移除了大量旧算法。"
+                  ],
+                  "followUps": [
+                    "中间人为什么不能伪造？没有受信 CA 的私钥，无法生成可通过验证的目标域名证书。",
+                    "证书有效但仍不安全的情况？私钥泄露、终端被控或用户忽略告警。"
+                  ],
+                  "pitfall": "不要回答成‘用公钥加密所有数据’，现代 TLS 主要用非对称算法做认证和协商。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/",
+                  "diagram": {
+                    "title": "TLS 建立安全通道",
+                    "nodes": [
+                      "ClientHello",
+                      "证书与参数",
+                      "验证并协商密钥",
+                      "对称加密通信"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "title": "TCP 与性能",
+              "articles": [
+                {
+                  "title": "TCP 三次握手与四次挥手",
+                  "url": "https://compact.xiaolin/network/tcp-handshake-close",
+                  "summary": "握手要证明双向收发能力并同步序列号；挥手分开关闭两个方向。",
+                  "answer": "三次握手让双方确认收发能力并同步初始序列号；TCP 是全双工，主动方关闭发送后，被动方仍可能发送剩余数据，因此连接释放通常需要四次报文。",
+                  "keyPoints": [
+                    "第三次握手可避免旧连接请求让服务端误建连接。",
+                    "TIME_WAIT 由主动关闭方进入，等待 2MSL 让旧报文消失并能重发最后 ACK。",
+                    "服务端 CLOSE_WAIT 过多通常意味着应用没有及时 close。"
+                  ],
+                  "followUps": [
+                    "为什么不是两次握手？两次不能让服务端确认自己的 SYN 已被客户端收到。",
+                    "TIME_WAIT 太多怎么处理？先排查短连接设计，再考虑复用、端口范围和内核参数。"
+                  ],
+                  "pitfall": "不要把 TIME_WAIT 一律当故障；它是 TCP 正确性的一部分。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/",
+                  "diagram": {
+                    "title": "建立与关闭",
+                    "nodes": [
+                      "SYN",
+                      "SYN + ACK",
+                      "ACK",
+                      "FIN / ACK 双向关闭"
+                    ]
+                  }
+                },
+                {
+                  "title": "TCP 如何保证可靠传输",
+                  "url": "https://compact.xiaolin/network/tcp-reliable",
+                  "summary": "序列号、确认、重传、滑动窗口和校验共同实现可靠有序字节流。",
+                  "answer": "TCP 给字节编号，接收端累计确认；发送端根据超时或重复 ACK 重传，接收窗口控制对端发送量，校验和检测损坏，接收端重排并去重后交给应用。",
+                  "keyPoints": [
+                    "超时重传依赖动态估计 RTT，快速重传通常由重复 ACK 触发。",
+                    "滑动窗口允许多个未确认段在途，避免停等协议浪费带宽。",
+                    "SACK 可告诉发送端具体缺失区间，减少无谓重传。"
+                  ],
+                  "followUps": [
+                    "TCP 保证消息边界吗？不保证，只提供连续字节流。",
+                    "确认号代表什么？期望收到的下一个字节序号。"
+                  ],
+                  "pitfall": "可靠不等于永不失败；连接中断超过重试上限仍会报错，业务还需超时和幂等。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/"
+                },
+                {
+                  "title": "流量控制与拥塞控制",
+                  "url": "https://compact.xiaolin/network/flow-congestion",
+                  "summary": "流量控制保护接收端，拥塞控制保护网络，发送窗口取两者较小值。",
+                  "answer": "接收端通过 rwnd 告诉发送端还能接收多少数据；发送端再用 cwnd 根据网络反馈调节在途数据，实际发送窗口通常是 min(rwnd,cwnd)。",
+                  "keyPoints": [
+                    "慢启动让 cwnd 指数增长，达到阈值后进入拥塞避免。",
+                    "丢包或 ECN 是拥塞信号，算法会降低发送速率。",
+                    "带宽时延积决定高带宽长时延链路需要多大的在途数据。"
+                  ],
+                  "followUps": [
+                    "窗口为零怎么办？发送端用零窗口探测避免永久等待。",
+                    "为什么增加带宽仍不快？窗口、RTT、丢包或应用处理可能成为瓶颈。"
+                  ],
+                  "pitfall": "不要把 rwnd 和 cwnd 混为一谈，它们解决的是不同层面的过载。",
+                  "sourceUrl": "https://www.xiaolincoding.com/network/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "操作系统",
+          "description": "进程、内存、并发和 I/O 的面试主线",
+          "homeUrl": "https://www.xiaolincoding.com/os/",
+          "sections": [
+            {
+              "title": "进程与并发",
+              "articles": [
+                {
+                  "title": "进程、线程与协程",
+                  "url": "https://compact.xiaolin/os/process-thread-coroutine",
+                  "summary": "按资源隔离、调度单位和切换成本比较三者。",
+                  "answer": "进程是资源隔离和分配单位，线程共享进程地址空间并参与内核调度，协程通常由用户态运行时调度，切换更轻但仍依附在线程上执行。",
+                  "keyPoints": [
+                    "进程切换涉及地址空间等状态，线程切换通常更轻。",
+                    "线程共享堆和文件描述符，但各自有栈、寄存器和程序计数器。",
+                    "协程遇到阻塞系统调用时是否阻塞线程取决于运行时和 I/O 模型。"
+                  ],
+                  "followUps": [
+                    "协程一定比线程快吗？不是，CPU 密集、调度器和系统调用都会影响。",
+                    "多进程的优势？故障隔离、安全边界和多语言部署更清晰。"
+                  ],
+                  "pitfall": "不要说协程没有线程；协程最终必须在线程上运行。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/",
+                  "diagram": {
+                    "title": "资源与调度关系",
+                    "nodes": [
+                      "进程\n独立地址空间",
+                      "线程\n共享进程资源",
+                      "协程\n用户态任务"
+                    ]
+                  }
+                },
+                {
+                  "title": "进程间通信 IPC",
+                  "url": "https://compact.xiaolin/os/ipc",
+                  "summary": "先区分同机和跨机，再按数据量、同步语义和性能选方案。",
+                  "answer": "同机 IPC 包括管道、消息队列、共享内存、信号和 Unix Socket；跨机常用 TCP/UDP 或上层 RPC。共享内存最快但必须额外处理同步和数据布局。",
+                  "keyPoints": [
+                    "匿名管道常用于有亲缘关系进程，命名管道可被无亲缘进程打开。",
+                    "Socket 接口统一且易扩展到跨机，但有协议栈开销。",
+                    "消息队列提供消息边界，共享内存直接映射同一物理页。"
+                  ],
+                  "followUps": [
+                    "共享内存为什么还需要锁？多个进程会并发读写同一数据。",
+                    "大文件传输怎么选？共享内存、mmap 或零拷贝通常优于逐条消息。"
+                  ],
+                  "pitfall": "不要只背 IPC 名称，要说明一致性、生命周期和失败恢复。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/"
+                },
+                {
+                  "title": "死锁四个条件与排查",
+                  "url": "https://compact.xiaolin/os/deadlock",
+                  "summary": "互斥、占有且等待、不可剥夺、循环等待同时成立才可能死锁。",
+                  "answer": "避免死锁可破坏任一必要条件，工程上最常见的是统一锁顺序、缩小临界区、tryLock 超时和减少嵌套锁；排查时结合线程栈和锁依赖图。",
+                  "keyPoints": [
+                    "数据库死锁检测会选择牺牲一个事务回滚。",
+                    "线程池饥饿也可能表现得像死锁，例如任务等待同池中的子任务。",
+                    "锁顺序必须在整个系统统一，而不是单个函数内部看起来一致。"
+                  ],
+                  "followUps": [
+                    "活锁和死锁区别？活锁一直改变状态但无进展，死锁则相互等待。",
+                    "如何复现？固定并发时序、增加诊断日志并抓取线程栈。"
+                  ],
+                  "pitfall": "只增加超时不能解决数据一致性，失败后的回滚与重试同样重要。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/"
+                }
+              ]
+            },
+            {
+              "title": "内存与 I/O",
+              "articles": [
+                {
+                  "title": "虚拟内存与缺页中断",
+                  "url": "https://compact.xiaolin/os/virtual-memory",
+                  "summary": "虚拟地址经页表映射到物理页，未驻留时触发缺页，由内核加载或分配。",
+                  "answer": "每个进程看到独立虚拟地址空间，MMU 按页表完成地址翻译，TLB 缓存常用映射；访问不存在或未驻留的页会陷入内核处理缺页，必要时从磁盘换入。",
+                  "keyPoints": [
+                    "虚拟内存提供隔离、按需分配、共享映射和比物理内存更灵活的地址空间。",
+                    "多级页表减少稀疏地址空间的页表占用。",
+                    "软缺页不需要磁盘 I/O，硬缺页通常需要。"
+                  ],
+                  "followUps": [
+                    "TLB miss 和 page fault 一样吗？前者只是翻页表，后者需要内核处理页面状态。",
+                    "为什么随机访问大数组慢？缓存/TLB 局部性差，可能产生更多缺页。"
+                  ],
+                  "pitfall": "内存申请成功不代表物理页已立刻分配，按需分页会延迟到首次访问。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/",
+                  "diagram": {
+                    "title": "一次地址访问",
+                    "nodes": [
+                      "虚拟地址",
+                      "TLB / 页表",
+                      "物理页",
+                      "缺页时由内核补页"
+                    ]
+                  }
+                },
+                {
+                  "title": "用户态、内核态与系统调用",
+                  "url": "https://compact.xiaolin/os/syscall",
+                  "summary": "应用不能直接操作硬件，通过受控入口进入内核执行特权操作。",
+                  "answer": "CPU 用特权级隔离用户态与内核态，应用通过系统调用触发陷入，内核校验参数并访问文件、网络、进程和设备，完成后恢复用户上下文。",
+                  "keyPoints": [
+                    "模式切换不等同于进程上下文切换，后者可能更重。",
+                    "批量 I/O、缓冲和异步接口能减少系统调用次数。",
+                    "系统调用边界也是权限和安全检查边界。"
+                  ],
+                  "followUps": [
+                    "函数调用和系统调用区别？系统调用跨越保护级并进入内核。",
+                    "为什么频繁小 I/O 慢？陷入、复制、锁和设备交互成本被放大。"
+                  ],
+                  "pitfall": "不要把所有性能问题都归因于上下文切换，应先用分析工具确认热点。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/"
+                },
+                {
+                  "title": "select、poll 与 epoll",
+                  "url": "https://compact.xiaolin/os-io-multiplexing",
+                  "summary": "三者都是一个线程等待多个 fd；epoll 用事件注册和就绪队列避免每次全量扫描。",
+                  "answer": "select 有 fd 数量和位图限制，poll 用数组但仍需每次复制和线性扫描；epoll 先注册关注事件，等待时主要返回已就绪 fd，更适合大量连接且少量活跃的场景。",
+                  "keyPoints": [
+                    "水平触发只要仍可读写就持续通知，边缘触发只在状态变化时通知，通常需非阻塞并读到 EAGAIN。",
+                    "I/O 多路复用解决等待效率，不会自动让业务处理并行。",
+                    "连接数不大时三者差异未必是瓶颈。"
+                  ],
+                  "followUps": [
+                    "epoll 一定 O(1) 吗？注册、回调和就绪处理仍有成本，不能简单绝对化。",
+                    "惊群怎么处理？独占唤醒、连接分片或让单 acceptor 分发。"
+                  ],
+                  "pitfall": "边缘触发若没有一次读尽，会因为不再触发而遗漏后续处理。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/"
+                },
+                {
+                  "title": "零拷贝与 mmap/sendfile",
+                  "url": "https://compact.xiaolin/os-zero-copy",
+                  "summary": "目标是减少用户态与内核态之间的数据复制和切换。",
+                  "answer": "传统文件发送常经历磁盘到页缓存、页缓存到用户缓冲、再到 Socket 缓冲；mmap 去掉显式读入用户缓冲，sendfile 可让内核直接在文件和 Socket 路径间搬运。",
+                  "keyPoints": [
+                    "零拷贝通常不是字面上的零次复制，而是减少 CPU 参与的复制。",
+                    "DMA 负责设备与内存间传输，scatter-gather 可进一步减少复制。",
+                    "若应用必须解析或修改内容，仍可能需要用户态访问。"
+                  ],
+                  "followUps": [
+                    "什么时候用 sendfile？静态文件、日志传输等无需修改内容的场景。",
+                    "mmap 的风险？缺页延迟、文件截断异常和地址空间管理。"
+                  ],
+                  "pitfall": "不要只看微基准；小文件、TLS 加密和存储介质会改变收益。",
+                  "sourceUrl": "https://www.xiaolincoding.com/os/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "MySQL",
+          "description": "索引、事务、锁、日志和线上查询优化",
+          "homeUrl": "https://www.xiaolincoding.com/mysql/",
+          "sections": [
+            {
+              "title": "索引与查询",
+              "articles": [
+                {
+                  "title": "B+ 树索引为什么适合数据库",
+                  "url": "https://compact.xiaolin/mysql/b-plus-tree",
+                  "summary": "高扇出降低磁盘 I/O，叶子有序链表同时支持点查和范围扫描。",
+                  "answer": "B+ 树非叶子节点只存键和指针，因此单页能容纳更多分支、树更矮；数据集中在叶子层且按键有序相连，既适合等值查找也适合范围查询。",
+                  "keyPoints": [
+                    "InnoDB 聚簇索引叶子存整行，二级索引叶子存主键。",
+                    "页是主要 I/O 单位，局部性比纯比较次数更重要。",
+                    "自增主键通常减少页分裂和随机写。"
+                  ],
+                  "followUps": [
+                    "为什么不用红黑树？分支少、层级深，会增加磁盘随机 I/O。",
+                    "为什么不用哈希？不支持有序范围、排序和前缀匹配。"
+                  ],
+                  "pitfall": "主键过长会放大所有二级索引，因为二级索引叶子需要保存主键。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/",
+                  "diagram": {
+                    "title": "二级索引回表",
+                    "nodes": [
+                      "二级索引 B+ 树",
+                      "拿到主键",
+                      "聚簇索引 B+ 树",
+                      "完整行"
+                    ]
+                  }
+                },
+                {
+                  "title": "联合索引与最左匹配",
+                  "url": "https://compact.xiaolin/mysql/composite-index",
+                  "summary": "联合索引按列顺序排序，只有保留有序前缀的条件才能持续利用索引定位。",
+                  "answer": "索引 (a,b,c) 先按 a、再按 b、最后按 c 排序；缺少 a 时整体无法按 b 定位，遇到范围条件后，后续列通常不能继续缩小扫描区间，但可能用于索引下推。",
+                  "keyPoints": [
+                    "索引列顺序要结合选择性、常用查询、排序和覆盖需求。",
+                    "等值条件的书写顺序不决定优化器使用顺序。",
+                    "LIKE 'prefix%' 可用范围索引，前置通配符通常不能。"
+                  ],
+                  "followUps": [
+                    "a=1 and c=3 能否用索引？能用 a 定位，c 是否下推取决于版本和计划。",
+                    "范围后还能用 b 排序吗？要看范围列和排序列是否保持所需顺序。"
+                  ],
+                  "pitfall": "不要背成‘范围条件后的列完全不使用’，它仍可能参与过滤或覆盖。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/"
+                },
+                {
+                  "title": "覆盖索引、回表与索引下推",
+                  "url": "https://compact.xiaolin/mysql/covering-icp",
+                  "summary": "覆盖索引避免回表；索引下推在存储引擎层先过滤，减少回表次数。",
+                  "answer": "查询所需列都在二级索引中时可直接返回，称为覆盖索引；若还需取整行则按主键回表。ICP 会在扫描索引时先判断可用条件，只让满足条件的记录回表。",
+                  "keyPoints": [
+                    "EXPLAIN 的 Extra 可观察 Using index、Using index condition。",
+                    "select * 很难形成覆盖索引，也增加网络和解码开销。",
+                    "覆盖索引不能无限堆列，写放大和存储成本也要评估。"
+                  ],
+                  "followUps": [
+                    "回表为什么贵？可能产生大量随机访问聚簇索引。",
+                    "索引下推等于覆盖索引吗？不是，ICP 仍可能回表。"
+                  ],
+                  "pitfall": "不要为了覆盖所有查询建立超宽索引，应以高频关键路径为主。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/"
+                },
+                {
+                  "title": "EXPLAIN 与慢 SQL 排查",
+                  "url": "https://compact.xiaolin/mysql/explain",
+                  "summary": "先确认扫描行数、访问类型和索引，再看排序、临时表与实际执行统计。",
+                  "answer": "慢 SQL 先结合慢日志和业务延迟定位，再用 EXPLAIN/EXPLAIN ANALYZE 看实际扫描、估算偏差、join 顺序、key、rows 和 Extra；最后验证索引、SQL 改写或数据模型调整。",
+                  "keyPoints": [
+                    "type 通常从 const/ref/range 到 index/all 逐步变差，但必须结合 rows。",
+                    "Using filesort 不一定写磁盘，只表示不能直接利用索引顺序。",
+                    "统计信息过旧会让优化器选错计划。"
+                  ],
+                  "followUps": [
+                    "有索引为什么仍全表扫？选择性差、隐式转换、函数、范围过大或成本估算。",
+                    "优化后怎么确认？比较真实耗时、扫描行数、锁等待与高峰表现。"
+                  ],
+                  "pitfall": "不要为了让 EXPLAIN 看起来漂亮而忽略整体吞吐和写入成本。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/"
+                }
+              ]
+            },
+            {
+              "title": "事务、锁与日志",
+              "articles": [
+                {
+                  "title": "ACID 与 redo/undo/binlog",
+                  "url": "https://compact.xiaolin/mysql/acid-logs",
+                  "summary": "redo 保持崩溃恢复，undo 支持回滚和 MVCC，binlog 用于复制与归档。",
+                  "answer": "事务原子性依靠 undo 等回滚机制，一致性是业务约束与数据库机制共同结果，隔离性由锁和 MVCC 实现，持久性主要依赖 redo WAL；binlog 是 Server 层逻辑日志。",
+                  "keyPoints": [
+                    "WAL 先顺序写日志再异步刷脏页，把随机写转成顺序写。",
+                    "两阶段提交协调 redo 与 binlog，降低主库恢复和复制状态不一致。",
+                    "undo 旧版本在没有活跃读视图需要后由 purge 清理。"
+                  ],
+                  "followUps": [
+                    "redo 和 binlog 为什么都要？前者服务存储引擎恢复，后者服务复制和时间点恢复。",
+                    "提交成功就绝不丢吗？还取决于刷盘参数、硬件缓存和复制策略。"
+                  ],
+                  "pitfall": "一致性不是某一个日志单独保证的，应用约束和异常处理不能省略。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/",
+                  "diagram": {
+                    "title": "事务日志协作",
+                    "nodes": [
+                      "修改内存页",
+                      "写 redo prepare",
+                      "写 binlog",
+                      "redo commit"
+                    ]
+                  }
+                },
+                {
+                  "title": "隔离级别与 MVCC",
+                  "url": "https://compact.xiaolin/mysql/mvcc",
+                  "summary": "MVCC 用隐藏版本链和 Read View，让普通快照读在不加读锁时看到一致版本。",
+                  "answer": "InnoDB 记录保存事务信息并通过 undo 形成版本链，Read View 决定哪些事务版本可见；RC 通常每条语句创建视图，RR 通常事务内复用视图，因此重复读结果更稳定。",
+                  "keyPoints": [
+                    "当前读如 select ... for update 读取最新版本并加锁，不走普通快照语义。",
+                    "RR 通过 next-key lock 处理当前读范围内的幻影写入。",
+                    "长事务会让旧版本无法清理，增加 undo 和查询成本。"
+                  ],
+                  "followUps": [
+                    "MVCC 能完全避免锁吗？不能，写写冲突和当前读仍需加锁。",
+                    "RC 与 RR 的核心差异？Read View 生命周期和范围锁策略。"
+                  ],
+                  "pitfall": "不要说 RR 在所有场景绝对没有幻读，要区分快照读、当前读和混合操作。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/",
+                  "diagram": {
+                    "title": "快照读可见性",
+                    "nodes": [
+                      "当前记录",
+                      "undo 版本链",
+                      "Read View 判断",
+                      "返回可见版本"
+                    ]
+                  }
+                },
+                {
+                  "title": "行锁、间隙锁与死锁",
+                  "url": "https://compact.xiaolin/mysql/locks",
+                  "summary": "锁加在索引记录和区间上，是否命中索引会直接影响锁范围。",
+                  "answer": "InnoDB 行锁基于索引；记录锁保护现有记录，间隙锁保护索引区间，next-key lock 是两者组合。不同事务以不同顺序持锁就可能形成等待环，数据库检测后回滚代价较小者。",
+                  "keyPoints": [
+                    "没有合适索引时扫描和锁定范围可能显著扩大。",
+                    "保持事务短小、统一更新顺序能降低死锁概率。",
+                    "业务必须把死锁视为可重试错误，并保证操作幂等。"
+                  ],
+                  "followUps": [
+                    "唯一索引等值查询还需要间隙锁吗？命中现有唯一记录时通常可退化为记录锁。",
+                    "怎么查死锁？查看引擎状态、事务锁等待和应用调用链。"
+                  ],
+                  "pitfall": "死锁不是简单增加超时就能根治，锁顺序和事务边界更关键。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/"
+                },
+                {
+                  "title": "主从复制与读写一致性",
+                  "url": "https://compact.xiaolin/mysql/replication",
+                  "summary": "主库写 binlog，从库拉取并重放；异步复制天然存在延迟。",
+                  "answer": "主库提交后把 binlog 传给从库，从库写 relay log 并回放。读写分离提高读能力，但刚写后读从库可能读不到，需要主库读、位点等待、会话粘滞或更强复制协议。",
+                  "keyPoints": [
+                    "半同步只保证至少一个从库收到日志，不等于已经执行。",
+                    "复制延迟常来自大事务、慢 SQL、单线程回放瓶颈或网络问题。",
+                    "切主必须处理脑裂、数据追平和旧主隔离。"
+                  ],
+                  "followUps": [
+                    "如何保证读己之写？携带位点等待、同会话读主或按时间窗口粘主。",
+                    "binlog 格式怎么选？row 更确定但体积大，statement 小但可能不确定。"
+                  ],
+                  "pitfall": "不要把增加从库当作写扩展方案，单主复制主要扩展读取和容灾。",
+                  "sourceUrl": "https://www.xiaolincoding.com/mysql/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Redis",
+          "description": "数据结构、持久化、缓存治理和高可用",
+          "homeUrl": "https://www.xiaolincoding.com/redis/",
+          "sections": [
+            {
+              "title": "原理与持久化",
+              "articles": [
+                {
+                  "title": "Redis 为什么快",
+                  "url": "https://compact.xiaolin/redis/why-fast",
+                  "summary": "内存访问、紧凑数据结构、事件驱动和避免主命令路径锁竞争共同决定。",
+                  "answer": "Redis 的数据主要在内存，命令路径短且数据结构针对场景优化；网络层用 I/O 多路复用处理连接，核心命令长期以单线程串行执行，减少锁和线程切换。",
+                  "keyPoints": [
+                    "Redis 6 的 I/O 线程主要并行读写网络数据，命令执行仍强调串行。",
+                    "单线程不代表没有后台线程，持久化、释放内存等可由后台处理。",
+                    "慢命令、大 key 和网络带宽仍会阻塞其他请求。"
+                  ],
+                  "followUps": [
+                    "为什么单线程还能高并发？内存操作很快，事件循环能高效管理大量连接。",
+                    "什么时候 CPU 成瓶颈？复杂命令、热 key、Lua 或极高 QPS。"
+                  ],
+                  "pitfall": "不要回答成‘Redis 完全单线程’，要限定在核心命令执行路径。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/",
+                  "diagram": {
+                    "title": "事件循环",
+                    "nodes": [
+                      "多连接就绪",
+                      "事件循环",
+                      "串行执行命令",
+                      "批量响应"
+                    ]
+                  }
+                },
+                {
+                  "title": "常用数据类型与底层编码",
+                  "url": "https://compact.xiaolin/redis/data-types",
+                  "summary": "先按业务语义选 String/Hash/List/Set/ZSet，再关注规模触发的编码转换。",
+                  "answer": "String 适合缓存和计数，Hash 适合对象字段，List 适合有序队列，Set 适合去重与集合运算，ZSet 用分数维护有序集合；底层会在紧凑编码、哈希表、跳表等结构间选择。",
+                  "keyPoints": [
+                    "ZSet 常由哈希表加跳表同时支持按成员和按分数访问。",
+                    "小对象使用紧凑编码能显著降低指针和元数据开销。",
+                    "HyperLogLog、Bitmap、Stream 分别适合基数估算、位状态和消息流。"
+                  ],
+                  "followUps": [
+                    "排行榜为什么选 ZSet？按分数排序并支持范围、排名操作。",
+                    "对象一定用 Hash 吗？若整对象总是一起读写，序列化 String 可能更简单。"
+                  ],
+                  "pitfall": "不要忽略单元素和结构元数据，海量小 key 可能比 value 本身更耗内存。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/"
+                },
+                {
+                  "title": "RDB、AOF 与混合持久化",
+                  "url": "https://compact.xiaolin/redis/persistence",
+                  "summary": "RDB 恢复快但可能丢最近数据，AOF 更实时但日志大，混合持久化兼顾两者。",
+                  "answer": "RDB 在某时刻生成紧凑快照，适合备份和快速加载；AOF 追加写命令并按策略刷盘，可减少数据丢失。重写会压缩历史命令，混合模式用 RDB 前缀加增量 AOF。",
+                  "keyPoints": [
+                    "fork 子进程后依靠写时复制生成快照，大量写会增加内存压力。",
+                    "appendfsync everysec 常见，极端故障可能丢约一秒数据。",
+                    "持久化不是备份的全部，还需要异地副本和恢复演练。"
+                  ],
+                  "followUps": [
+                    "AOF 为什么需要重写？同一 key 的历史操作可压缩成最终状态。",
+                    "RDB 会阻塞吗？fork 和内存页复制可能产生明显抖动。"
+                  ],
+                  "pitfall": "不要把 Redis 当唯一真相源却不评估数据丢失窗口。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/"
+                }
+              ]
+            },
+            {
+              "title": "缓存与高可用",
+              "articles": [
+                {
+                  "title": "缓存与数据库一致性",
+                  "url": "https://compact.xiaolin/redis/cache-consistency",
+                  "summary": "常用 Cache Aside：读未命中查库回填，写库成功后删除缓存。",
+                  "answer": "更新时先写数据库再删除缓存，能让后续读重新加载新值；仍可能在并发窗口出现旧值回填，因此关键业务需结合延迟双删、版本号、消息订阅或直接以数据库为准。",
+                  "keyPoints": [
+                    "删除缓存通常比更新缓存简单，避免并发更新覆盖和无效计算。",
+                    "缓存必须设置合理 TTL，作为异常时的最终收敛手段。",
+                    "对强一致读可临时绕过缓存或使用版本校验。"
+                  ],
+                  "followUps": [
+                    "为什么不先删缓存再写库？并发读可能在数据库更新前回填旧值。",
+                    "删除失败怎么办？重试队列、binlog 订阅或事务消息补偿。"
+                  ],
+                  "pitfall": "Cache Aside 追求最终一致，不要对强一致场景做错误承诺。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/",
+                  "diagram": {
+                    "title": "Cache Aside 写路径",
+                    "nodes": [
+                      "更新数据库",
+                      "删除缓存",
+                      "下次读未命中",
+                      "查库并回填"
+                    ]
+                  }
+                },
+                {
+                  "title": "缓存穿透、击穿与雪崩",
+                  "url": "https://compact.xiaolin/redis/cache-failures",
+                  "summary": "穿透是查不存在，击穿是单热点失效，雪崩是大量 key 或节点同时失效。",
+                  "answer": "穿透可用参数校验、空值缓存和布隆过滤器；热点击穿可用逻辑过期、互斥重建或永不过期加主动刷新；雪崩要分散 TTL、限流降级、多级缓存和高可用。",
+                  "keyPoints": [
+                    "互斥重建只允许一个请求查库，其余等待或返回旧值。",
+                    "TTL 加随机抖动避免大量 key 同一时刻过期。",
+                    "降级数据必须满足业务可接受边界。"
+                  ],
+                  "followUps": [
+                    "布隆过滤器会误判吗？会误判存在，但不会把已存在误判成不存在。",
+                    "节点宕机属于雪崩吗？会造成大面积未命中，治理思路相似。"
+                  ],
+                  "pitfall": "不要只靠无限扩容数据库，入口限流和失败隔离必须提前设计。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/"
+                },
+                {
+                  "title": "过期删除与内存淘汰",
+                  "url": "https://compact.xiaolin/redis/expiry-eviction",
+                  "summary": "过期键用惰性加定期删除；达到 maxmemory 后按淘汰策略释放键。",
+                  "answer": "惰性删除在访问时检查过期，定期任务抽样清理，二者平衡 CPU 和内存；内存超限后可选择 noeviction、LRU/LFU、随机或 TTL 等策略，并限定 allkeys 或 volatile 集合。",
+                  "keyPoints": [
+                    "LFU 更关注访问频率，适合长期热点；LRU 更关注最近访问。",
+                    "过期时间不是精准定时器，键可能在到期后一段时间才被物理删除。",
+                    "业务缓存一般必须监控命中率、淘汰数和内存碎片。"
+                  ],
+                  "followUps": [
+                    "为什么不遍历删除所有过期键？会造成长时间阻塞。",
+                    "缓存被淘汰后怎么办？应用应把未命中视为正常路径。"
+                  ],
+                  "pitfall": "不要把 volatile 策略用于没有 TTL 的大量 key，否则可能无键可淘汰。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/"
+                },
+                {
+                  "title": "主从、哨兵与 Cluster",
+                  "url": "https://compact.xiaolin/redis/high-availability",
+                  "summary": "主从做复制，哨兵做监控和故障转移，Cluster 再把数据分片到多个主节点。",
+                  "answer": "主从复制提供读副本和备份；哨兵用多数判断主节点客观下线并选举新主；Cluster 用 16384 个槽分片，客户端按重定向访问负责节点，每个主节点可有从节点容灾。",
+                  "keyPoints": [
+                    "复制通常异步，故障切换可能丢失尚未同步的数据。",
+                    "Cluster 扩缩容迁移槽，跨槽多 key 操作受限，可用 hash tag 聚合。",
+                    "脑裂治理需要合理超时、最小从库和写入保护。"
+                  ],
+                  "followUps": [
+                    "哨兵能扩展写能力吗？不能，它解决高可用，不做数据分片。",
+                    "Cluster 节点如何发现彼此？通过集群总线 gossip 交换状态。"
+                  ],
+                  "pitfall": "高可用不等于零数据丢失，必须明确 RPO/RTO。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/",
+                  "diagram": {
+                    "title": "能力递进",
+                    "nodes": [
+                      "主从复制",
+                      "哨兵自动切换",
+                      "Cluster 分片",
+                      "多主横向扩展"
+                    ]
+                  }
+                },
+                {
+                  "title": "分布式锁的正确边界",
+                  "url": "https://compact.xiaolin/redis/distributed-lock",
+                  "summary": "SET NX PX 原子加锁，value 用唯一令牌，释放时 Lua 校验归属再删除。",
+                  "answer": "锁必须有过期时间防止持有者崩溃后永久占用，释放必须比较唯一 token 避免删掉别人的锁；长任务要续期，但仍需处理暂停超过租约导致的并发执行。",
+                  "keyPoints": [
+                    "锁只提供协调，关键写入还应有幂等键、唯一约束或 fencing token。",
+                    "主从异步复制时主故障可能让锁丢失并被再次获取。",
+                    "超时、续期、重入和公平性要按业务明确，而不是默认存在。"
+                  ],
+                  "followUps": [
+                    "为什么不能 GET 后 DEL？两步非原子，会删除后来获得者的锁。",
+                    "Redlock 能解决全部问题吗？仍受时钟、网络和业务安全模型约束。"
+                  ],
+                  "pitfall": "不要把分布式锁当作数据一致性的唯一防线。",
+                  "sourceUrl": "https://www.xiaolincoding.com/redis/",
+                  "diagram": {
+                    "title": "安全释放",
+                    "nodes": [
+                      "SET NX PX + token",
+                      "执行临界区",
+                      "Lua 比较 token",
+                      "匹配后 DEL"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "后端开发速记",
+      "description": "Java、Go、C++ 与系统设计高频题",
+      "books": [
+        {
+          "title": "Java 高频",
+          "description": "JVM、并发、集合与 Spring 高频题",
+          "homeUrl": "https://www.xiaolincoding.com/interview/",
+          "sections": [
+            {
+              "title": "并发与集合",
+              "articles": [
+                {
+                  "title": "synchronized、volatile 与 CAS",
+                  "url": "https://compact.xiaolin/java/concurrency-primitives",
+                  "summary": "synchronized 管互斥和可见性，volatile 管可见性与有序性，CAS 做乐观原子更新。",
+                  "answer": "synchronized 适合需要复合原子性的临界区；volatile 通过内存语义保证读到最新值并限制重排序，但 i++ 仍非原子；CAS 比较并交换，冲突低时高效，冲突高时会自旋浪费。",
+                  "keyPoints": [
+                    "Java 锁实现会在不同竞争状态下优化，不能简单等同于重量级系统锁。",
+                    "CAS 有 ABA 问题，可用版本戳处理。",
+                    "final、安全发布和 happens-before 都影响对象可见性。"
+                  ],
+                  "followUps": [
+                    "DCL 单例为什么要 volatile？避免引用发布与对象初始化重排序。",
+                    "CAS 一定无锁吗？算法层面可能 lock-free，但底层仍依赖原子指令和缓存一致性。"
+                  ],
+                  "pitfall": "volatile 不能代替锁来保护多变量不变量。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "HashMap 与 ConcurrentHashMap",
+                  "url": "https://compact.xiaolin/java/hashmap",
+                  "summary": "HashMap 用数组加桶组织键值，冲突过多会树化；并发环境使用 ConcurrentHashMap。",
+                  "answer": "HashMap 先扰动 hash 定位桶，再用 equals 找键；容量通常保持 2 的幂以便位运算定位。ConcurrentHashMap 结合 CAS、桶级同步和 volatile 可见性，让读写并发度高于整表锁。",
+                  "keyPoints": [
+                    "负载因子平衡空间和冲突，扩容需要重新分布元素。",
+                    "红黑树化有容量和桶长度门槛，避免小表过早树化。",
+                    "自定义键必须正确实现 equals/hashCode 且最好不可变。"
+                  ],
+                  "followUps": [
+                    "HashMap 并发 put 有什么风险？数据丢失、结构异常和不可见。",
+                    "为什么容量为 2 的幂？hash & (n-1) 快且扩容迁移规律简单。"
+                  ],
+                  "pitfall": "不要把 ConcurrentHashMap 的复合操作拆成 contains 后 put，应使用原子 API。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "线程池参数与拒绝策略",
+                  "url": "https://compact.xiaolin/java/thread-pool",
+                  "summary": "核心是有界资源：核心线程、最大线程、队列、超时和拒绝策略必须一起设计。",
+                  "answer": "任务先由核心线程处理，核心满后入队，队列满再扩到最大线程，仍满则拒绝。CPU 密集线程数接近核数，I/O 密集可更多，但最终要用阻塞比例和压测决定。",
+                  "keyPoints": [
+                    "无界队列会让 maximumPoolSize 形同虚设，并可能堆积到 OOM。",
+                    "CallerRuns 可形成反压，但会拖慢提交线程。",
+                    "任务必须有超时、异常监控和可追踪上下文。"
+                  ],
+                  "followUps": [
+                    "如何估算线程数？核数 × (1 + 等待时间/计算时间) 只是初值。",
+                    "为什么不直接 Executors？某些快捷工厂隐藏无界队列或无限线程风险。"
+                  ],
+                  "pitfall": "线程池隔离比一个大池共享所有业务更能避免级联故障。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                }
+              ]
+            },
+            {
+              "title": "JVM 与 Spring",
+              "articles": [
+                {
+                  "title": "JVM 内存区域与对象生命周期",
+                  "url": "https://compact.xiaolin/java/jvm-memory",
+                  "summary": "线程私有的是栈、程序计数器等；共享的是堆、元空间和直接内存等。",
+                  "answer": "Java 对象通常分配在堆，方法调用形成栈帧，类元数据在元空间；逃逸分析可能让对象被标量替换。对象从可达变不可达后才具备回收条件，而非作用域结束就立即回收。",
+                  "keyPoints": [
+                    "栈溢出常来自深递归或大栈帧，堆 OOM 来自存活对象超过可用空间。",
+                    "直接内存不在 Java 堆内，但仍受进程和参数限制。",
+                    "强、软、弱、虚引用的回收语义不同。"
+                  ],
+                  "followUps": [
+                    "对象一定在堆吗？语义上如此，但 JIT 可能消除分配。",
+                    "内存泄漏在 Java 中是什么？无用对象仍被可达引用链持有。"
+                  ],
+                  "pitfall": "不要只看堆大小，线程栈、元空间、直接内存和 native 内存也会让进程 OOM。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/",
+                  "diagram": {
+                    "title": "对象可达性",
+                    "nodes": [
+                      "GC Roots",
+                      "引用链",
+                      "存活对象",
+                      "不可达后可回收"
+                    ]
+                  }
+                },
+                {
+                  "title": "GC 判断、分代与停顿",
+                  "url": "https://compact.xiaolin/java/gc",
+                  "summary": "从 GC Roots 做可达性分析；分代利用多数对象朝生夕死的规律。",
+                  "answer": "新对象主要进入年轻代，存活对象逐步晋升；收集器通过复制、标记整理或区域化回收管理空间。STW 用于获得一致视图，现代收集器通过并发阶段缩短停顿。",
+                  "keyPoints": [
+                    "吞吐、停顿、内存占用无法同时最优，要按服务目标选收集器和参数。",
+                    "频繁 Full GC 常由内存泄漏、晋升失败、元空间增长或显式 GC 引起。",
+                    "分析应结合 GC 日志、堆转储和分配火焰图。"
+                  ],
+                  "followUps": [
+                    "为什么年轻代用复制？存活对象少，复制成本低且无碎片。",
+                    "并发标记为什么还要短暂停顿？根扫描和重新标记需要一致性处理。"
+                  ],
+                  "pitfall": "不要先盲调参数，先确认分配速率、存活集和延迟目标。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "Spring IoC、AOP 与事务失效",
+                  "url": "https://compact.xiaolin/java/spring",
+                  "summary": "IoC 管对象生命周期和依赖，AOP 用代理织入横切逻辑，声明式事务正是典型 AOP。",
+                  "answer": "Spring 创建 Bean、注入依赖并用后处理器生成代理；外部调用经过代理时事务拦截器才有机会开启和提交事务。类内自调用、非代理对象、异常被吞或传播规则不匹配都会导致事务失效。",
+                  "keyPoints": [
+                    "JDK 代理基于接口，CGLIB 常通过子类代理，final 方法无法被重写拦截。",
+                    "默认事务通常只对运行时异常回滚，可用 rollbackFor 配置。",
+                    "事务传播定义已有事务与新调用如何组合。"
+                  ],
+                  "followUps": [
+                    "@Transactional 自调用为什么失效？调用未经过代理。",
+                    "数据库事务能覆盖远程调用吗？不能，需要分布式一致性方案。"
+                  ],
+                  "pitfall": "不要在长事务里调用慢远程服务，会放大连接、锁和回滚成本。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/",
+                  "diagram": {
+                    "title": "代理调用链",
+                    "nodes": [
+                      "调用方",
+                      "Spring 代理",
+                      "事务拦截器",
+                      "目标方法"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Golang 高频",
+          "description": "GMP、channel、内存和并发控制",
+          "homeUrl": "https://www.xiaolincoding.com/interview/",
+          "sections": [
+            {
+              "title": "运行时与数据结构",
+              "articles": [
+                {
+                  "title": "GMP 调度模型",
+                  "url": "https://compact.xiaolin/go/gmp",
+                  "summary": "G 是 goroutine，M 是内核线程，P 持有执行 Go 代码所需资源并调度本地队列。",
+                  "answer": "运行时把大量 G 调度到少量 M 上，M 必须绑定 P 才能执行 Go 代码；P 有本地队列并可 work stealing，阻塞系统调用时运行时尽量让 P 转交给其他 M。",
+                  "keyPoints": [
+                    "GOMAXPROCS 主要决定 P 数量，也就是同时执行 Go 代码的并行度。",
+                    "网络 I/O 通常交给 netpoll，避免每个连接长期占线程。",
+                    "抢占与协作调度共同避免单个 G 长期霸占 P。"
+                  ],
+                  "followUps": [
+                    "goroutine 阻塞一定阻塞线程吗？channel/网络通常由运行时调度，普通阻塞 syscall 可能占 M。",
+                    "为什么需要 P？把调度和缓存资源从线程中抽离，降低竞争。"
+                  ],
+                  "pitfall": "不要把并发等同于并行；P 数量和 CPU 核数决定真正并行能力。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/",
+                  "diagram": {
+                    "title": "GMP 关系",
+                    "nodes": [
+                      "G\n任务",
+                      "P\n队列与资源",
+                      "M\n内核线程",
+                      "CPU"
+                    ]
+                  }
+                },
+                {
+                  "title": "slice 扩容、共享底层数组",
+                  "url": "https://compact.xiaolin/go/slice",
+                  "summary": "slice 是指针、长度、容量的描述符，多个 slice 可能共享同一底层数组。",
+                  "answer": "append 在容量足够时原地写底层数组，容量不足时分配更大数组并复制；因此 append 后返回的新 slice 必须接住，子切片写入也可能影响原切片。",
+                  "keyPoints": [
+                    "扩容策略是实现细节，会随元素大小和版本变化，不能只背固定倍数。",
+                    "大数组的小切片会保持整个数组可达，可复制需要部分释放内存。",
+                    "并发修改共享底层数组存在数据竞争。"
+                  ],
+                  "followUps": [
+                    "append 一定改变原 slice 吗？容量足够时底层数组可能被改，但原描述符长度不变。",
+                    "nil slice 和空 slice 区别？长度容量都可为零，但序列化等行为可能不同。"
+                  ],
+                  "pitfall": "函数接收 slice 仍能修改元素，因为传值复制的是描述符，不是底层数组。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "map 原理与并发安全",
+                  "url": "https://compact.xiaolin/go/map",
+                  "summary": "map 用哈希桶组织数据，扩容时渐进搬迁；普通 map 不支持并发读写。",
+                  "answer": "哈希定位 bucket 后在桶及溢出桶中比较键，装载过高或溢出过多会触发扩容，后续操作逐步迁移旧桶。并发写或读写会数据竞争，需用锁、sync.Map 或单 goroutine 所有权。",
+                  "keyPoints": [
+                    "遍历顺序刻意不保证稳定。",
+                    "删除不会保证立刻缩容归还内存。",
+                    "sync.Map 更适合读多写少或键集合相对稳定，不是通用替代。"
+                  ],
+                  "followUps": [
+                    "为什么渐进扩容？摊薄一次全量搬迁的延迟。",
+                    "map 元素为什么常不可取地址？扩容搬迁后位置可能变化。"
+                  ],
+                  "pitfall": "检测到 runtime fatal 并不代表没有数据竞争；必须用 race detector 和同步设计。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "interface、nil 与逃逸",
+                  "url": "https://compact.xiaolin/go/interface-nil-escape",
+                  "summary": "接口值包含动态类型和动态值，两者都为空时接口才等于 nil。",
+                  "answer": "把一个值为 nil 的具体指针赋给接口后，接口仍带有动态类型，所以不等于 nil。编译器逃逸分析决定变量放栈还是堆，返回指针不必然慢，关键是是否逃逸和生命周期。",
+                  "keyPoints": [
+                    "空接口/any 可以装任意类型，但类型断言必须处理失败。",
+                    "接口调用可能产生动态分派，编译器也可能去虚化。",
+                    "用 -gcflags=-m 可观察逃逸分析结论。"
+                  ],
+                  "followUps": [
+                    "error 为什么可能非 nil？返回了带类型的 nil 指针。",
+                    "堆分配一定由 new 造成吗？不是，由逃逸分析决定。"
+                  ],
+                  "pitfall": "不要为了避免逃逸而牺牲清晰性，先用 profile 找出真实分配热点。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                }
+              ]
+            },
+            {
+              "title": "并发与可靠性",
+              "articles": [
+                {
+                  "title": "channel 语义与关闭原则",
+                  "url": "https://compact.xiaolin/go/channel",
+                  "summary": "无缓冲 channel 同步交接，有缓冲 channel 在容量内解耦；通常由发送方关闭。",
+                  "answer": "发送和接收会按 channel 状态阻塞，select 可等待多个通信事件；关闭后接收可读完缓冲再得到零值和 ok=false，向已关闭 channel 发送会 panic。",
+                  "keyPoints": [
+                    "close 是广播‘不会再有值’，不是释放资源的通用方法。",
+                    "nil channel 的收发永久阻塞，可用于动态关闭 select 分支。",
+                    "缓冲只能吸收突发，不能替代消费者容量规划。"
+                  ],
+                  "followUps": [
+                    "谁负责关闭？能确定不再发送的一方，通常是唯一发送者或协调者。",
+                    "如何避免 goroutine 泄漏？为阻塞收发提供 context、done 或完整消费路径。"
+                  ],
+                  "pitfall": "接收方随意 close 容易与并发发送竞争并触发 panic。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/",
+                  "diagram": {
+                    "title": "有缓冲 channel",
+                    "nodes": [
+                      "生产者",
+                      "固定容量缓冲",
+                      "消费者",
+                      "满则生产者阻塞"
+                    ]
+                  }
+                },
+                {
+                  "title": "context 取消与超时传播",
+                  "url": "https://compact.xiaolin/go/context",
+                  "summary": "context 沿调用链传播截止时间、取消信号和请求级元数据。",
+                  "answer": "入口创建带超时或可取消的 context，下游 select 监听 Done 并尽快停止；派生 context 必须调用 cancel 释放定时器。数据库、HTTP 和 RPC 都应使用接收 context 的 API。",
+                  "keyPoints": [
+                    "context.Value 只放请求级、小而稳定的元数据，不放可选参数或大对象。",
+                    "取消是协作式的，代码必须主动检查或调用支持取消的 API。",
+                    "不要把 context 存在结构体里长期复用。"
+                  ],
+                  "followUps": [
+                    "客户端断开后服务端如何停止？HTTP/RPC 框架取消请求 context，下游继续传播。",
+                    "超时设多长？按端到端预算分配，而不是每层都使用同样超时。"
+                  ],
+                  "pitfall": "启动 goroutine 后若丢失取消路径，调用结束也可能继续占用资源。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "Mutex、RWMutex 与 atomic",
+                  "url": "https://compact.xiaolin/go/locks-atomic",
+                  "summary": "复合不变量用锁，单变量原子状态用 atomic，读多写少才考虑 RWMutex。",
+                  "answer": "Mutex 的临界区应短且不做阻塞外调；RWMutex 在读并发高、写少且临界区有一定成本时可能有收益；atomic 适合计数、标志和指针发布，但难以维护多变量一致性。",
+                  "keyPoints": [
+                    "复制已经使用过的锁是错误设计，常用指针接收者。",
+                    "defer Unlock 清晰安全，极热短路径再以基准评估开销。",
+                    "Go 内存模型和 happens-before 决定同步后的可见性。"
+                  ],
+                  "followUps": [
+                    "RWMutex 一定更快吗？写竞争、短临界区时可能更慢。",
+                    "atomic 能否拼出任意无锁结构？可以很难，ABA 和内存顺序都需谨慎。"
+                  ],
+                  "pitfall": "只要 race detector 不报错也不代表业务不变量正确。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "C++ 高频",
+          "description": "对象、资源管理、智能指针和并发基础",
+          "homeUrl": "https://www.xiaolincoding.com/interview/",
+          "sections": [
+            {
+              "title": "对象与资源",
+              "articles": [
+                {
+                  "title": "RAII 与智能指针",
+                  "url": "https://compact.xiaolin/cpp/raii-smart-pointer",
+                  "summary": "把资源生命周期绑定到对象生命周期，析构时自动释放。",
+                  "answer": "RAII 用构造函数获得资源、析构函数释放资源，让异常和多分支返回也能正确清理。unique_ptr 表示独占所有权，shared_ptr 通过控制块共享计数，weak_ptr 打破循环引用。",
+                  "keyPoints": [
+                    "默认优先 unique_ptr，确有共享所有权再用 shared_ptr。",
+                    "shared_ptr 的引用计数线程安全不等于所指对象线程安全。",
+                    "make_shared 通常减少一次分配，但弱引用长期存在可能延迟内存释放。"
+                  ],
+                  "followUps": [
+                    "循环引用怎么解决？把非拥有关系改为 weak_ptr。",
+                    "裸指针是否都危险？可作为不拥有的观察指针，但生命周期必须明确。"
+                  ],
+                  "pitfall": "不要用 shared_ptr 掩盖所有权不清，模型错误会变成更隐蔽的生命周期问题。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "虚函数、vtable 与对象切片",
+                  "url": "https://compact.xiaolin/cpp/virtual",
+                  "summary": "虚函数通过动态类型分派，多态基类通常需要虚析构。",
+                  "answer": "含虚函数的对象通常带 vptr 指向虚表，基类指针调用虚函数时按动态类型查表。若按值把派生类赋给基类会发生对象切片，只保留基类子对象。",
+                  "keyPoints": [
+                    "通过基类指针 delete 派生对象时，基类析构必须为 virtual。",
+                    "构造/析构期间虚调用不会分派到尚未构造或已析构的派生部分。",
+                    "虚调用有间接跳转成本，但先考虑正确设计。"
+                  ],
+                  "followUps": [
+                    "纯虚函数能有实现吗？可以，但类仍是抽象类。",
+                    "override 有什么价值？让编译器检查确实重写。"
+                  ],
+                  "pitfall": "不要在构造函数中依赖派生类虚函数行为。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "拷贝、移动与 Rule of Five",
+                  "url": "https://compact.xiaolin/cpp/move-semantics",
+                  "summary": "移动把资源所有权转交给新对象，避免昂贵深拷贝。",
+                  "answer": "右值引用和移动构造允许对象接管缓冲区、句柄等资源，源对象保持可析构但状态未指定。管理资源的类型要遵循 Rule of Zero，必须手写时再完整考虑析构、拷贝和移动五个特殊成员。",
+                  "keyPoints": [
+                    "std::move 只是类型转换，不会自己搬运数据。",
+                    "noexcept 移动构造有助于容器扩容时选择移动而非拷贝。",
+                    "移动后对象只能依赖其有效但未指定的基本约束。"
+                  ],
+                  "followUps": [
+                    "返回局部对象需要手动 move 吗？通常不需要，可能妨碍 NRVO。",
+                    "浅拷贝为什么危险？多个对象可能重复释放同一资源。"
+                  ],
+                  "pitfall": "不要对 const 对象期待真正移动，const 往往会退回拷贝。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                },
+                {
+                  "title": "C++ 并发与内存序",
+                  "url": "https://compact.xiaolin/cpp/concurrency",
+                  "summary": "数据竞争导致未定义行为，mutex 或 atomic 建立同步和可见性。",
+                  "answer": "两个线程并发访问同一内存且至少一个写、没有同步就是数据竞争。mutex 的解锁与后续加锁建立 happens-before；atomic 可选择内存序，但默认顺序一致最易正确。",
+                  "keyPoints": [
+                    "condition_variable 必须用循环检查谓词，防止虚假唤醒。",
+                    "lock_guard/unique_lock 用 RAII 避免忘记解锁。",
+                    "relaxed 只保证原子性，不提供跨变量排序。"
+                  ],
+                  "followUps": [
+                    "volatile 能做线程同步吗？不能，它主要限制某些优化，不提供原子性和同步。",
+                    "死锁怎么避免？统一锁顺序或使用 std::scoped_lock 同时锁多个 mutex。"
+                  ],
+                  "pitfall": "内存序优化属于高风险工作，没有测试和基准不要轻易弱化。",
+                  "sourceUrl": "https://www.xiaolincoding.com/interview/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "系统设计与大厂场景",
+          "description": "幂等、消息、限流、一致性和高可用",
+          "homeUrl": "https://www.xiaolincoding.com/backend_interview/",
+          "sections": [
+            {
+              "title": "稳定性设计",
+              "articles": [
+                {
+                  "title": "接口幂等如何设计",
+                  "url": "https://compact.xiaolin/system/idempotency",
+                  "summary": "同一业务请求执行多次与执行一次效果相同，关键是稳定请求标识和原子去重。",
+                  "answer": "客户端生成幂等键，服务端在数据库唯一索引或幂等记录中原子占位，再执行业务并保存结果；重试时返回原结果或当前状态。状态机、版本号和唯一约束是最终防线。",
+                  "keyPoints": [
+                    "幂等键要绑定用户、业务类型和请求内容，防止误复用。",
+                    "记录要有合理生命周期，并处理执行中、成功、失败三种状态。",
+                    "下游调用也必须传递幂等语义，否则只保护入口不够。"
+                  ],
+                  "followUps": [
+                    "查询天然幂等吗？通常是，但带副作用的读接口例外。",
+                    "超时后客户端能否直接重试？只有服务端具备幂等或可查询状态时。"
+                  ],
+                  "pitfall": "先查再插不是原子操作，并发下必须依靠唯一约束或事务。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/",
+                  "diagram": {
+                    "title": "幂等请求",
+                    "nodes": [
+                      "携带幂等键",
+                      "原子占位",
+                      "执行业务",
+                      "保存并复用结果"
+                    ]
+                  }
+                },
+                {
+                  "title": "限流、熔断、降级与隔离",
+                  "url": "https://compact.xiaolin/system/resilience",
+                  "summary": "限流控制入口，熔断停止失败调用，降级减少功能，隔离限制故障传播。",
+                  "answer": "令牌桶允许一定突发，漏桶强调平滑速率；熔断器按失败率或慢调用打开并在半开状态探测恢复；线程池、连接池和租户配额把资源隔开，降级返回缓存或简化结果。",
+                  "keyPoints": [
+                    "限流阈值来自容量测试和 SLO，不是拍脑袋。",
+                    "重试必须有指数退避、抖动和总预算，否则会放大雪崩。",
+                    "降级路径也要压测，避免备用方案本身不可用。"
+                  ],
+                  "followUps": [
+                    "429 和 503 如何选？前者通常表示请求过多，后者表示服务暂不可用。",
+                    "熔断与超时区别？超时限制单次等待，熔断避免持续调用已知故障下游。"
+                  ],
+                  "pitfall": "所有层同时无脑重试会形成重试风暴，通常只在明确边界重试。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/"
+                },
+                {
+                  "title": "消息队列：可靠性与重复消费",
+                  "url": "https://compact.xiaolin/system/message-queue",
+                  "summary": "生产确认、持久化、消费确认保证至少一次，重复消息再靠业务幂等消化。",
+                  "answer": "生产者用确认和本地消息表保证消息最终发出，Broker 做持久化和副本，消费者成功处理后再 ACK；宕机重投会带来重复，因此按业务键去重并设计幂等写。",
+                  "keyPoints": [
+                    "顺序通常只能在同一分区或队列内保证，分区键要稳定。",
+                    "积压治理包括扩消费者、拆热点、降级生产和离线回放。",
+                    "死信队列保存反复失败消息，但必须有告警和处置流程。"
+                  ],
+                  "followUps": [
+                    "如何做到恰好一次？多数系统是至少一次传输加幂等效果，严格 exactly-once 有边界条件。",
+                    "先 ACK 还是先处理？先 ACK 可能丢，后 ACK 可能重复。"
+                  ],
+                  "pitfall": "消息成功发送不等于业务成功，必须观测端到端处理状态。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/",
+                  "diagram": {
+                    "title": "至少一次链路",
+                    "nodes": [
+                      "生产者确认",
+                      "Broker 持久化",
+                      "消费者处理",
+                      "成功后 ACK"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "title": "一致性与扩展",
+              "articles": [
+                {
+                  "title": "分布式事务怎么选",
+                  "url": "https://compact.xiaolin/system/distributed-transaction",
+                  "summary": "先问业务能否最终一致，再在本地消息、事务消息、Saga、TCC 和 2PC 中权衡。",
+                  "answer": "强一致且参与方可控时可考虑 2PC/TCC，但延迟和耦合高；跨服务业务更常用 Saga 或可靠消息，把大事务拆成多个本地事务和补偿动作，并用幂等与对账收敛。",
+                  "keyPoints": [
+                    "补偿不是数据库回滚，可能需要业务反向操作并处理补偿失败。",
+                    "事务状态机和事件日志让恢复过程可追踪。",
+                    "对账和人工兜底是最终一致系统的一部分。"
+                  ],
+                  "followUps": [
+                    "TCC 三阶段是什么？Try 预留、Confirm 提交、Cancel 释放。",
+                    "何时不能最终一致？余额扣减等约束需明确可见窗口和风险控制。"
+                  ],
+                  "pitfall": "不要为了技术完整性上复杂事务框架，先缩小事务边界。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/",
+                  "diagram": {
+                    "title": "Saga 思路",
+                    "nodes": [
+                      "本地事务 A",
+                      "事件驱动 B",
+                      "事件驱动 C",
+                      "失败则补偿"
+                    ]
+                  }
+                },
+                {
+                  "title": "分库分表与全局 ID",
+                  "url": "https://compact.xiaolin/system/sharding",
+                  "summary": "用稳定分片键路由数据，提前处理扩容、跨分片查询和热点。",
+                  "answer": "水平分片把行按用户或业务键分到多个库表，路由层定位目标分片；全局 ID 可用号段、雪花或数据库序列。扩容最好采用一致性哈希、逻辑分片或双写迁移降低搬迁风险。",
+                  "keyPoints": [
+                    "分片键应高基数、查询常带且分布均匀。",
+                    "跨分片 join、排序、聚合和事务都会显著变复杂。",
+                    "热点大客户可能需要二级分片或独立路由。"
+                  ],
+                  "followUps": [
+                    "雪花 ID 有什么风险？时钟回拨、机器号冲突和趋势递增带来的热点。",
+                    "如何在线迁移？双读校验、双写、回填、切流和回滚开关。"
+                  ],
+                  "pitfall": "分库分表是成本很高的最后手段，先验证索引、归档、缓存和读副本。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/"
+                },
+                {
+                  "title": "高可用与可观测性",
+                  "url": "https://compact.xiaolin/system/ha-observability",
+                  "summary": "冗余、自动切换和故障隔离保证服务，指标、日志、追踪帮助快速定位。",
+                  "answer": "按无单点设计多副本和多可用区，用健康检查、负载均衡和故障转移维持服务；用 RED/USE 指标、结构化日志和分布式追踪建立统一请求视角，并以 SLO 驱动告警。",
+                  "keyPoints": [
+                    "健康检查要区分存活、就绪和依赖降级，避免错误摘除。",
+                    "日志必须带 traceId、业务键摘要和错误分类，但不能泄露敏感数据。",
+                    "演练备份恢复、区域故障和依赖超时，比文档承诺更可信。"
+                  ],
+                  "followUps": [
+                    "SLA、SLO、SLI 区别？承诺、目标、测量指标。",
+                    "告警为什么要基于用户影响？资源高不一定造成故障，错误率和延迟更接近体验。"
+                  ],
+                  "pitfall": "只做监控大盘不做可执行告警和恢复预案，不算具备可观测性。",
+                  "sourceUrl": "https://www.xiaolincoding.com/backend_interview/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "AI Agent 速记",
+      "description": "大模型、RAG、Agent、MCP 与生产工程",
+      "books": [
+        {
+          "title": "大模型基础",
+          "description": "Transformer、训练、推理、幻觉与评估",
+          "homeUrl": "https://xiaolinnote.com/ai/",
+          "sections": [
+            {
+              "title": "原理与推理",
+              "articles": [
+                {
+                  "title": "Transformer 与自注意力",
+                  "url": "https://compact.xiaolin/ai/transformer-attention",
+                  "summary": "每个 token 用 Query 与所有 Key 计算相关性，再加权汇总 Value。",
+                  "answer": "自注意力让序列中任意位置直接交互，QK 点积经缩放和 softmax 得到权重，对 V 加权；多头注意力学习不同关系，位置编码补充顺序信息，前馈网络逐位置变换。",
+                  "keyPoints": [
+                    "因果掩码阻止自回归模型看到未来 token。",
+                    "标准注意力随序列长度呈平方级计算和显存开销。",
+                    "残差连接、归一化和并行矩阵运算让深层训练更稳定。"
+                  ],
+                  "followUps": [
+                    "为什么除以 sqrt(d)？避免维度高时点积过大让 softmax 饱和。",
+                    "多头价值？在不同子空间关注语义、位置和结构关系。"
+                  ],
+                  "pitfall": "不要把 attention 权重直接解释为严格因果或模型完整推理过程。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "一次注意力",
+                    "nodes": [
+                      "Token 表示",
+                      "生成 Q / K / V",
+                      "QK 相关性",
+                      "加权汇总 V"
+                    ]
+                  }
+                },
+                {
+                  "title": "预训练、SFT 与偏好对齐",
+                  "url": "https://compact.xiaolin/ai/training-alignment",
+                  "summary": "预训练学通用分布，SFT 学会按指令回答，偏好优化让输出更符合人类偏好和安全约束。",
+                  "answer": "预训练通常做下一个 token 预测；SFT 用高质量指令数据塑造任务行为；RLHF/RLAIF 或 DPO 等方法利用偏好对比较优输出，但不会自动增加真实知识。",
+                  "keyPoints": [
+                    "数据质量、覆盖和去重常比单纯增加数量更关键。",
+                    "对齐可能造成能力权衡、过度拒绝或迎合偏好。",
+                    "领域微调前应先比较 RAG、提示和工具调用的成本。"
+                  ],
+                  "followUps": [
+                    "SFT 与继续预训练区别？前者学习指令映射，后者继续学习领域语料分布。",
+                    "DPO 为什么简单？直接在偏好对上优化，无需显式训练奖励模型和在线 RL。"
+                  ],
+                  "pitfall": "微调不是实时知识库，频繁变化事实更适合检索或工具。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "推理、KV Cache 与量化",
+                  "url": "https://compact.xiaolin/ai/inference-kv-cache",
+                  "summary": "预填充并行处理提示，解码逐 token 生成；KV Cache 避免重复计算历史 K/V。",
+                  "answer": "推理分 prefill 和 decode：长提示主要受算力影响，逐 token 解码更受内存带宽影响。KV Cache 随并发、层数和上下文增长，量化降低权重/缓存精度以换取显存和吞吐。",
+                  "keyPoints": [
+                    "连续批处理把不同请求动态加入批次，提高 GPU 利用率。",
+                    "TTFT 主要受排队和 prefill 影响，TPOT 反映解码速度。",
+                    "量化可能影响困难任务、长上下文和小概率 token。"
+                  ],
+                  "followUps": [
+                    "KV Cache 为什么大？每层每个历史 token 都保存 K/V。",
+                    "吞吐和延迟如何权衡？增大 batch 提吞吐但会增加排队和单请求延迟。"
+                  ],
+                  "pitfall": "只比较每秒 token 不够，还要看首 token、尾延迟、正确率和成本。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "推理阶段",
+                    "nodes": [
+                      "Prompt Prefill",
+                      "生成 KV Cache",
+                      "逐 Token Decode",
+                      "流式输出"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "title": "生成质量",
+              "articles": [
+                {
+                  "title": "Temperature、Top-p 与重复控制",
+                  "url": "https://compact.xiaolin/ai/sampling",
+                  "summary": "temperature 调整分布尖锐度，top-p 从累计概率集合采样，两者共同影响随机性。",
+                  "answer": "低 temperature 更确定，高值更发散；top-p 只保留累计概率达到阈值的候选。事实问答通常用低随机性，创作可提高，但生产任务还应结合结构约束和验证。",
+                  "keyPoints": [
+                    "temperature=0 通常近似贪心，但服务实现和并行浮点仍可能带来微小不确定。",
+                    "重复惩罚能减少循环，也可能伤害必须重复的术语。",
+                    "采样参数不能修复缺失知识和错误上下文。"
+                  ],
+                  "followUps": [
+                    "temperature 与 top-p 要同时极端调整吗？通常固定一个、主要调另一个更易控制。",
+                    "为什么同样参数结果不同？采样随机种子、模型版本和服务实现。"
+                  ],
+                  "pitfall": "不要用高随机性做需要精确复现的抽取、分类和工具参数。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "幻觉治理与模型评估",
+                  "url": "https://compact.xiaolin/ai/hallucination-eval",
+                  "summary": "幻觉无法靠一句提示消除，要用检索/工具、约束输出、验证和可量化评估形成闭环。",
+                  "answer": "先按事实错误、引用错误、指令偏离分类；给模型可验证上下文和工具，要求结构化结果与证据，再用规则、模型裁判或人工抽检。评估集必须覆盖真实流量、困难样本和拒答。",
+                  "keyPoints": [
+                    "离线看正确率、召回和引用一致性，线上看任务成功、人工接管、延迟和成本。",
+                    "LLM-as-judge 要做位置偏差、风格偏差和自偏好的校准。",
+                    "无法确认时允许模型明确表达不确定，比编造完整答案更安全。"
+                  ],
+                  "followUps": [
+                    "RAG 能消除幻觉吗？不能，检索错误、上下文冲突和生成误读仍会发生。",
+                    "评估集多久更新？模型、提示、数据或用户分布变化时持续补充。"
+                  ],
+                  "pitfall": "只看几个顺眼 Demo 会严重高估系统稳定性。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "RAG",
+          "description": "切分、召回、重排、上下文和评估",
+          "homeUrl": "https://xiaolinnote.com/ai/",
+          "sections": [
+            {
+              "title": "检索链路",
+              "articles": [
+                {
+                  "title": "RAG 标准流程",
+                  "url": "https://compact.xiaolin/ai/rag-pipeline",
+                  "summary": "离线解析切分并建索引，在线改写问题、召回重排、组装上下文再生成。",
+                  "answer": "文档先解析、清洗、切块并生成向量/关键词索引；查询侧可分类和改写，做稠密或混合召回，经重排挑选证据，最后把带来源的上下文交给模型生成。",
+                  "keyPoints": [
+                    "每一步都应记录版本、耗时、候选和得分，便于定位错误。",
+                    "权限过滤要在召回阶段执行，不能只靠提示词。",
+                    "无足够证据时应拒答或转人工。"
+                  ],
+                  "followUps": [
+                    "RAG 失败先看哪？先判断答案是否存在、是否召回、是否重排保留、模型是否正确使用。",
+                    "为什么要查询改写？用户问法可能省略实体或与文档表达不一致。"
+                  ],
+                  "pitfall": "把所有文档直接塞进长上下文不是可靠 RAG，噪声和成本会快速上升。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "RAG 在线链路",
+                    "nodes": [
+                      "查询理解",
+                      "多路召回",
+                      "重排过滤",
+                      "上下文组装",
+                      "带引用生成"
+                    ]
+                  }
+                },
+                {
+                  "title": "Chunking 怎么设计",
+                  "url": "https://compact.xiaolin/ai/rag-chunking",
+                  "summary": "块要语义完整又足够小，结合文档结构、任务和 embedding 能力调优。",
+                  "answer": "优先按标题、段落、列表和代码块等结构切分，再设置大小和重叠；答案跨块时可保留父子关系或召回小块、返回大块，表格和图片需专门解析。",
+                  "keyPoints": [
+                    "块太小缺上下文，太大降低向量表达和召回精度。",
+                    "元数据应保存标题层级、来源、时间、权限和版本。",
+                    "重叠能缓解边界断裂，但增加索引和重复证据。"
+                  ],
+                  "followUps": [
+                    "固定 token 切分何时可用？结构弱、快速基线时，但要评估边界问题。",
+                    "代码怎么切？按符号、类和函数结构，而非纯字符长度。"
+                  ],
+                  "pitfall": "不要只用一个 chunk size 覆盖 FAQ、长文、表格和代码等所有内容。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "Embedding、向量库与相似度",
+                  "url": "https://compact.xiaolin/ai/embedding-vector-db",
+                  "summary": "Embedding 把语义映射到向量，向量库用近似最近邻在规模下快速找相似块。",
+                  "answer": "索引前后必须使用同一 embedding 模型和归一化策略；余弦、点积或欧氏距离的选择与模型训练方式有关。HNSW 等 ANN 用少量精度换低延迟。",
+                  "keyPoints": [
+                    "模型升级需重建或双索引迁移，不能混用不同向量空间。",
+                    "向量相似不等于事实相关，关键词和元数据过滤可补足专有名词、编号和时间。",
+                    "索引参数影响召回、内存、构建速度和查询延迟。"
+                  ],
+                  "followUps": [
+                    "为什么精确名称搜不到？语义向量可能弱化字面匹配，应加 BM25。",
+                    "维度越高越好吗？不一定，成本更高且质量取决于训练。"
+                  ],
+                  "pitfall": "不要把向量得分当统一概率，不同查询之间通常不可直接比较。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "混合召回与 Rerank",
+                  "url": "https://compact.xiaolin/ai/hybrid-rerank",
+                  "summary": "稠密召回抓语义，BM25 抓精确词，融合后用重排模型精排少量候选。",
+                  "answer": "分别从向量和关键词索引取候选，用 RRF 或归一化得分融合，再用 cross-encoder/LLM 结合完整查询和文档判断相关性，把高质量证据送入上下文。",
+                  "keyPoints": [
+                    "召回阶段追求不漏，重排阶段追求前几名准确。",
+                    "Rerank 成本高，只处理几十到上百候选。",
+                    "去重和多样性可避免上下文被同一文档的相似块占满。"
+                  ],
+                  "followUps": [
+                    "为什么只用向量不够？数字、缩写、错误码和专名常需要字面匹配。",
+                    "RRF 优点？不用强行校准不同检索器分数。"
+                  ],
+                  "pitfall": "只优化 top-1 可能伤害需要多证据拼接的复杂问题。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            },
+            {
+              "title": "质量与治理",
+              "articles": [
+                {
+                  "title": "RAG 评估与错误归因",
+                  "url": "https://compact.xiaolin/ai/rag-evaluation",
+                  "summary": "分开评召回、重排和生成，才能知道该改索引还是提示。",
+                  "answer": "检索看 Recall@K、MRR、nDCG 和权限正确性；生成看答案正确、完整、忠实、引用一致与拒答。建立带证据标注的数据集，并保留失败链路用于回归。",
+                  "keyPoints": [
+                    "端到端正确率高不代表召回健康，模型可能凭参数知识猜对。",
+                    "线上收集用户纠错、重问、点击来源和转人工信号。",
+                    "评估要按文档类型、问题难度和时间切片。"
+                  ],
+                  "followUps": [
+                    "忠实度与正确性区别？忠实度看是否由上下文支持，正确性看是否符合事实。",
+                    "如何评权限？构造跨租户和撤权后的负样本。"
+                  ],
+                  "pitfall": "只用模型自动打分而没有人工校准，会把裁判偏差当成进步。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "Agent",
+          "description": "循环、规划、记忆、多 Agent 和可靠性",
+          "homeUrl": "https://xiaolinnote.com/ai/",
+          "sections": [
+            {
+              "title": "核心架构",
+              "articles": [
+                {
+                  "title": "Agent 的 Observe-Think-Act 循环",
+                  "url": "https://compact.xiaolin/ai/agent-loop",
+                  "summary": "Agent 是模型在状态、工具和停止条件约束下反复观察、决策、行动。",
+                  "answer": "系统把用户目标、当前状态和工具结果作为观察，模型选择回答或调用工具，执行器校验并运行后把结果写回，直到完成、失败或达到预算。",
+                  "keyPoints": [
+                    "编排器负责状态机、权限、超时、重试和审计，不应全部交给提示词。",
+                    "停止条件包括成功判定、最大步数、成本和人工中断。",
+                    "工具结果要结构化并限制长度，避免污染上下文。"
+                  ],
+                  "followUps": [
+                    "Agent 和普通聊天区别？前者能基于环境反馈多步行动并改变外部状态。",
+                    "为什么会无限循环？成功条件不清、工具错误未分类或模型看不到有效反馈。"
+                  ],
+                  "pitfall": "Agent 能行动就必须默认最小权限，高风险操作需人工确认。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "Agent 主循环",
+                    "nodes": [
+                      "观察状态",
+                      "模型决策",
+                      "校验并执行工具",
+                      "写回结果 / 判断结束"
+                    ]
+                  }
+                },
+                {
+                  "title": "Planning、Reflection 与状态机",
+                  "url": "https://compact.xiaolin/ai/agent-planning",
+                  "summary": "长任务先拆解，执行中按证据重规划；确定性业务最好用显式状态机约束。",
+                  "answer": "计划提供步骤和依赖，但环境变化后要允许修订；reflection 可总结失败原因再尝试。对审批、支付、发布等流程，用代码状态机控制允许转移，让模型只在受限节点做判断。",
+                  "keyPoints": [
+                    "计划粒度过细会增加 token 和错误机会，过粗又无法验证。",
+                    "每步要有输入、输出、成功标准和回滚策略。",
+                    "失败分可重试、需改计划、需人工和不可恢复。"
+                  ],
+                  "followUps": [
+                    "ReAct 与先规划后执行区别？前者边观察边行动，后者先形成整体路径。",
+                    "何时不用 Agent？流程固定、规则清晰时普通工作流更可靠。"
+                  ],
+                  "pitfall": "不要让模型自由生成并执行任意代码来代替状态机。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "短期记忆、长期记忆与检索",
+                  "url": "https://compact.xiaolin/ai/agent-memory",
+                  "summary": "短期记忆保存当前任务状态，长期记忆只沉淀经过筛选的稳定事实和经验。",
+                  "answer": "短期状态可放会话消息、计划、工具结果和 scratchpad；长期记忆按用户、时间、来源和置信度存储，再通过检索注入。摘要用于压缩，但关键约束必须结构化保留。",
+                  "keyPoints": [
+                    "写记忆前去重、分类并校验权限，避免把模型猜测永久保存。",
+                    "用户应能查看、纠正和删除个人记忆。",
+                    "旧记忆需要过期、版本和冲突处理。"
+                  ],
+                  "followUps": [
+                    "记忆与 RAG 区别？记忆偏任务/用户状态，RAG 偏外部知识，但技术可复用。",
+                    "上下文压缩会丢什么？数字、否定条件和未完成事项最危险。"
+                  ],
+                  "pitfall": "把整段对话全部永久保存既昂贵，也带来隐私和错误累积。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            },
+            {
+              "title": "协作与可靠性",
+              "articles": [
+                {
+                  "title": "Multi-Agent 何时有价值",
+                  "url": "https://compact.xiaolin/ai/multi-agent",
+                  "summary": "只有任务可并行、角色能力不同或需要独立复核时，多 Agent 才可能抵消协调成本。",
+                  "answer": "管理者拆分任务并定义交付格式，多个专长 Agent 并行执行，聚合器解决冲突并验收。共享状态应有明确所有权，避免互相覆盖或重复工作。",
+                  "keyPoints": [
+                    "并行研究、代码与测试分离、生成与审查分离是常见收益场景。",
+                    "消息、上下文复制和冲突合并会增加成本和延迟。",
+                    "同一弱模型复制多份不一定带来能力提升。"
+                  ],
+                  "followUps": [
+                    "如何防止重复工作？任务 ID、边界、依赖和结果注册表。",
+                    "怎么处理冲突答案？要求证据，使用独立验证器或人工决策。"
+                  ],
+                  "pitfall": "不要为了架构听起来高级而把简单串行流程拆成多个 Agent。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "Agent 失败恢复与幂等",
+                  "url": "https://compact.xiaolin/ai/agent-recovery",
+                  "summary": "每一步持久化状态和副作用标识，重启后从最后一个已确认检查点继续。",
+                  "answer": "执行工具前记录意图和幂等键，完成后记录结果；超时后先查询外部状态再决定重试。用 saga/补偿处理跨系统副作用，并为不可逆操作设置人工门禁。",
+                  "keyPoints": [
+                    "工作流状态与对话文本分开存储，避免靠模型回忆进度。",
+                    "重试只针对暂时错误，并设置退避、上限和总预算。",
+                    "审计日志要能回答谁在何时基于什么输入做了什么。"
+                  ],
+                  "followUps": [
+                    "工具超时等于失败吗？不一定，可能已成功但响应丢失。",
+                    "如何升级运行中的工作流？版本化状态机并提供迁移或继续旧版本。"
+                  ],
+                  "pitfall": "无幂等的自动重试可能重复付款、发信或删除数据。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "可恢复执行",
+                    "nodes": [
+                      "记录执行意图",
+                      "带幂等键调用",
+                      "确认外部结果",
+                      "保存检查点"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "工具调用与 MCP",
+          "description": "Function Calling、MCP、安全和工程边界",
+          "homeUrl": "https://xiaolinnote.com/ai/",
+          "sections": [
+            {
+              "title": "工具调用",
+              "articles": [
+                {
+                  "title": "Function Calling 完整闭环",
+                  "url": "https://compact.xiaolin/ai/function-calling",
+                  "summary": "模型只提出结构化调用，应用负责校验、执行并把结果回传模型。",
+                  "answer": "应用把工具名、说明和 JSON Schema 给模型；模型返回工具调用及参数，编排器校验权限和参数后执行，把带调用 ID 的结果追加到上下文，再让模型生成答案或下一步调用。",
+                  "keyPoints": [
+                    "工具描述要明确何时使用、不要何时使用和参数单位。",
+                    "应用不能直接相信模型参数，必须做 schema、业务和授权校验。",
+                    "并行调用仅用于互不依赖且副作用可控的工具。"
+                  ],
+                  "followUps": [
+                    "模型会真的执行函数吗？不会，执行责任在应用。",
+                    "工具报错怎么回传？结构化返回错误类型、可重试性和安全摘要。"
+                  ],
+                  "pitfall": "不要把数据库写入、命令执行等高风险工具无审批地暴露给模型。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "工具调用闭环",
+                    "nodes": [
+                      "声明工具",
+                      "模型选择并给参数",
+                      "应用校验执行",
+                      "结果回传模型"
+                    ]
+                  }
+                },
+                {
+                  "title": "工具 Schema 与最小权限",
+                  "url": "https://compact.xiaolin/ai/tool-schema-security",
+                  "summary": "窄参数、枚举、边界和明确副作用比开放字符串更可靠。",
+                  "answer": "把工具拆成单一职责，参数使用严格类型、枚举、最大长度和默认值；执行层根据用户身份、租户和资源再次授权。读写工具分离，高风险操作先返回预览并要求确认。",
+                  "keyPoints": [
+                    "不要把 access token、内部异常栈或敏感数据回传模型。",
+                    "工具输出要限制大小并进行内容标记，防止提示注入。",
+                    "审计日志保存调用者、工具、资源和结果摘要。"
+                  ],
+                  "followUps": [
+                    "为什么提示词不能替代权限？模型输出不可信，授权必须在确定性代码中执行。",
+                    "如何防参数注入？不拼 shell/SQL，使用参数化 API 和白名单。"
+                  ],
+                  "pitfall": "一个万能 execute 工具会让权限、验证和可观测性全部失控。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "MCP 架构：Host、Client、Server",
+                  "url": "https://compact.xiaolin/ai/mcp-architecture",
+                  "summary": "Host 承载用户体验和权限，Client 管协议连接，Server 暴露工具、资源与提示。",
+                  "answer": "MCP 用统一协议让 AI 应用连接外部能力：Host 决定信任边界，每个 Server 通过 Client 会话协商能力并提供 tools/resources/prompts；传输可为本地 stdio 或远程流式 HTTP。",
+                  "keyPoints": [
+                    "Server 不应默认获得 Host 的全部上下文和凭据。",
+                    "能力发现让客户端动态看到工具，但仍要做用户许可和策略过滤。",
+                    "本地 Server 也可能不可信，启动命令、文件范围和网络权限要限制。"
+                  ],
+                  "followUps": [
+                    "MCP 和 Function Calling 区别？前者标准化能力发现和连接，后者描述模型如何选择结构化工具调用。",
+                    "为什么一个 Server 一个 Client？便于隔离连接、能力和故障。"
+                  ],
+                  "pitfall": "不要把 MCP 当安全沙箱，它只是协议，安全仍由 Host 和部署环境负责。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "MCP 角色",
+                    "nodes": [
+                      "AI Host",
+                      "MCP Client",
+                      "MCP Server",
+                      "外部数据与系统"
+                    ]
+                  }
+                },
+                {
+                  "title": "MCP Tools、Resources、Prompts",
+                  "url": "https://compact.xiaolin/ai/mcp-primitives",
+                  "summary": "Tools 是可执行动作，Resources 是可读取上下文，Prompts 是可复用交互模板。",
+                  "answer": "工具适合计算或产生副作用，资源适合文件、文档和状态读取，提示模板帮助用户显式选择工作流。客户端应按能力分别展示、授权和缓存，不要把所有东西都建成工具。",
+                  "keyPoints": [
+                    "资源 URI 应稳定且能表达来源，内容变化可通过订阅或重新读取。",
+                    "提示模板是用户可选入口，不等于隐藏系统指令。",
+                    "工具结果可包含结构化内容和资源链接。"
+                  ],
+                  "followUps": [
+                    "读取配置用工具还是资源？纯读取且可寻址时资源更自然。",
+                    "何时提供 prompt？需要用户明确启动且参数化的常见任务。"
+                  ],
+                  "pitfall": "把静态大文档每次作为工具结果返回，会浪费上下文并降低可发现性。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "提示注入与工具结果不可信",
+                  "url": "https://compact.xiaolin/ai/prompt-injection",
+                  "summary": "网页、邮件和文档都可能包含恶意指令，必须当数据而不是更高优先级命令。",
+                  "answer": "对外部内容做来源标记和最小化提取，模型不能因文档文字自行提升权限；敏感工具调用由策略引擎和用户确认控制，输出前再做数据泄露和越权检查。",
+                  "keyPoints": [
+                    "间接注入来自模型读取的第三方内容，不需要用户主动输入恶意文本。",
+                    "隔离检索内容与系统指令，并限制可用工具集合。",
+                    "高风险链路可用双模型/规则验证，但不能只依赖另一个模型。"
+                  ],
+                  "followUps": [
+                    "过滤关键词够吗？不够，攻击可改写、编码或跨多轮表达。",
+                    "怎样测试？构造越权、数据外传、伪造确认和工具劫持用例。"
+                  ],
+                  "pitfall": "任何来自模型或外部内容的‘用户已授权’声明都不能替代真实授权状态。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "title": "大模型工程与 LangChain",
+          "description": "结构化输出、可观测、成本和框架取舍",
+          "homeUrl": "https://xiaolinnote.com/ai/",
+          "sections": [
+            {
+              "title": "生产工程",
+              "articles": [
+                {
+                  "title": "结构化输出与校验重试",
+                  "url": "https://compact.xiaolin/ai/structured-output",
+                  "summary": "让模型按 schema 输出只是第一步，应用仍要解析、校验业务约束并有限重试。",
+                  "answer": "优先使用模型原生 JSON Schema/结构化输出能力；解析后检查必填、枚举、范围、跨字段关系和权限。失败时把简洁错误反馈模型修复，超过次数则降级或人工处理。",
+                  "keyPoints": [
+                    "展示文本和机器字段分离，避免从自然语言再次解析关键参数。",
+                    "版本化 schema，兼容旧任务和回放数据。",
+                    "日志记录校验错误类型，不记录敏感原文。"
+                  ],
+                  "followUps": [
+                    "schema 合法就业务正确吗？不是，金额、资源归属等还需确定性校验。",
+                    "重试几次？通常 1-2 次并受总延迟预算限制。"
+                  ],
+                  "pitfall": "不要在解析失败时静默使用默认值执行有副作用操作。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "模型路由、降级与成本控制",
+                  "url": "https://compact.xiaolin/ai/model-routing",
+                  "summary": "按任务难度、风险和延迟选择模型，而不是所有请求都走最大模型。",
+                  "answer": "先分类任务，简单抽取用小模型，复杂推理用强模型，高风险结果增加验证；结合缓存、提示压缩、批处理和最大输出控制成本，故障时按能力降级而不是盲切模型。",
+                  "keyPoints": [
+                    "路由器本身要低延迟、可评估，规则加轻模型常比再调用大模型稳定。",
+                    "语义缓存只适合答案可复用且权限一致的场景。",
+                    "记录每个任务的 token、延迟、重试和成功率。"
+                  ],
+                  "followUps": [
+                    "如何判断任务难度？领域、上下文长度、工具数量、历史失败和分类器得分。",
+                    "降级时如何保证体验？明确功能受限并保留重试或人工入口。"
+                  ],
+                  "pitfall": "只比较 token 单价会忽略失败重试、长输出和人工修正的总成本。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                },
+                {
+                  "title": "LLM 可观测与回归发布",
+                  "url": "https://compact.xiaolin/ai/llm-observability",
+                  "summary": "把提示、模型、检索、工具和输出视为一条可回放 trace，并用评估门禁发布。",
+                  "answer": "每次请求记录版本化提示、模型参数、检索文档 ID、工具调用、token、延迟和结果标签；新模型或提示先跑离线集和影子流量，再灰度、监控和可回滚。",
+                  "keyPoints": [
+                    "对敏感内容脱敏或只记录哈希/摘要，并设置保留期。",
+                    "追踪跨 Agent 和异步工具时要传递统一 traceId。",
+                    "线上反馈要能回流成去重、分层的评估样本。"
+                  ],
+                  "followUps": [
+                    "为什么离线变好线上变差？流量分布、延迟、工具故障和用户行为不同。",
+                    "回滚什么？模型、提示、索引、工具 schema 都要独立版本化。"
+                  ],
+                  "pitfall": "没有固定评估集和发布基线，提示微调很容易反复引入旧问题。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/",
+                  "diagram": {
+                    "title": "安全发布",
+                    "nodes": [
+                      "离线回归",
+                      "影子流量",
+                      "小流量灰度",
+                      "指标达标后放量"
+                    ]
+                  }
+                },
+                {
+                  "title": "LangChain 等框架如何取舍",
+                  "url": "https://compact.xiaolin/ai/framework-tradeoffs",
+                  "summary": "框架适合快速组合标准组件，核心业务状态和安全边界仍应掌握在自己的代码中。",
+                  "answer": "用框架的模型适配、检索器、回调和工具封装减少样板代码，但对状态机、重试、持久化、权限和观测建立清晰抽象；版本升级前做契约测试，避免深度耦合内部类型。",
+                  "keyPoints": [
+                    "简单单轮调用直接用模型 SDK 往往更透明。",
+                    "复杂长期工作流需要可持久化图或状态机，而不只是链式调用。",
+                    "为模型、向量库和框架保留适配层，便于替换。"
+                  ],
+                  "followUps": [
+                    "什么时候不用框架？调用少、性能敏感或需要完全控制协议时。",
+                    "如何避免锁定？业务模型与框架消息/文档类型隔离。"
+                  ],
+                  "pitfall": "不要把框架 Demo 当生产架构，错误恢复和数据治理通常需要重新设计。",
+                  "sourceUrl": "https://xiaolinnote.com/ai/"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
