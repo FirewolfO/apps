@@ -26,4 +26,18 @@ public final class CompactHtmlRendererTest {
         assertTrue(html.contains("TCP &lt;握手&gt;"));
         assertFalse(html.contains("TCP <握手>"));
     }
+
+    @Test
+    public void rendersDedicatedDarkPalette() {
+        CatalogArticle article = new CatalogArticle("深色速记", "https://compact.xiaolin/dark",
+                "摘要", "回答", Arrays.asList("要点"), Arrays.asList("追问"), "提醒",
+                "https://www.xiaolincoding.com/", "", Arrays.asList());
+
+        String darkHtml = CompactHtmlRenderer.render(article, true);
+
+        assertTrue(darkHtml.contains("content=\"dark\""));
+        assertTrue(darkHtml.contains("color-scheme:dark"));
+        assertTrue(darkHtml.contains("--bg:#101412"));
+        assertFalse(darkHtml.contains("--surface:#fff"));
+    }
 }

@@ -8,4 +8,16 @@
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
+    <style name="Theme.XiaolinStudy.Light" parent="@style/Theme.XiaolinStudy" />
+
+    <style name="Theme.XiaolinStudy.Dark" parent="android:style/Theme.Material.NoActionBar">
+        <item name="android:fontFamily">sans</item>
+        <item name="android:colorAccent">@color/dark_brand</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="android:navigationBarColor">@color/dark_surface</item>
+        <item name="android:statusBarColor">@color/dark_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

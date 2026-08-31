@@ -8,18 +8,27 @@ public final class CompactHtmlRenderer {
     private CompactHtmlRenderer() {}
 
     public static String render(CatalogArticle article) {
+        return render(article, false);
+    }
+
+    public static String render(CatalogArticle article, boolean darkMode) {
         StringBuilder html = new StringBuilder(4096);
         html.append("<!doctype html><html lang=\"zh-CN\"><head>")
                 .append("<meta charset=\"utf-8\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1,maximum-scale=5\">")
+                .append("<meta name=\"color-scheme\" content=\"")
+                .append(darkMode ? "dark" : "light").append("\">")
                 .append("<title>").append(escape(article.getTitle())).append("</title>")
                 .append("<style>")
-                .append("*{box-sizing:border-box}body{margin:0;background:#f6f7f5;color:#171a1c;font-family:-apple-system,BlinkMacSystemFont,'Noto Sans SC','PingFang SC',sans-serif;line-height:1.7}")
-                .append("main{max-width:780px;margin:auto;padding:18px 16px 40px}.hero,.card{background:#fff;border:1px solid #e3e7e4;border-radius:14px;padding:18px;margin-bottom:14px}")
-                .append(".eyebrow{font-size:12px;font-weight:700;color:#16765a;letter-spacing:.08em}.hero h1{font-size:24px;line-height:1.35;margin:7px 0 8px}.summary{margin:0;color:#667078}")
-                .append("h2{font-size:17px;margin:0 0 10px;color:#0d563f}.answer{font-size:16px;font-weight:600;margin:0}.label{display:inline-block;padding:3px 9px;border-radius:999px;background:#eaf5f0;color:#0d563f;font-size:12px;font-weight:700;margin-bottom:10px}")
-                .append("ul{padding-left:21px;margin:0}li+li{margin-top:7px}.pitfall{border-left:4px solid #e35b43;background:#fff7f5}.pitfall h2{color:#b93f2b}")
-                .append(".diagram{overflow:hidden}.flow{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding:4px 0 8px}.node{min-width:116px;max-width:170px;flex:1;padding:12px 10px;border-radius:10px;background:#eaf5f0;border:1px solid #b3daca;text-align:center;font-size:13px;font-weight:700;color:#0d563f;white-space:pre-line}.arrow{display:flex;align-items:center;color:#16765a;font-weight:900}")
-                .append(".source{text-align:center;font-size:12px;color:#667078}.source a{color:#16765a;font-weight:700;text-decoration:none}.offline{display:inline-flex;align-items:center;gap:5px;background:#edf2ff;color:#3665a6;padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700}")
+                .append(darkMode
+                        ? ":root{color-scheme:dark;--bg:#101412;--surface:#19201d;--ink:#eff4f1;--muted:#a9b5af;--brand:#48c79b;--brand-strong:#7ddebd;--divider:#34413b;--soft:#1f392f;--soft-border:#3d745c;--danger:#ff8b72;--danger-bg:#35231f;--info:#8fb2f4;--info-bg:#202c43}"
+                        : ":root{color-scheme:light;--bg:#f6f7f5;--surface:#fff;--ink:#171a1c;--muted:#667078;--brand:#16765a;--brand-strong:#0d563f;--divider:#e3e7e4;--soft:#eaf5f0;--soft-border:#b3daca;--danger:#b93f2b;--danger-bg:#fff7f5;--info:#3665a6;--info-bg:#edf2ff}")
+                .append("*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,'Noto Sans SC','PingFang SC',sans-serif;line-height:1.7}")
+                .append("main{max-width:780px;margin:auto;padding:18px 16px 40px}.hero,.card{background:var(--surface);border:1px solid var(--divider);border-radius:14px;padding:18px;margin-bottom:14px}")
+                .append(".eyebrow{font-size:12px;font-weight:700;color:var(--brand);letter-spacing:.08em}.hero h1{font-size:24px;line-height:1.35;margin:7px 0 8px}.summary{margin:0;color:var(--muted)}")
+                .append("h2{font-size:17px;margin:0 0 10px;color:var(--brand-strong)}.answer{font-size:16px;font-weight:600;margin:0}.label{display:inline-block;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--brand-strong);font-size:12px;font-weight:700;margin-bottom:10px}")
+                .append("ul{padding-left:21px;margin:0}li+li{margin-top:7px}.pitfall{border-left:4px solid var(--danger);background:var(--danger-bg)}.pitfall h2{color:var(--danger)}")
+                .append(".diagram{overflow:hidden}.flow{display:flex;align-items:stretch;gap:8px;overflow-x:auto;padding:4px 0 8px}.node{min-width:116px;max-width:170px;flex:1;padding:12px 10px;border-radius:10px;background:var(--soft);border:1px solid var(--soft-border);text-align:center;font-size:13px;font-weight:700;color:var(--brand-strong);white-space:pre-line}.arrow{display:flex;align-items:center;color:var(--brand);font-weight:900}")
+                .append(".source{text-align:center;font-size:12px;color:var(--muted)}.source a{color:var(--brand);font-weight:700;text-decoration:none}.offline{display:inline-flex;align-items:center;gap:5px;background:var(--info-bg);color:var(--info);padding:4px 9px;border-radius:999px;font-size:11px;font-weight:700}")
                 .append("@media(max-width:520px){main{padding:14px 12px 32px}.hero,.card{padding:16px;border-radius:12px}.hero h1{font-size:21px}.flow{flex-direction:column;overflow:visible}.node{max-width:none;width:100%}.arrow{justify-content:center;transform:rotate(90deg)}}")
                 .append("</style></head><body><main>");
 

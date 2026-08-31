@@ -2,4 +2,7 @@
     <color name="background">#F6F7F5</color>
     <color name="surface">#FFFFFF</color>
     <color name="brand">#16765A</color>
+    <color name="dark_background">#101412</color>
+    <color name="dark_surface">#19201D</color>
+    <color name="dark_brand">#48C79B</color>
 </resources>

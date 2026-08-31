@@ -28,6 +28,7 @@ import android.webkit.DownloadListener;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
@@ -41,18 +42,19 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.firewolf.xiaolinstudy.data.PageRecord;
-import com.firewolf.xiaolinstudy.data.ProgressStore;
-import com.firewolf.xiaolinstudy.data.CompactHtmlRenderer;
-import com.firewolf.xiaolinstudy.data.StudyModeStore;
-import com.firewolf.xiaolinstudy.data.UrlTools;
-import com.firewolf.xiaolinstudy.data.VersionTools;
+import com.firewolf.xiaolinstudy.data.AppearanceStore;
+import com.firewolf.xiaolinstudy.data.CatalogNavigator;
 import com.firewolf.xiaolinstudy.data.CatalogRepository;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogArticle;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogBook;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogGroup;
 import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogSection;
-import com.firewolf.xiaolinstudy.data.CatalogNavigator;
+import com.firewolf.xiaolinstudy.data.CompactHtmlRenderer;
+import com.firewolf.xiaolinstudy.data.PageRecord;
+import com.firewolf.xiaolinstudy.data.ProgressStore;
+import com.firewolf.xiaolinstudy.data.StudyModeStore;
+import com.firewolf.xiaolinstudy.data.UrlTools;
+import com.firewolf.xiaolinstudy.data.VersionTools;
 import com.firewolf.xiaolinstudy.web.StudyWebView;
 
 import org.json.JSONObject;
@@ -82,17 +84,27 @@ public final class MainActivity extends Activity {
     static final String UPDATE_DOWNLOAD_ID = "update_download_id";
     static final String UPDATE_READY_ID = "update_ready_id";
 
-    private static final int COLOR_BG = Color.rgb(246, 247, 245);
-    private static final int COLOR_SURFACE = Color.WHITE;
-    private static final int COLOR_INK = Color.rgb(23, 26, 28);
-    private static final int COLOR_MUTED = Color.rgb(102, 112, 120);
-    private static final int COLOR_BRAND = Color.rgb(22, 118, 90);
-    private static final int COLOR_BRAND_DARK = Color.rgb(13, 86, 63);
-    private static final int COLOR_ACCENT = Color.rgb(227, 91, 67);
-    private static final int COLOR_DIVIDER = Color.rgb(227, 231, 228);
+    private int COLOR_BG;
+    private int COLOR_SURFACE;
+    private int COLOR_INK;
+    private int COLOR_MUTED;
+    private int COLOR_BRAND;
+    private int COLOR_ACTION_BG;
+    private int COLOR_BRAND_DARK;
+    private int COLOR_ACCENT;
+    private int COLOR_DIVIDER;
+    private int COLOR_STATS_PANEL;
+    private int COLOR_SELECTED_SOFT;
+    private int COLOR_NEUTRAL_SOFT;
+    private int COLOR_COMPLETED_SOFT;
+    private int COLOR_COMPLETED_BORDER;
+    private int COLOR_INFO;
+    private int COLOR_PROGRESS_TRACK;
 
     private ProgressStore progressStore;
+    private AppearanceStore appearanceStore;
     private StudyModeStore studyModeStore;
+    private boolean darkMode;
     private boolean compactMode;
     private List<CatalogGroup> catalogGroups;
     private CatalogNavigator catalogNavigator;
@@ -135,7 +147,11 @@ public final class MainActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        appearanceStore = new AppearanceStore(this);
+        darkMode = appearanceStore.isDarkMode(getResources());
+        setTheme(darkMode ? R.style.Theme_XiaolinStudy_Dark : R.style.Theme_XiaolinStudy_Light);
         super.onCreate(savedInstanceState);
+        applyPalette();
         studyModeStore = new StudyModeStore(this);
         compactMode = studyModeStore.isCompactMode();
         loadCatalogForMode();
@@ -143,6 +159,44 @@ public final class MainActivity extends Activity {
         configureWindow();
         showNativeTab(TAB_HOME);
         checkForUpdate(false);
+    }
+
+    private void applyPalette() {
+        if (darkMode) {
+            COLOR_BG = Color.rgb(16, 20, 18);
+            COLOR_SURFACE = Color.rgb(25, 32, 29);
+            COLOR_INK = Color.rgb(239, 244, 241);
+            COLOR_MUTED = Color.rgb(169, 181, 175);
+            COLOR_BRAND = Color.rgb(72, 199, 155);
+            COLOR_ACTION_BG = Color.rgb(18, 112, 82);
+            COLOR_BRAND_DARK = Color.rgb(125, 222, 189);
+            COLOR_ACCENT = Color.rgb(255, 139, 114);
+            COLOR_DIVIDER = Color.rgb(52, 65, 59);
+            COLOR_STATS_PANEL = Color.rgb(10, 77, 55);
+            COLOR_SELECTED_SOFT = Color.rgb(31, 57, 47);
+            COLOR_NEUTRAL_SOFT = Color.rgb(37, 46, 42);
+            COLOR_COMPLETED_SOFT = Color.rgb(29, 55, 45);
+            COLOR_COMPLETED_BORDER = Color.rgb(61, 116, 92);
+            COLOR_INFO = Color.rgb(143, 178, 244);
+            COLOR_PROGRESS_TRACK = Color.rgb(52, 64, 59);
+            return;
+        }
+        COLOR_BG = Color.rgb(246, 247, 245);
+        COLOR_SURFACE = Color.WHITE;
+        COLOR_INK = Color.rgb(23, 26, 28);
+        COLOR_MUTED = Color.rgb(102, 112, 120);
+        COLOR_BRAND = Color.rgb(22, 118, 90);
+        COLOR_ACTION_BG = COLOR_BRAND;
+        COLOR_BRAND_DARK = Color.rgb(13, 86, 63);
+        COLOR_ACCENT = Color.rgb(227, 91, 67);
+        COLOR_DIVIDER = Color.rgb(227, 231, 228);
+        COLOR_STATS_PANEL = COLOR_BRAND_DARK;
+        COLOR_SELECTED_SOFT = Color.rgb(234, 245, 240);
+        COLOR_NEUTRAL_SOFT = Color.rgb(240, 243, 241);
+        COLOR_COMPLETED_SOFT = Color.rgb(225, 241, 234);
+        COLOR_COMPLETED_BORDER = Color.rgb(179, 218, 202);
+        COLOR_INFO = Color.rgb(54, 101, 166);
+        COLOR_PROGRESS_TRACK = Color.rgb(231, 235, 232);
     }
 
     private void loadCatalogForMode() {
@@ -260,7 +314,7 @@ public final class MainActivity extends Activity {
             navLabels[index].setTextColor(color);
             navLabels[index].setTypeface(Typeface.DEFAULT, selected ? Typeface.BOLD : Typeface.NORMAL);
             navItems[index].setBackground(selected
-                    ? rounded(Color.rgb(234, 245, 240), 8, 0, Color.TRANSPARENT)
+                    ? rounded(COLOR_SELECTED_SOFT, 8, 0, Color.TRANSPARENT)
                     : null);
         }
     }
@@ -284,6 +338,7 @@ public final class MainActivity extends Activity {
         body.addView(intro, introParams);
 
         body.addView(createStudyModeSwitcher(), topMargin(dp(18)));
+        body.addView(createAppearanceRow(), topMargin(dp(10)));
         body.addView(createStatsPanel(), topMargin(dp(12)));
 
         String lastUrl = progressStore.getLastUrl();
@@ -343,6 +398,46 @@ public final class MainActivity extends Activity {
         return card;
     }
 
+    private View createAppearanceRow() {
+        LinearLayout row = new LinearLayout(this);
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        row.setGravity(Gravity.CENTER_VERTICAL);
+        row.setPadding(dp(14), dp(12), dp(12), dp(12));
+        row.setBackground(rounded(COLOR_SURFACE, 10, 1, COLOR_DIVIDER));
+        row.setContentDescription("外观模式：" + appearanceStore.currentLabel()
+                + "，当前显示为" + (darkMode ? "深色" : "浅色") + "，点击切换");
+        row.setOnClickListener(view -> showAppearanceChooser());
+
+        LinearLayout copy = vertical();
+        copy.addView(text("外观模式", 14, COLOR_INK, Typeface.BOLD), wrapParams());
+        TextView value = text(appearanceStore.currentLabel() + " · 当前"
+                + (darkMode ? "深色" : "浅色"), 12, COLOR_MUTED, Typeface.NORMAL);
+        copy.addView(value, topMargin(dp(4)));
+        row.addView(copy, new LinearLayout.LayoutParams(0,
+                ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
+
+        ImageView arrow = new ImageView(this);
+        arrow.setImageResource(R.drawable.ic_chevron);
+        arrow.setColorFilter(COLOR_MUTED);
+        row.addView(arrow, new LinearLayout.LayoutParams(dp(22), dp(22)));
+        return row;
+    }
+
+    private void showAppearanceChooser() {
+        String[] choices = {"跟随系统", "浅色模式", "深色模式"};
+        new AlertDialog.Builder(this)
+                .setTitle("选择外观模式")
+                .setSingleChoiceItems(choices, appearanceStore.getMode(), (dialog, which) -> {
+                    dialog.dismiss();
+                    if (which == appearanceStore.getMode()) return;
+                    saveCurrentReadingPosition();
+                    appearanceStore.setMode(which);
+                    recreate();
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
     private Button studyModeButton(String label, boolean targetCompactMode) {
         boolean selected = compactMode == targetCompactMode;
         Button button = new Button(this);
@@ -351,7 +446,7 @@ public final class MainActivity extends Activity {
         button.setTextSize(14);
         button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         button.setTextColor(selected ? Color.WHITE : COLOR_MUTED);
-        button.setBackground(rounded(selected ? COLOR_BRAND : Color.rgb(240, 243, 241),
+        button.setBackground(rounded(selected ? COLOR_ACTION_BG : COLOR_NEUTRAL_SOFT,
                 9, selected ? 0 : 1, COLOR_DIVIDER));
         button.setOnClickListener(view -> switchStudyMode(targetCompactMode));
         return button;
@@ -391,7 +486,7 @@ public final class MainActivity extends Activity {
         panel.setOrientation(LinearLayout.HORIZONTAL);
         panel.setGravity(Gravity.CENTER_VERTICAL);
         panel.setPadding(dp(18), dp(17), dp(18), dp(17));
-        panel.setBackground(rounded(COLOR_BRAND_DARK, 8, 0, Color.TRANSPARENT));
+        panel.setBackground(rounded(COLOR_STATS_PANEL, 8, 0, Color.TRANSPARENT));
 
         LinearLayout completed = vertical();
         completed.addView(text(String.valueOf(progressStore.completedCount()), 30,
@@ -519,7 +614,7 @@ public final class MainActivity extends Activity {
         TextView progress = text("学习进度  " + completed + " / " + book.articleCount(),
                 14, completed == book.articleCount() ? COLOR_BRAND_DARK : COLOR_MUTED, Typeface.BOLD);
         progress.setPadding(dp(14), dp(12), dp(14), dp(12));
-        progress.setBackground(rounded(Color.rgb(234, 245, 240), 8, 0, Color.TRANSPARENT));
+        progress.setBackground(rounded(COLOR_SELECTED_SOFT, 8, 0, Color.TRANSPARENT));
         body.addView(progress, matchWrapParams());
 
         for (int sectionIndex = 0; sectionIndex < book.getSections().size(); sectionIndex++) {
@@ -599,13 +694,13 @@ public final class MainActivity extends Activity {
         row.setGravity(Gravity.CENTER_VERTICAL);
         row.setPadding(dp(12), dp(12), dp(10), dp(12));
         row.setBackground(rounded(COLOR_SURFACE, 8, 1,
-                completed ? Color.rgb(179, 218, 202) : COLOR_DIVIDER));
+                completed ? COLOR_COMPLETED_BORDER : COLOR_DIVIDER));
         row.setOnClickListener(view -> openReader(article.getUrl()));
 
         ImageView icon = new ImageView(this);
         icon.setImageResource(completed ? R.drawable.ic_check
                 : compactMode ? R.drawable.ic_library : R.drawable.ic_globe);
-        int iconColor = completed ? COLOR_BRAND : Color.rgb(54, 101, 166);
+        int iconColor = completed ? COLOR_BRAND : COLOR_INFO;
         icon.setColorFilter(iconColor);
         icon.setPadding(dp(8), dp(8), dp(8), dp(8));
         icon.setBackground(rounded(withAlpha(iconColor, 22), 8, 0, Color.TRANSPARENT));
@@ -681,7 +776,7 @@ public final class MainActivity extends Activity {
         button.setAllCaps(false);
         button.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
         button.setTextColor(selected ? Color.WHITE : COLOR_MUTED);
-        button.setBackground(rounded(selected ? COLOR_BRAND : COLOR_SURFACE,
+        button.setBackground(rounded(selected ? COLOR_ACTION_BG : COLOR_SURFACE,
                 8, selected ? 0 : 1, COLOR_DIVIDER));
         button.setOnClickListener(view -> {
             showingRecentRecords = label.equals("最近浏览");
@@ -697,7 +792,7 @@ public final class MainActivity extends Activity {
         icon.setImageResource(R.drawable.ic_check);
         icon.setColorFilter(COLOR_MUTED);
         icon.setPadding(dp(16), dp(16), dp(16), dp(16));
-        icon.setBackground(rounded(Color.rgb(235, 238, 236), 8, 0, Color.TRANSPARENT));
+        icon.setBackground(rounded(COLOR_NEUTRAL_SOFT, 8, 0, Color.TRANSPARENT));
         empty.addView(icon, new LinearLayout.LayoutParams(dp(64), dp(64)));
         TextView title = text(showingRecentRecords ? "还没有浏览记录" : "还没有完成的内容",
                 17, COLOR_INK, Typeface.BOLD);
@@ -723,7 +818,7 @@ public final class MainActivity extends Activity {
         ImageView icon = new ImageView(this);
         icon.setImageResource(completedRecord ? R.drawable.ic_check
                 : compactMode ? R.drawable.ic_library : R.drawable.ic_globe);
-        int iconColor = completedRecord ? COLOR_BRAND : Color.rgb(54, 101, 166);
+        int iconColor = completedRecord ? COLOR_BRAND : COLOR_INFO;
         icon.setColorFilter(iconColor);
         icon.setPadding(dp(8), dp(8), dp(8), dp(8));
         icon.setBackground(rounded(withAlpha(iconColor, 22), 8, 0, Color.TRANSPARENT));
@@ -797,7 +892,7 @@ public final class MainActivity extends Activity {
         webProgress = new ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal);
         webProgress.setMax(100);
         webProgress.setProgressTintList(ColorStateList.valueOf(COLOR_BRAND));
-        webProgress.setProgressBackgroundTintList(ColorStateList.valueOf(Color.rgb(231, 235, 232)));
+        webProgress.setProgressBackgroundTintList(ColorStateList.valueOf(COLOR_PROGRESS_TRACK));
         screen.addView(webProgress, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, dp(2)));
 
@@ -850,7 +945,15 @@ public final class MainActivity extends Activity {
     }
 
     @SuppressLint("SetJavaScriptEnabled")
+    @SuppressWarnings("deprecation")
     private void configureWebView() {
+        webView.setBackgroundColor(COLOR_BG);
+        WebSettings settings = webView.getSettings();
+        if (Build.VERSION.SDK_INT >= 33) {
+            settings.setAlgorithmicDarkeningAllowed(darkMode);
+        } else if (Build.VERSION.SDK_INT >= 29) {
+            settings.setForceDark(darkMode ? WebSettings.FORCE_DARK_ON : WebSettings.FORCE_DARK_OFF);
+        }
         webView.setScrollListener(scrollY -> {
             // Position is persisted on navigation and lifecycle boundaries.
         });
@@ -982,7 +1085,7 @@ public final class MainActivity extends Activity {
         readerTitle.setText(currentTitle);
         readerSource.setText("精简版 · 离线速记");
         webProgress.setVisibility(View.VISIBLE);
-        webView.loadDataWithBaseURL(article.getUrl(), CompactHtmlRenderer.render(article),
+        webView.loadDataWithBaseURL(article.getUrl(), CompactHtmlRenderer.render(article, darkMode),
                 "text/html", "UTF-8", null);
         int savedY = progressStore.getScrollPosition(article.getUrl());
         if (savedY > 0) webView.postDelayed(() -> webView.scrollTo(0, savedY), 220);
@@ -1062,17 +1165,18 @@ public final class MainActivity extends Activity {
             completionButton.setText("无需标记");
             completionButton.setTextColor(COLOR_MUTED);
             completionButton.setCompoundDrawableTintList(ColorStateList.valueOf(COLOR_MUTED));
-            completionButton.setBackground(rounded(Color.rgb(235, 238, 236), 8, 0, Color.TRANSPARENT));
+            completionButton.setBackground(rounded(COLOR_NEUTRAL_SOFT, 8, 0, Color.TRANSPARENT));
         } else if (completed) {
             completionButton.setText("已完成 · 撤销");
             completionButton.setTextColor(COLOR_BRAND_DARK);
             completionButton.setCompoundDrawableTintList(ColorStateList.valueOf(COLOR_BRAND_DARK));
-            completionButton.setBackground(rounded(Color.rgb(225, 241, 234), 8, 1, Color.rgb(179, 218, 202)));
+            completionButton.setBackground(rounded(COLOR_COMPLETED_SOFT, 8, 1,
+                    COLOR_COMPLETED_BORDER));
         } else {
             completionButton.setText("确认学完本页");
             completionButton.setTextColor(Color.WHITE);
             completionButton.setCompoundDrawableTintList(ColorStateList.valueOf(Color.WHITE));
-            completionButton.setBackground(rounded(COLOR_BRAND, 8, 0, Color.TRANSPARENT));
+            completionButton.setBackground(rounded(COLOR_ACTION_BG, 8, 0, Color.TRANSPARENT));
         }
     }
 
@@ -1395,8 +1499,8 @@ public final class MainActivity extends Activity {
                 compactMode ? Color.WHITE : COLOR_BRAND_DARK, Typeface.BOLD);
         chip.setGravity(Gravity.CENTER);
         chip.setPadding(dp(11), dp(7), dp(11), dp(7));
-        chip.setBackground(rounded(compactMode ? COLOR_BRAND : Color.rgb(234, 245, 240),
-                20, compactMode ? 0 : 1, Color.rgb(179, 218, 202)));
+        chip.setBackground(rounded(compactMode ? COLOR_ACTION_BG : COLOR_SELECTED_SOFT,
+                20, compactMode ? 0 : 1, COLOR_COMPLETED_BORDER));
         chip.setContentDescription("当前为" + (compactMode ? "精简版" : "完整版") + "，点击切换");
         chip.setOnClickListener(view -> showStudyModeChooser());
         return chip;
@@ -1476,14 +1580,11 @@ public final class MainActivity extends Activity {
     }
 
     private int catalogColor(int index) {
-        int[] colors = {
-                COLOR_BRAND,
-                Color.rgb(54, 101, 166),
-                COLOR_ACCENT,
-                Color.rgb(151, 80, 150),
-                Color.rgb(181, 126, 28),
-                COLOR_BRAND_DARK
-        };
+        int[] colors = darkMode
+                ? new int[]{COLOR_BRAND, COLOR_INFO, COLOR_ACCENT, Color.rgb(213, 158, 211),
+                        Color.rgb(229, 192, 105), COLOR_BRAND_DARK}
+                : new int[]{COLOR_BRAND, COLOR_INFO, COLOR_ACCENT, Color.rgb(151, 80, 150),
+                        Color.rgb(181, 126, 28), COLOR_BRAND_DARK};
         return colors[Math.abs(index) % colors.length];
     }
 
@@ -1517,12 +1618,16 @@ public final class MainActivity extends Activity {
         window.setStatusBarColor(COLOR_BG);
         window.setNavigationBarColor(COLOR_SURFACE);
         if (Build.VERSION.SDK_INT >= 30) {
-            Api30WindowAppearance.apply(window);
-        } else if (Build.VERSION.SDK_INT >= 26) {
-            window.getDecorView().setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR | View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            Api30WindowAppearance.apply(window, !darkMode);
         } else {
-            window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            int flags = 0;
+            if (!darkMode) {
+                flags |= View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                if (Build.VERSION.SDK_INT >= 26) {
+                    flags |= View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+            }
+            window.getDecorView().setSystemUiVisibility(flags);
         }
     }
 
@@ -1530,13 +1635,13 @@ public final class MainActivity extends Activity {
     private static final class Api30WindowAppearance {
         private Api30WindowAppearance() {}
 
-        static void apply(Window window) {
+        static void apply(Window window, boolean lightBars) {
             View decorView = window.getDecorView();
             WindowInsetsController controller = decorView.getWindowInsetsController();
             if (controller == null) return;
-            int lightBars = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
+            int appearance = WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS
                     | WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS;
-            controller.setSystemBarsAppearance(lightBars, lightBars);
+            controller.setSystemBarsAppearance(lightBars ? appearance : 0, appearance);
         }
     }
 
