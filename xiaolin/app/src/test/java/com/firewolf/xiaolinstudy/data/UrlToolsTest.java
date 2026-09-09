@@ -32,4 +32,13 @@ public final class UrlToolsTest {
         assertEquals("HTTP/2 牛逼在哪？",
                 UrlTools.displayTitle("HTTP/2 牛逼在哪？ - 小林coding", "https://example.com/page"));
     }
+
+    @Test
+    public void normalizingChineseAndAlreadyEscapedUrlsIsIdempotent() {
+        String expected = "https://www.xiaolincoding.com/os/%E4%B8%AD.html";
+        assertEquals(expected, UrlTools.normalize("https://xiaolincoding.com/os/中.html?from=app#test"));
+        assertEquals(expected, UrlTools.normalize(expected));
+        assertEquals(expected, UrlTools.normalize(UrlTools.normalize(expected)));
+        assertEquals(expected, UrlTools.normalizeLegacy("https://www.xiaolincoding.com/os/%2525E4%2525B8%2525AD.html"));
+    }
 }

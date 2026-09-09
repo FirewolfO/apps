@@ -27,12 +27,20 @@ public final class UrlTools {
             while (path.length() > 1 && path.endsWith("/")) {
                 path = path.substring(0, path.length() - 1);
             }
-            return new URI(scheme, input.getUserInfo(), host, input.getPort(), path,
-                    null, null).toASCIIString();
+            String authority = new URI(scheme, input.getUserInfo(), host, input.getPort(),
+                    null, null, null).toASCIIString();
+            return new URI(authority + path).toASCIIString();
         } catch (URISyntaxException ignored) {
             int hashIndex = rawUrl.indexOf('#');
             return hashIndex >= 0 ? rawUrl.substring(0, hashIndex) : rawUrl;
         }
+    }
+
+    /** Repair old double escaping during stored-key migration only. */
+    static String normalizeLegacy(String rawUrl) {
+        String url = rawUrl;
+        for (int i = 0; i < 16 && url.contains("%25"); i++) url = url.replace("%25", "%");
+        return normalize(url);
     }
 
     public static boolean isWebUrl(String url) {

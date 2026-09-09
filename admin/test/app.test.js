@@ -57,6 +57,7 @@ test('public visitors browse releases and only People administrators manage them
   await new Promise(resolve => server.once('listening', resolve));
   t.after(async () => {
     await new Promise(resolve => server.close(resolve));
+    app.locals.closeXiaolinSync();
     await fs.rm(dataDir, { recursive: true, force: true });
   });
   const base = `http://127.0.0.1:${server.address().port}`;

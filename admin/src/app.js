@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { createXiaolinSync } from './xiaolin-sync.js';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import express from 'express';
@@ -89,6 +90,9 @@ export async function createApplication(config) {
     });
     next();
   });
+  const xiaolinSync = createXiaolinSync(config.dataDir);
+  app.locals.closeXiaolinSync = xiaolinSync.close;
+  app.use('/api/xiaolin/sync', xiaolinSync.router);
   app.use(express.json({ limit: '128kb' }));
 
   const authenticate = (request, response, next) => {

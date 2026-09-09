@@ -7,6 +7,8 @@ import android.app.AlertDialog;
 import android.app.DownloadManager;
 import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -20,6 +22,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
@@ -32,6 +35,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
@@ -52,6 +56,7 @@ import com.firewolf.xiaolinstudy.data.CatalogRepository.CatalogSection;
 import com.firewolf.xiaolinstudy.data.CompactHtmlRenderer;
 import com.firewolf.xiaolinstudy.data.PageRecord;
 import com.firewolf.xiaolinstudy.data.ProgressStore;
+import com.firewolf.xiaolinstudy.data.ProgressSync;
 import com.firewolf.xiaolinstudy.data.StudyModeStore;
 import com.firewolf.xiaolinstudy.data.UrlTools;
 import com.firewolf.xiaolinstudy.data.VersionTools;
@@ -102,6 +107,14 @@ public final class MainActivity extends Activity {
     private int COLOR_PROGRESS_TRACK;
 
     private ProgressStore progressStore;
+    private ProgressSync progressSync;
+    private TextView syncStatus;
+    private boolean pageReady;
+    private boolean readerTouched;
+    private boolean positionDirty;
+    private boolean needsPositionRestore;
+    private int readerGeneration;
+    private final Runnable saveScrollTask = this::saveCurrentReadingPosition;
     private AppearanceStore appearanceStore;
     private StudyModeStore studyModeStore;
     private boolean darkMode;
@@ -153,6 +166,7 @@ public final class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         applyPalette();
         studyModeStore = new StudyModeStore(this);
+        progressSync = ProgressSync.get(this);
         compactMode = studyModeStore.isCompactMode();
         loadCatalogForMode();
         createShell();
@@ -339,6 +353,7 @@ public final class MainActivity extends Activity {
 
         body.addView(createStudyModeSwitcher(), topMargin(dp(18)));
         body.addView(createAppearanceRow(), topMargin(dp(10)));
+        body.addView(createSyncRow(), topMargin(dp(10)));
         body.addView(createStatsPanel(), topMargin(dp(12)));
 
         String lastUrl = progressStore.getLastUrl();
@@ -421,6 +436,100 @@ public final class MainActivity extends Activity {
         arrow.setColorFilter(COLOR_MUTED);
         row.addView(arrow, new LinearLayout.LayoutParams(dp(22), dp(22)));
         return row;
+    }
+
+    private View createSyncRow() {
+        LinearLayout row = vertical();
+        row.setPadding(dp(14), dp(12), dp(14), dp(12));
+        row.setBackground(rounded(COLOR_SURFACE, 10, 1, COLOR_DIVIDER));
+        row.addView(text("跨设备同步", 14, COLOR_INK, Typeface.BOLD), wrapParams());
+        syncStatus = text(progressSync.status(), 12, COLOR_MUTED, Typeface.NORMAL);
+        row.addView(syncStatus, topMargin(dp(4)));
+        row.setOnClickListener(view -> showSyncDialog());
+        return row;
+    }
+
+    private void showSyncDialog() {
+        if (progressSync.isBusy() && progressSync.code().isEmpty()) {
+            Toast.makeText(this, "正在连接同步服务，请稍候", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (progressSync.code().isEmpty()) {
+            new AlertDialog.Builder(this).setTitle("跨设备同步")
+                    .setMessage("第一台设备创建同步码，其他设备输入同一个码即可共享学习记录。"
+                            + "完整版和精简版分别同步，离线学习后会自动补传。\n\n配对时会合并本机与云端记录。")
+                    .setPositiveButton("创建同步码", (dialog, which) -> progressSync.create())
+                    .setNeutralButton("输入已有同步码", (dialog, which) -> showJoinSyncDialog())
+                    .setNegativeButton("暂不开启", null).show();
+            return;
+        }
+        LinearLayout body = vertical();
+        body.setPadding(dp(22), dp(12), dp(22), dp(8));
+        TextView code = text(progressSync.code().replaceAll("(.{4})(?!$)", "$1-"),
+                19, COLOR_BRAND, Typeface.BOLD);
+        code.setTextIsSelectable(true);
+        body.addView(code, matchWrapParams());
+        body.addView(text("在另一台设备输入此码即可同步。同步码可访问你的学习记录，请只在自己的设备使用。",
+                13, COLOR_MUTED, Typeface.NORMAL), topMargin(dp(12)));
+        body.addView(text(progressSync.status(), 12, COLOR_MUTED, Typeface.NORMAL), topMargin(dp(10)));
+        Button disconnect = new Button(this);
+        disconnect.setText("停止本机同步");
+        body.addView(disconnect, topMargin(dp(14)));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("同步已开启").setView(body)
+                .setPositiveButton("立即同步", (prompt, which) -> {
+                    saveCurrentReadingPosition();
+                    progressSync.sync();
+                })
+                .setNeutralButton("复制同步码", (prompt, which) -> {
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                    if (clipboard != null) {
+                        ClipData clip = ClipData.newPlainText("小林学习同步码", code.getText());
+                        if (Build.VERSION.SDK_INT >= 24) {
+                            android.os.PersistableBundle extras = new android.os.PersistableBundle();
+                            extras.putBoolean("android.content.extra.IS_SENSITIVE", true);
+                            clip.getDescription().setExtras(extras);
+                        }
+                        clipboard.setPrimaryClip(clip);
+                    }
+                    Toast.makeText(this, "同步码已复制", Toast.LENGTH_SHORT).show();
+                })
+                .setNegativeButton("关闭", null).create();
+        disconnect.setOnClickListener(view -> new AlertDialog.Builder(this)
+                .setTitle("停止本机同步？").setMessage("本机学习记录会保留，其他设备可继续同步。保存同步码后可随时重新连接。")
+                .setPositiveButton("停止同步", (prompt, which) -> { progressSync.disconnect(); dialog.dismiss(); })
+                .setNegativeButton("取消", null).show());
+        dialog.show();
+    }
+
+    private void showJoinSyncDialog() {
+        EditText input = new EditText(this);
+        input.setHint("粘贴另一台设备的同步码");
+        input.setSingleLine(true);
+        input.setInputType(android.text.InputType.TYPE_CLASS_TEXT | android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+        input.setPadding(dp(22), dp(12), dp(22), dp(12));
+        AlertDialog dialog = new AlertDialog.Builder(this).setTitle("输入同步码").setView(input)
+                .setMessage("配对后会合并两台设备的学习记录。")
+                .setPositiveButton("连接并同步", null).setNegativeButton("取消", null).create();
+        dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(view -> {
+            String code = input.getText().toString().replaceAll("[\\s-]", "");
+            if (!code.matches("[a-fA-F0-9]{32}")) { input.setError("需要完整的 32 位同步码"); return; }
+            progressSync.join(code);
+            dialog.dismiss();
+        }));
+        dialog.show();
+    }
+
+    private void onSyncChanged(boolean changed, String message) {
+        if (isFinishing() || isDestroyed()) return;
+        if (syncStatus != null) syncStatus.setText(progressSync.status());
+        if (changed) {
+            if (readerScreen != null && readerScreen.getParent() == contentContainer) updateCompletionButton();
+            else renderNativeScreen();
+        }
+        if (!message.isEmpty()) {
+            Toast.makeText(this, message, Toast.LENGTH_LONG).show();
+            if (message.startsWith("配对成功")) showSyncDialog();
+        }
     }
 
     private void showAppearanceChooser() {
@@ -878,6 +987,7 @@ public final class MainActivity extends Activity {
 
         refreshButton = iconButton(R.drawable.ic_refresh, "刷新");
         refreshButton.setOnClickListener(view -> {
+            saveCurrentReadingPosition();
             if (currentArticle != null && currentArticle.isCompact()) loadArticle(currentArticle);
             else webView.reload();
         });
@@ -944,7 +1054,7 @@ public final class MainActivity extends Activity {
         readerScreen = screen;
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
+    @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility"})
     @SuppressWarnings("deprecation")
     private void configureWebView() {
         webView.setBackgroundColor(COLOR_BG);
@@ -954,8 +1064,16 @@ public final class MainActivity extends Activity {
         } else if (Build.VERSION.SDK_INT >= 29) {
             settings.setForceDark(darkMode ? WebSettings.FORCE_DARK_ON : WebSettings.FORCE_DARK_OFF);
         }
+        webView.setOnTouchListener((view, event) -> {
+            // Observe only; WebView still consumes gestures and handles accessibility clicks.
+            if (event.getActionMasked() == MotionEvent.ACTION_DOWN) readerTouched = true;
+            return false;
+        });
         webView.setScrollListener(scrollY -> {
-            // Position is persisted on navigation and lifecycle boundaries.
+            if (!pageReady || !readerTouched) return;
+            positionDirty = true;
+            updateHandler.removeCallbacks(saveScrollTask);
+            updateHandler.postDelayed(saveScrollTask, 750);
         });
         webView.setWebChromeClient(new WebChromeClient() {
             @Override
@@ -991,9 +1109,7 @@ public final class MainActivity extends Activity {
 
             @Override
             public void onPageStarted(WebView view, String url, android.graphics.Bitmap favicon) {
-                if (currentUrl != null && !UrlTools.normalize(currentUrl).equals(UrlTools.normalize(url))) {
-                    saveCurrentReadingPosition();
-                }
+                beginPageLoad();
                 webProgress.setVisibility(View.VISIBLE);
                 readerSource.setText(hostFor(url));
             }
@@ -1029,7 +1145,14 @@ public final class MainActivity extends Activity {
     }
 
     private void handlePageReady(String url, String title, boolean restorePosition) {
+        if (webView == null) return;
+        boolean offlineArticle = currentArticle != null && currentArticle.isCompact();
+        // Older WebViews report about:blank for loadDataWithBaseURL history callbacks.
+        if (offlineArticle && (url == null || "about:blank".equals(url))) url = currentArticle.getUrl();
         if (!UrlTools.isWebUrl(url)) return;
+        if (offlineArticle) {
+            if (!UrlTools.normalize(url).equals(UrlTools.normalize(currentArticle.getUrl()))) return;
+        } else if (!UrlTools.normalize(url).equals(UrlTools.normalize(webView.getUrl()))) return;
         String normalized = UrlTools.normalize(url);
         boolean changed = currentUrl == null || !UrlTools.normalize(currentUrl).equals(normalized);
         currentUrl = url;
@@ -1040,11 +1163,17 @@ public final class MainActivity extends Activity {
         readerTitle.setText(currentTitle);
         readerSource.setText(currentArticle != null && currentArticle.isCompact()
                 ? "精简版 · 离线速记" : hostFor(url));
-        progressStore.recordVisit(url, currentTitle);
+        if (changed || needsPositionRestore) {
+            progressStore.recordVisit(url, currentTitle);
+            progressSync.changed();
+        }
         updateCompletionButton();
-        if (restorePosition && changed) {
-            int savedY = progressStore.getScrollPosition(url);
-            if (savedY > 0) webView.postDelayed(() -> webView.scrollTo(0, savedY), 180);
+        if (restorePosition && needsPositionRestore) {
+            needsPositionRestore = false;
+            int generation = readerGeneration;
+            webView.postVisualStateCallback(generation, new WebView.VisualStateCallback() {
+                @Override public void onComplete(long requestId) { restoreReadingPosition(generation, 0); }
+            });
         }
     }
 
@@ -1068,6 +1197,7 @@ public final class MainActivity extends Activity {
         currentArticle = targetArticle;
         if (webView.getUrl() == null || !UrlTools.normalize(webView.getUrl()).equals(UrlTools.normalize(target))) {
             currentUrl = null;
+            beginPageLoad();
             webView.loadUrl(target);
         } else {
             currentUrl = webView.getUrl();
@@ -1079,16 +1209,16 @@ public final class MainActivity extends Activity {
     }
 
     private void loadArticle(CatalogArticle article) {
+        beginPageLoad();
         currentArticle = article;
         currentUrl = article.getUrl();
         currentTitle = article.getTitle();
         readerTitle.setText(currentTitle);
         readerSource.setText("精简版 · 离线速记");
+        updateCompletionButton();
         webProgress.setVisibility(View.VISIBLE);
         webView.loadDataWithBaseURL(article.getUrl(), CompactHtmlRenderer.render(article, darkMode),
-                "text/html", "UTF-8", null);
-        int savedY = progressStore.getScrollPosition(article.getUrl());
-        if (savedY > 0) webView.postDelayed(() -> webView.scrollTo(0, savedY), 220);
+                "text/html", "UTF-8", article.getUrl());
     }
 
     private void closeReader() {
@@ -1102,6 +1232,7 @@ public final class MainActivity extends Activity {
         boolean completed = progressStore.isCompleted(currentUrl);
         if (completed) {
             progressStore.setCompleted(currentUrl, currentTitle, false);
+            progressSync.changed();
             updateCompletionButton();
             Toast.makeText(this, "已撤销完成状态", Toast.LENGTH_SHORT).show();
             return;
@@ -1124,6 +1255,7 @@ public final class MainActivity extends Activity {
 
     private void markCurrentCompleted() {
         progressStore.setCompleted(currentUrl, currentTitle, true);
+        progressSync.changed();
         updateCompletionButton();
         Toast.makeText(this, "已加入学习记录", Toast.LENGTH_SHORT).show();
     }
@@ -1148,6 +1280,7 @@ public final class MainActivity extends Activity {
         if (target.isCompact()) loadArticle(target);
         else {
             currentArticle = target;
+            beginPageLoad();
             webView.loadUrl(target.getUrl());
         }
     }
@@ -1207,9 +1340,35 @@ public final class MainActivity extends Activity {
     }
 
     private void saveCurrentReadingPosition() {
-        if (webView != null && UrlTools.isWebUrl(currentUrl)) {
-            progressStore.saveScrollPosition(currentUrl, webView.getScrollY());
+        updateHandler.removeCallbacks(saveScrollTask);
+        if (webView != null && pageReady && positionDirty && UrlTools.isWebUrl(currentUrl)
+                && readerScreen != null && readerScreen.getParent() == contentContainer) {
+            int range = webView.scrollRange();
+            progressStore.saveScrollPosition(currentUrl, webView.getScrollY(),
+                    range > 0 ? (double) webView.getScrollY() / range : 0);
+            positionDirty = false;
+            progressSync.changed();
         }
+    }
+
+    private void beginPageLoad() {
+        readerGeneration++;
+        pageReady = false;
+        readerTouched = false;
+        positionDirty = false;
+        needsPositionRestore = true;
+        updateHandler.removeCallbacks(saveScrollTask);
+    }
+
+    private void restoreReadingPosition(int generation, int attempt) {
+        if (webView == null || generation != readerGeneration) return;
+        if (readerTouched) { pageReady = true; return; }
+        if ((webView.getHeight() == 0 || webView.scrollRange() == 0) && attempt < 15) {
+            webView.postDelayed(() -> restoreReadingPosition(generation, attempt + 1), 100);
+            return;
+        }
+        webView.scrollTo(0, progressStore.restoredScrollPosition(currentUrl, webView.scrollRange()));
+        pageReady = true;
     }
 
     private void checkForUpdate(boolean userInitiated) {
@@ -1273,7 +1432,7 @@ public final class MainActivity extends Activity {
         new AlertDialog.Builder(this)
                 .setTitle("发现新版本 " + update.version)
                 .setMessage("是否下载并覆盖安装新版小林学习？只有点击“同意并下载”后才开始下载。"
-                        + "\n完整版和精简版进度均保存在本机，覆盖升级不会清除；请不要先卸载旧版。" + size
+                        + "\n覆盖升级保留完整版和精简版进度；开启跨设备同步后可在其他设备继续学习。请不要先卸载旧版。" + size
                         + (update.notes.isEmpty() ? "" : "\n\n更新内容：\n" + update.notes))
                 .setNegativeButton("稍后", null)
                 .setPositiveButton("同意并下载", (dialog, which) -> prepareUpdate(update))
@@ -1676,6 +1835,8 @@ public final class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        progressSync.resume(this::onSyncChanged);
+        if (webView != null) webView.onResume();
         if (resumeDownloadedUpdate()) return;
         if (System.currentTimeMillis() - lastUpdateCheckAt >= UPDATE_CHECK_INTERVAL_MS) {
             checkForUpdate(false);
@@ -1685,11 +1846,14 @@ public final class MainActivity extends Activity {
     @Override
     protected void onPause() {
         saveCurrentReadingPosition();
+        progressSync.pause();
+        if (webView != null) webView.onPause();
         super.onPause();
     }
 
     @Override
     protected void onDestroy() {
+        updateHandler.removeCallbacks(saveScrollTask);
         updateHandler.removeCallbacks(updateDownloadPoll);
         networkExecutor.shutdownNow();
         destroyReader();
@@ -1697,6 +1861,8 @@ public final class MainActivity extends Activity {
     }
 
     private void destroyReader() {
+        readerGeneration++;
+        updateHandler.removeCallbacks(saveScrollTask);
         if (webView != null) {
             webView.stopLoading();
             webView.setWebChromeClient(null);

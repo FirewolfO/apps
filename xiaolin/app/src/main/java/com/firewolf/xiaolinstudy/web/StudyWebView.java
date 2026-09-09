@@ -53,8 +53,12 @@ public final class StudyWebView extends WebView {
     @Override
     protected void onScrollChanged(int left, int top, int oldLeft, int oldTop) {
         super.onScrollChanged(left, top, oldLeft, oldTop);
-        if (scrollListener != null && Math.abs(top - oldTop) > 32) {
+        if (scrollListener != null && top != oldTop) {
             scrollListener.onScrollPositionChanged(top);
         }
+    }
+
+    public int scrollRange() {
+        return Math.max(0, computeVerticalScrollRange() - computeVerticalScrollExtent());
     }
 }

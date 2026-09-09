@@ -3,7 +3,7 @@ name: app-center
 services:
   app-center:
     build: .
-    image: app-center:1.1.0
+    image: app-center:1.2.0
     restart: unless-stopped
     environment:
       PORT: 3000
