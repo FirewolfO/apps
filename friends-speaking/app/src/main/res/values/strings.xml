@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">老友记口语伴侣</string>
+    <string name="library_title">十季口语学习库</string>
+    <string name="library_subtitle">236 集学习位 · 导入你合法持有的音频与字幕</string>
+    <string name="import_library">批量导入十季媒体目录</string>
+    <string name="check_update">检查软件更新</string>
+    <string name="resume_learning">继续上次学习</string>
+    <string name="copyright_notice">应用不提供或下载受版权保护的剧集媒体</string>
+</resources>
