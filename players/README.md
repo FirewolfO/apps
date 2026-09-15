@@ -4,7 +4,7 @@
 
 ## 资源更新
 
-- `catalog/catalog.json` 是随 APK 内置且可通过 GitHub Raw 远程更新的精选片单。仓库推送新片单后，已安装应用无需升级即可读取。
+- `catalog/catalog.json` 是随 APK 内置且可通过 GitHub Raw 远程更新的精选片单。首版含 Blender 开放电影、4K CC 影像和公有领域经典电影；仓库推送新片单后，已安装应用无需升级即可读取。
 - NASA Image and Video Library 是实时开放视频源。应用启动、下拉刷新和每 12 小时后台任务会读取最近两年的条目，并解析官方原画、高清、流畅和字幕地址。
 - 设置页可替换为自有 HTTPS 片单。远程请求失败时继续使用上次缓存和内置片单，不会让首页变空。
 - 片源只接受 HTTPS；片单最多 500 条、响应最多 4 MiB。内置电影来自 Blender Open Movie，按 Creative Commons Attribution 3.0 使用；NASA 条目展示其官方媒体使用条款入口。

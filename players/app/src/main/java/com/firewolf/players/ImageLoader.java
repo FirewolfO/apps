@@ -77,7 +77,7 @@ public final class ImageLoader {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setConnectTimeout(12_000);
             connection.setReadTimeout(20_000);
-            connection.setRequestProperty("User-Agent", "PlayersAndroid/1.0");
+            connection.setRequestProperty("User-Agent", "PlayersAndroid/1.0 (https://github.com/FirewolfO/apps)");
             connection.setInstanceFollowRedirects(true);
             try (InputStream input = connection.getInputStream()) {
                 byte[] bytes = readBounded(input);

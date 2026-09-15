@@ -80,6 +80,87 @@
           "subtitleUrl": "https://download.blender.org/demo/movies/ToS/subtitles/TOS-CH.srt"
         }
       ]
+    },
+    {
+      "id": "wikimedia-night-of-the-living-dead",
+      "title": "活死人之夜 Night of the Living Dead",
+      "summary": "乔治·A·罗梅罗执导的黑白丧尸电影。几名陌生人被困在乡间农舍中，既要抵御屋外不断逼近的活死人，也要面对屋内越来越尖锐的冲突。Wikimedia Commons 标注该片为美国公有领域作品。",
+      "posterUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/24/Night_of_the_Living_Dead_%281968%29.webm/960px--Night_of_the_Living_Dead_%281968%29.webm.jpg",
+      "source": "Wikimedia Commons",
+      "category": "恐怖",
+      "year": "1968",
+      "badge": "1080P 正片",
+      "addedAt": "1968-10-01T00:00:00Z",
+      "license": {
+        "name": "Public Domain（美国）",
+        "url": "https://commons.wikimedia.org/wiki/File:Night_of_the_Living_Dead_(1968).webm"
+      },
+      "streams": [
+        {
+          "label": "1080P",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/24/Night_of_the_Living_Dead_%281968%29.webm/Night_of_the_Living_Dead_%281968%29.webm.1080p.vp9.webm",
+          "mimeType": "video/webm"
+        },
+        {
+          "label": "480P",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/2/24/Night_of_the_Living_Dead_%281968%29.webm/Night_of_the_Living_Dead_%281968%29.webm.480p.vp9.webm",
+          "mimeType": "video/webm"
+        }
+      ]
+    },
+    {
+      "id": "wikimedia-trip-to-the-moon",
+      "title": "月球旅行记 Le Voyage dans la Lune",
+      "summary": "乔治·梅里爱于 1902 年创作的科幻默片：天文学家乘炮弹飞船抵达月球，遇见月球居民后展开奇异逃亡。它是电影史上最早且最具影响力的科幻短片之一。",
+      "posterUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Le_Voyage_dans_la_Lune_%28Georges_M%C3%A9li%C3%A8s%2C_1902%29.ogv/500px--Le_Voyage_dans_la_Lune_%28Georges_M%C3%A9li%C3%A8s%2C_1902%29.ogv.jpg",
+      "source": "Wikimedia Commons",
+      "category": "经典",
+      "year": "1902",
+      "badge": "完整正片",
+      "addedAt": "1902-09-01T00:00:00Z",
+      "license": {
+        "name": "Public Domain",
+        "url": "https://commons.wikimedia.org/wiki/File:Le_Voyage_dans_la_Lune_(Georges_M%C3%A9li%C3%A8s,_1902).ogv"
+      },
+      "streams": [
+        {
+          "label": "480P",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/a/a2/Le_Voyage_dans_la_Lune_%28Georges_M%C3%A9li%C3%A8s%2C_1902%29.ogv/Le_Voyage_dans_la_Lune_%28Georges_M%C3%A9li%C3%A8s%2C_1902%29.ogv.480p.vp9.webm",
+          "mimeType": "video/webm"
+        }
+      ]
+    },
+    {
+      "id": "wikimedia-box-of-infinities",
+      "title": "无限之盒 Box of Infinities",
+      "summary": "一段长达二十多分钟的 Mandelbox 三维分形旅程。镜头在近乎无穷的结构中持续深入，原始作品以 4K UHD 制作；作者 PantheraLeo1359531 以 CC BY 4.0 发布。",
+      "posterUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/ed/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm/960px--Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm.jpg",
+      "source": "Wikimedia Commons",
+      "category": "视觉",
+      "year": "2019",
+      "badge": "4K UHD",
+      "addedAt": "2019-09-08T00:00:00Z",
+      "license": {
+        "name": "CC BY 4.0 · PantheraLeo1359531",
+        "url": "https://commons.wikimedia.org/wiki/File:Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm"
+      },
+      "streams": [
+        {
+          "label": "4K 原画",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm",
+          "mimeType": "video/webm"
+        },
+        {
+          "label": "1080P",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/ed/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm.1080p.vp9.webm",
+          "mimeType": "video/webm"
+        },
+        {
+          "label": "480P",
+          "url": "https://upload.wikimedia.org/wikipedia/commons/transcoded/e/ed/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm/Box_of_infinities_%E2%80%93_A_Mandelbox_film_4K_UHD_20190907.webm.480p.vp9.webm",
+          "mimeType": "video/webm"
+        }
+      ]
     }
   ]
 }

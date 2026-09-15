@@ -4,7 +4,9 @@
 import argparse
 import json
 import sys
+import time
 from pathlib import Path
+from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 
@@ -18,10 +20,20 @@ def require(condition, message):
 
 
 def probe(url):
-    request = Request(url, headers={"Range": "bytes=0-0", "User-Agent": "PlayersCatalogValidator/1.0"})
-    with urlopen(request, timeout=30) as response:
-        require(200 <= response.status < 300, f"HTTP {response.status}: {url}")
-        response.read(1)
+    request = Request(url, headers={
+        "Range": "bytes=0-0",
+        "User-Agent": "PlayersCatalogValidator/1.0 (https://github.com/FirewolfO/apps)",
+    })
+    for attempt in range(4):
+        try:
+            with urlopen(request, timeout=30) as response:
+                require(200 <= response.status < 300, f"HTTP {response.status}: {url}")
+                response.read(1)
+                return
+        except HTTPError as error:
+            if error.code not in (403, 429, 503) or attempt == 3:
+                raise ValueError(f"HTTP {error.code}: {url}") from error
+            time.sleep(2 ** attempt)
 
 
 def validate(path, network=False):

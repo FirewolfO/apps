@@ -110,7 +110,7 @@ public final class PlayerActivity extends AppCompatActivity {
     @OptIn(markerClass = UnstableApi.class)
     private void initializePlayer() {
         DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory()
-                .setUserAgent("PlayersAndroid/1.0")
+                .setUserAgent("PlayersAndroid/1.0 (https://github.com/FirewolfO/apps)")
                 .setAllowCrossProtocolRedirects(false)
                 .setConnectTimeoutMs(15_000)
                 .setReadTimeoutMs(30_000);

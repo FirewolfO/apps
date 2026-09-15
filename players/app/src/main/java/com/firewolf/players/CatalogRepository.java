@@ -254,7 +254,7 @@ public final class CatalogRepository {
         connection.setConnectTimeout(12_000);
         connection.setReadTimeout(25_000);
         connection.setRequestProperty("Accept", "application/json");
-        connection.setRequestProperty("User-Agent", "PlayersAndroid/1.0");
+        connection.setRequestProperty("User-Agent", "PlayersAndroid/1.0 (https://github.com/FirewolfO/apps)");
         connection.setInstanceFollowRedirects(true);
         try {
             if (connection.getResponseCode() / 100 != 2) {

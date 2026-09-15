@@ -132,9 +132,9 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
             values.add("开源电影");
             values.add("太空探索");
         } else if (mode == Mode.MOVIES) {
-            values.add("动画");
-            values.add("科幻");
-            values.add("短片");
+            for (VideoItem item : allItems) {
+                if (!"NASA".equals(item.category) && !values.contains(item.category)) values.add(item.category);
+            }
         } else if (mode == Mode.NASA) {
             values.add("2026");
             values.add("2025");
