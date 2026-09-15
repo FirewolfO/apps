@@ -1,32 +1,49 @@
 package com.firewolf.players;
 
 import android.app.Activity;
+import android.app.DownloadManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.Settings;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 
 import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 final class AppUpdateChecker {
+    static final String PREFERENCES = "players_settings";
+    static final String DOWNLOAD_ID = "update_download_id";
+
+    private static final String PENDING_URL = "pending_update_url";
+    private static final String PENDING_FILENAME = "pending_update_filename";
+    private static final String PENDING_VERSION = "pending_update_version";
+    private static final long CHECK_INTERVAL_MS = 6L * 60L * 60L * 1000L;
     private static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 
     private AppUpdateChecker() {}
 
     static void check(Activity activity, boolean force) {
-        long last = activity.getSharedPreferences("players_settings", Activity.MODE_PRIVATE)
-                .getLong("last_update_check", 0L);
-        if (!force && System.currentTimeMillis() - last < 24 * 60 * 60 * 1000L) return;
-        activity.getSharedPreferences("players_settings", Activity.MODE_PRIVATE)
-                .edit().putLong("last_update_check", System.currentTimeMillis()).apply();
+        SharedPreferences preferences = activity.getSharedPreferences(PREFERENCES, Activity.MODE_PRIVATE);
+        if (!force && (preferences.getLong(DOWNLOAD_ID, -1L) >= 0
+                || !preferences.getString(PENDING_URL, "").isEmpty())) return;
+        long last = preferences.getLong("last_update_check", 0L);
+        if (!force && System.currentTimeMillis() - last < CHECK_INTERVAL_MS) return;
+        preferences.edit().putLong("last_update_check", System.currentTimeMillis()).apply();
         EXECUTOR.execute(() -> {
             try {
                 HttpURLConnection connection = (HttpURLConnection) new URL(
@@ -34,8 +51,9 @@ final class AppUpdateChecker {
                 connection.setConnectTimeout(8_000);
                 connection.setReadTimeout(10_000);
                 connection.setRequestProperty("Accept", "application/json");
+                connection.setRequestProperty("User-Agent", browserUserAgent());
                 try {
-                    if (connection.getResponseCode() != 200) return;
+                    if (connection.getResponseCode() != 200) throw new IllegalStateException("HTTP " + connection.getResponseCode());
                     String raw;
                     try (InputStream input = connection.getInputStream()) {
                         ByteArrayOutputStream output = new ByteArrayOutputStream();
@@ -45,27 +63,149 @@ final class AppUpdateChecker {
                         raw = output.toString(StandardCharsets.UTF_8.name());
                     }
                     JSONObject release = new JSONObject(raw).getJSONObject("release");
-                    if (release.optInt("versionCode") <= BuildConfig.VERSION_CODE) return;
-                    String version = release.optString("version");
-                    String notes = release.optString("notes", "包含功能和资源更新");
-                    activity.runOnUiThread(() -> show(activity, version, notes));
+                    int versionCode = release.optInt("versionCode");
+                    if (versionCode <= BuildConfig.VERSION_CODE) {
+                        if (force) activity.runOnUiThread(() -> toast(activity, "当前已是最新版本"));
+                        return;
+                    }
+                    Update update = Update.from(release);
+                    if (!update.isValid()) throw new IllegalStateException("invalid release");
+                    activity.runOnUiThread(() -> show(activity, update));
                 } finally {
                     connection.disconnect();
                 }
             } catch (Exception ignored) {
-                // Update checks must never interrupt browsing or playback.
+                if (force) activity.runOnUiThread(() -> toast(activity, "暂时无法检查更新，请稍后重试"));
             }
         });
     }
 
-    private static void show(Activity activity, String version, String notes) {
+    static void resumePending(Activity activity) {
+        SharedPreferences preferences = activity.getSharedPreferences(PREFERENCES, Activity.MODE_PRIVATE);
+        String path = preferences.getString(PENDING_URL, "");
+        if (path == null || path.isEmpty()) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !activity.getPackageManager().canRequestPackageInstalls()) return;
+
+        String filename = safeFilename(preferences.getString(PENDING_FILENAME, "players-update.apk"));
+        String version = preferences.getString(PENDING_VERSION, "新版");
+        String url = absoluteDownloadUrl(path);
+        if (url.isEmpty()) {
+            clearPending(preferences);
+            toast(activity, "更新地址无效");
+            return;
+        }
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
+                .setTitle("Players 影厅 " + version)
+                .setDescription("正在下载安装包")
+                .setMimeType("application/vnd.android.package-archive")
+                .addRequestHeader("User-Agent", browserUserAgent())
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI | DownloadManager.Request.NETWORK_MOBILE)
+                .setAllowedOverMetered(true)
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+
+        File directory = activity.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+        if (directory != null) {
+            File previous = new File(directory, filename);
+            if (previous.exists() && !previous.delete()) {
+                toast(activity, "无法替换旧安装包");
+                return;
+            }
+            request.setDestinationInExternalFilesDir(activity, Environment.DIRECTORY_DOWNLOADS, filename);
+        }
+
+        try {
+            DownloadManager manager = (DownloadManager) activity.getSystemService(Context.DOWNLOAD_SERVICE);
+            long downloadId = manager.enqueue(request);
+            preferences.edit().putLong(DOWNLOAD_ID, downloadId)
+                    .remove(PENDING_URL).remove(PENDING_FILENAME).remove(PENDING_VERSION).apply();
+            toast(activity, "新版本开始下载，完成后会打开安装界面");
+        } catch (RuntimeException error) {
+            clearPending(preferences);
+            toast(activity, "无法开始下载，请稍后重试");
+        }
+    }
+
+    private static void show(Activity activity, Update update) {
         if (activity.isFinishing() || activity.isDestroyed()) return;
+        String size = update.size > 0 ? "\n\n安装包大小：" + formatSize(update.size) : "";
         new AlertDialog.Builder(activity)
-                .setTitle("发现新版 " + version)
-                .setMessage(notes)
+                .setTitle("发现新版 " + update.version)
+                .setMessage(update.notes + size)
                 .setNegativeButton("稍后", null)
-                .setPositiveButton("前往更新", (dialog, which) -> activity.startActivity(
-                        new Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.APP_CENTER_URL + "/players"))))
+                .setPositiveButton("立即更新", (dialog, which) -> prepare(activity, update))
                 .show();
+    }
+
+    private static void prepare(Activity activity, Update update) {
+        SharedPreferences preferences = activity.getSharedPreferences(PREFERENCES, Activity.MODE_PRIVATE);
+        preferences.edit()
+                .putString(PENDING_URL, update.downloadUrl)
+                .putString(PENDING_FILENAME, update.filename)
+                .putString(PENDING_VERSION, update.version)
+                .apply();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && !activity.getPackageManager().canRequestPackageInstalls()) {
+            toast(activity, "请允许 Players 影厅安装应用，返回后会开始下载");
+            activity.startActivity(new Intent(Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                    Uri.parse("package:" + activity.getPackageName())));
+            return;
+        }
+        resumePending(activity);
+    }
+
+    private static String absoluteDownloadUrl(String path) {
+        String value = path == null ? "" : path.trim();
+        if (!value.startsWith("/downloads/players/") || value.contains("..")) return "";
+        return BuildConfig.APP_CENTER_URL + value;
+    }
+
+    private static String browserUserAgent() {
+        return "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36 PlayersAndroid/"
+                + BuildConfig.VERSION_NAME;
+    }
+
+    private static String safeFilename(String value) {
+        String filename = value == null ? "players-update.apk" : value.replaceAll("[^A-Za-z0-9._-]", "_");
+        if (!filename.toLowerCase(Locale.ROOT).endsWith(".apk")) filename += ".apk";
+        return filename;
+    }
+
+    private static String formatSize(long bytes) {
+        if (bytes < 1024L * 1024L) return Math.max(1, bytes / 1024L) + " KB";
+        return String.format(Locale.CHINA, "%.1f MB", bytes / 1024d / 1024d);
+    }
+
+    private static void clearPending(SharedPreferences preferences) {
+        preferences.edit().remove(PENDING_URL).remove(PENDING_FILENAME).remove(PENDING_VERSION).apply();
+    }
+
+    private static void toast(Activity activity, String message) {
+        if (!activity.isFinishing() && !activity.isDestroyed()) Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+    }
+
+    private static final class Update {
+        final String version;
+        final String filename;
+        final String notes;
+        final String downloadUrl;
+        final long size;
+
+        Update(String version, String filename, String notes, String downloadUrl, long size) {
+            this.version = version;
+            this.filename = filename;
+            this.notes = notes;
+            this.downloadUrl = downloadUrl;
+            this.size = size;
+        }
+
+        static Update from(JSONObject value) {
+            return new Update(value.optString("version"), value.optString("filename"),
+                    value.optString("notes", "包含功能和资源更新"), value.optString("downloadUrl"),
+                    value.optLong("size"));
+        }
+
+        boolean isValid() {
+            return !version.trim().isEmpty() && !filename.trim().isEmpty() && !absoluteDownloadUrl(downloadUrl).isEmpty();
+        }
     }
 }

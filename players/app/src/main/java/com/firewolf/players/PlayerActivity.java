@@ -1,6 +1,8 @@
 package com.firewolf.players;
 
 import android.app.PictureInPictureParams;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Build;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.OptIn;
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -34,6 +37,7 @@ import java.util.Locale;
 
 public final class PlayerActivity extends AppCompatActivity {
     private PlayerView playerView;
+    private ImageButton fullscreenButton;
     private ExoPlayer player;
     private VideoItem item;
     private VideoItem.Stream stream;
@@ -55,16 +59,29 @@ public final class PlayerActivity extends AppCompatActivity {
         stream = item.streams.get(streamIndex);
         store = new PlaybackStore(this);
         playerView = findViewById(R.id.player_view);
+        fullscreenButton = findViewById(R.id.player_fullscreen);
         ((TextView) findViewById(R.id.player_title)).setText(item.title + " · " + stream.label);
-        findViewById(R.id.player_back).setOnClickListener(view -> finish());
+        findViewById(R.id.player_back).setOnClickListener(view -> exitFullscreenOrFinish());
+        fullscreenButton.setOnClickListener(view -> toggleFullscreen());
+        playerView.setControllerVisibilityListener((PlayerView.ControllerVisibilityListener) visibility ->
+                fullscreenButton.setVisibility(visibility == View.VISIBLE ? View.VISIBLE : View.GONE));
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override public void handleOnBackPressed() {
+                exitFullscreenOrFinish();
+            }
+        });
+        updateFullscreenButton();
         updatePip(16, 9);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.root), (view, insets) -> {
             androidx.core.graphics.Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             ImageButton back = findViewById(R.id.player_back);
+            ImageButton fullscreen = findViewById(R.id.player_fullscreen);
             TextView title = findViewById(R.id.player_title);
             back.setTranslationX(bars.left);
             back.setTranslationY(bars.top);
+            fullscreen.setTranslationX(-bars.right);
+            fullscreen.setTranslationY(bars.top);
             title.setTranslationX(bars.left);
             title.setTranslationY(bars.top);
             return insets;
@@ -91,10 +108,24 @@ public final class PlayerActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onConfigurationChanged(Configuration configuration) {
+        super.onConfigurationChanged(configuration);
+        updateFullscreenButton();
+        hideSystemBars();
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (hasFocus && !isInPictureInPictureMode()) hideSystemBars();
+    }
+
+    @Override
     public void onPictureInPictureModeChanged(boolean isInPictureInPictureMode, android.content.res.Configuration configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, configuration);
         findViewById(R.id.player_back).setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
         findViewById(R.id.player_title).setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
+        fullscreenButton.setVisibility(isInPictureInPictureMode ? View.GONE : View.VISIBLE);
         playerView.setUseController(!isInPictureInPictureMode);
     }
 
@@ -110,7 +141,7 @@ public final class PlayerActivity extends AppCompatActivity {
     @OptIn(markerClass = UnstableApi.class)
     private void initializePlayer() {
         DefaultHttpDataSource.Factory http = new DefaultHttpDataSource.Factory()
-                .setUserAgent("PlayersAndroid/1.0 (https://github.com/FirewolfO/apps)")
+                .setUserAgent("PlayersAndroid/" + BuildConfig.VERSION_NAME + " (https://github.com/FirewolfO/apps)")
                 .setAllowCrossProtocolRedirects(false)
                 .setConnectTimeoutMs(15_000)
                 .setReadTimeoutMs(30_000);
@@ -170,6 +201,31 @@ public final class PlayerActivity extends AppCompatActivity {
         WindowInsetsControllerCompat controller = WindowCompat.getInsetsController(getWindow(), getWindow().getDecorView());
         controller.hide(WindowInsetsCompat.Type.systemBars());
         controller.setSystemBarsBehavior(WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
+    }
+
+    private void toggleFullscreen() {
+        setRequestedOrientation(isLandscape()
+                ? ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+                : ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE);
+    }
+
+    private void exitFullscreenOrFinish() {
+        if (isLandscape()) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
+        } else {
+            finish();
+        }
+    }
+
+    private boolean isLandscape() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    private void updateFullscreenButton() {
+        if (fullscreenButton == null) return;
+        boolean landscape = isLandscape();
+        fullscreenButton.setImageResource(landscape ? R.drawable.ic_fullscreen_exit : R.drawable.ic_fullscreen);
+        fullscreenButton.setContentDescription(landscape ? "退出全屏" : "横屏全屏");
     }
 
     private void updatePip(int width, int height) {

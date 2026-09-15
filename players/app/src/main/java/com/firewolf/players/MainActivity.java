@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 public final class MainActivity extends AppCompatActivity implements VideoAdapter.Listener {
-    private enum Mode { HOME, MOVIES, NASA, FAVORITES }
+    private enum Mode { HOME, CHINA, MOVIES, FAVORITES }
 
     private CatalogRepository repository;
     private PlaybackStore playbackStore;
@@ -81,6 +81,8 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
     protected void onResume() {
         super.onResume();
         if (mode == Mode.FAVORITES) render();
+        AppUpdateChecker.resumePending(this);
+        AppUpdateChecker.check(this, false);
     }
 
     private void bindActions() {
@@ -91,7 +93,7 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
 
         bindNavigation(R.id.nav_home, Mode.HOME);
         bindNavigation(R.id.nav_movies, Mode.MOVIES);
-        bindNavigation(R.id.nav_nasa, Mode.NASA);
+        bindNavigation(R.id.nav_nasa, Mode.CHINA);
         bindNavigation(R.id.nav_favorites, Mode.FAVORITES);
         selectNavigation();
 
@@ -114,7 +116,7 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
 
     private void selectNavigation() {
         int[] ids = {R.id.nav_home, R.id.nav_movies, R.id.nav_nasa, R.id.nav_favorites};
-        Mode[] modes = {Mode.HOME, Mode.MOVIES, Mode.NASA, Mode.FAVORITES};
+        Mode[] modes = {Mode.HOME, Mode.MOVIES, Mode.CHINA, Mode.FAVORITES};
         for (int index = 0; index < ids.length; index++) {
             TextView view = findViewById(ids[index]);
             boolean selected = modes[index] == mode;
@@ -129,15 +131,17 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
         values.add("全部");
         if (mode == Mode.HOME) {
             values.add("最新");
+            values.add("华语经典");
             values.add("开源电影");
             values.add("太空探索");
         } else if (mode == Mode.MOVIES) {
             for (VideoItem item : allItems) {
                 if (!"NASA".equals(item.category) && !values.contains(item.category)) values.add(item.category);
             }
-        } else if (mode == Mode.NASA) {
-            values.add("2026");
-            values.add("2025");
+        } else if (mode == Mode.CHINA) {
+            for (VideoItem item : allItems) {
+                if (item.category.startsWith("中国") && !values.contains(item.category)) values.add(item.category);
+            }
         }
         for (String value : values) {
             TextView chip = new TextView(this);
@@ -169,11 +173,12 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
         for (VideoItem item : allItems) {
             boolean modeMatch = mode == Mode.HOME
                     || (mode == Mode.MOVIES && !"NASA".equals(item.category))
-                    || (mode == Mode.NASA && "NASA".equals(item.category))
+                    || (mode == Mode.CHINA && item.category.startsWith("中国"))
                     || (mode == Mode.FAVORITES && playbackStore.isFavorite(item.id));
             if (!modeMatch || !item.matches(query)) continue;
             boolean categoryMatch = "全部".equals(category)
                     || ("最新".equals(category) && item.addedAt.compareTo("2025") >= 0)
+                    || ("华语经典".equals(category) && item.category.startsWith("中国"))
                     || ("开源电影".equals(category) && !"NASA".equals(item.category))
                     || ("太空探索".equals(category) && "NASA".equals(item.category))
                     || ("短片".equals(category) && !"NASA".equals(item.category))
@@ -181,7 +186,7 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
                     || category.equals(item.year);
             if (categoryMatch) filtered.add(item);
         }
-        String title = mode == Mode.FAVORITES ? "我的收藏" : mode == Mode.NASA ? "NASA 最新视频" : mode == Mode.MOVIES ? "开放许可电影" : "为你推荐";
+        String title = mode == Mode.FAVORITES ? "我的收藏" : mode == Mode.CHINA ? "华语经典影厅" : mode == Mode.MOVIES ? "开放许可电影" : "为你推荐";
         adapter.submit(filtered, title);
     }
 
@@ -221,7 +226,7 @@ public final class MainActivity extends AppCompatActivity implements VideoAdapte
                 .setTitle("远程片单")
                 .setMessage("输入你有权使用的 HTTPS JSON 片单地址。应用每 12 小时后台同步，也可下拉立即更新。")
                 .setView(input)
-                .setNegativeButton("取消", null)
+                .setNegativeButton("检查软件更新", (ignored, which) -> AppUpdateChecker.check(this, true))
                 .setNeutralButton("恢复默认", null)
                 .setPositiveButton("保存并更新", null)
                 .create();
