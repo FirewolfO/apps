@@ -37,10 +37,12 @@ final class EpisodeAdapter extends RecyclerView.Adapter<EpisodeAdapter.Holder> {
     @Override public void onBindViewHolder(@NonNull Holder holder, int position) {
         Episode episode = episodes.get(position);
         holder.number.setText(String.format(Locale.CHINA, "%02d", episode.number));
-        holder.title.setText(episode.displayTitle() + " · " + episode.key);
+        holder.title.setText(episode.displayTitle() + " · " + episode.key
+                + (store.isBundledDemo(episode) ? " · 原创演示" : ""));
         boolean audio = store.audio(episode) != null;
         boolean subtitle = store.subtitle(episode) != null;
-        holder.status.setText(audio && subtitle ? "音频 + 字幕已就绪"
+        holder.status.setText(store.isBundledDemo(episode) ? "内置原创对话 · 点击即可试听"
+                : audio && subtitle ? "音频 + 字幕已就绪"
                 : audio ? "已有音频 · 等待字幕" : subtitle ? "已有字幕 · 等待音频" : "等待导入音频和字幕");
         long progress = store.progress(episode);
         long duration = store.duration(episode);

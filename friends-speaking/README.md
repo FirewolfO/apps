@@ -2,6 +2,12 @@
 
 面向 Android 15 和 Android 16 的本地英语口语学习播放器。应用内建《老友记》十季共 236 集的季/集学习位，但不附带受版权保护的剧集音频、视频、字幕或下载源。用户导入自己合法持有的媒体后，可离线使用全部学习功能。
 
+## 内置试听
+
+1.0.1 起，`S01E01` 默认带有一段约一分钟的原创中英双语情景对话。安装后直接进入第 1 季第 1 集，即可体验变速、字幕高亮、逐句重听和断点续播。演示对话不是《老友记》剧情、台词或录音；导入自己的 S01E01 音频或字幕后，内置演示会自动让位给用户文件。
+
+演示音频由 Piper `en_US-ljspeech-medium` 本地生成，其模型卡标注训练数据为 public domain。可使用 `tools/generate_demo_audio.py` 和对应 Piper 模型重新生成。
+
 ## 媒体导入
 
 首页支持一次选择媒体目录并递归扫描最多 5000 个文件。音频和字幕文件名只要包含标准季集编号即可自动匹配，例如：
@@ -45,4 +51,4 @@ https://apps.lxvb.top/api/apps/friends-speaking/latest
 JAVA_HOME=/path/to/jdk-17 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。应用 ID 为 `com.firewolf.friendsspeaking`，首版为 `1.0.0`（versionCode 1）。
+APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。应用 ID 为 `com.firewolf.friendsspeaking`，当前版为 `1.0.1`（versionCode 2）。

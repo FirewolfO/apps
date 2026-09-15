@@ -134,7 +134,8 @@ public final class MainActivity extends AppCompatActivity implements EpisodeAdap
             return;
         }
         card.setVisibility(View.VISIBLE);
-        ((TextView) findViewById(R.id.resume_title)).setText(episode.displayTitle() + " · " + episode.key);
+        ((TextView) findViewById(R.id.resume_title)).setText(episode.displayTitle() + " · " + episode.key
+                + (store.isBundledDemo(episode) ? " · 原创演示" : ""));
         long position = store.progress(episode);
         long duration = store.duration(episode);
         String detail = "从 " + time(position) + " 继续";

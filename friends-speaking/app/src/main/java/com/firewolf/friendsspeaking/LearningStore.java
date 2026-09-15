@@ -1,23 +1,30 @@
 package com.firewolf.friendsspeaking;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
 public final class LearningStore {
     private static final String PREFERENCES = "friends_learning";
+    private final Context context;
     private final SharedPreferences preferences;
 
     public LearningStore(Context context) {
-        preferences = context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        this.context = context.getApplicationContext();
+        preferences = this.context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public Uri audio(Episode episode) {
-        return uri("audio_" + episode.key);
+        Uri custom = uri("audio_" + episode.key);
+        if (custom != null) return custom;
+        return isBundledDemo(episode) ? resource(R.raw.demo_s01e01) : null;
     }
 
     public Uri subtitle(Episode episode) {
-        return uri("subtitle_" + episode.key);
+        Uri custom = uri("subtitle_" + episode.key);
+        if (custom != null) return custom;
+        return isBundledDemo(episode) ? resource(R.raw.demo_s01e01_subtitle) : null;
     }
 
     public void saveAudio(Episode episode, Uri uri) {
@@ -30,6 +37,12 @@ public final class LearningStore {
 
     public boolean ready(Episode episode) {
         return audio(episode) != null && subtitle(episode) != null;
+    }
+
+    public boolean isBundledDemo(Episode episode) {
+        return episode.season == 1 && episode.number == 1
+                && uri("audio_" + episode.key) == null
+                && uri("subtitle_" + episode.key) == null;
     }
 
     public int readyCount(int season) {
@@ -78,5 +91,9 @@ public final class LearningStore {
     private void saveUri(String key, Uri value) {
         if (value == null) preferences.edit().remove(key).apply();
         else preferences.edit().putString(key, value.toString()).apply();
+    }
+
+    private Uri resource(int id) {
+        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + id);
     }
 }

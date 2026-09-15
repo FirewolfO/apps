@@ -77,7 +77,8 @@ public final class PlayerActivity extends AppCompatActivity {
         activeSubtitle = findViewById(R.id.subtitle_active);
         nextSubtitle = findViewById(R.id.subtitle_next);
         mediaStatus = findViewById(R.id.media_status);
-        ((TextView) findViewById(R.id.episode_title)).setText(episode.displayTitle() + " · " + episode.key);
+        ((TextView) findViewById(R.id.episode_title)).setText(episode.displayTitle() + " · " + episode.key
+                + (store.isBundledDemo(episode) ? " · 原创演示" : ""));
         findViewById(R.id.back).setOnClickListener(view -> finish());
         findViewById(R.id.import_audio).setOnClickListener(view -> audioPicker.launch(
                 new String[]{"audio/*", "application/ogg"}));
