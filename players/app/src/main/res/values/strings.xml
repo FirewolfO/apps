@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Players 影厅</string>
+    <string name="search_hint">搜索片名、简介或来源</string>
+    <string name="home">首页</string>
+    <string name="movies">电影</string>
+    <string name="nasa">NASA</string>
+    <string name="favorites">收藏</string>
+    <string name="play">立即播放</string>
+    <string name="favorite">收藏</string>
+    <string name="favorited">已收藏</string>
+    <string name="refresh">刷新资源</string>
+    <string name="settings">片源设置</string>
+    <string name="empty_state">这里暂时没有内容</string>
+    <string name="resource_notice">仅聚合公开许可、官方开放或你自有授权的播放资源</string>
+</resources>

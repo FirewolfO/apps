@@ -1,0 +1,85 @@
+{
+  "version": 1,
+  "updatedAt": "2026-09-15T00:00:00Z",
+  "items": [
+    {
+      "id": "blender-big-buck-bunny",
+      "title": "大雄兔 Big Buck Bunny",
+      "summary": "一只温和的大兔子被三个淘气的小动物惹怒后，用一连串聪明又好笑的机关展开反击。Blender 基金会经典开放动画短片，适合全家观看。",
+      "posterUrl": "https://peach.blender.org/wp-content/uploads/bbb-splash.png",
+      "source": "Blender Foundation",
+      "category": "动画",
+      "year": "2008",
+      "badge": "完整正片",
+      "addedAt": "2008-05-30T00:00:00Z",
+      "license": {
+        "name": "Creative Commons Attribution 3.0",
+        "url": "https://peach.blender.org/about/"
+      },
+      "streams": [
+        {
+          "label": "高清",
+          "url": "https://media.w3.org/2010/05/bunny/movie.mp4",
+          "mimeType": "video/mp4"
+        },
+        {
+          "label": "预览",
+          "url": "https://media.w3.org/2010/05/bunny/trailer.mp4",
+          "mimeType": "video/mp4"
+        }
+      ]
+    },
+    {
+      "id": "blender-sintel",
+      "title": "辛特尔 Sintel",
+      "summary": "少女辛特尔为了寻找被掳走的幼龙踏上漫长旅程。影片以浓缩的奇幻冒险讲述执念、时间与失去，是 Blender 开放电影计划中完成度很高的一部作品。",
+      "posterUrl": "https://media.w3.org/2010/05/sintel/poster.png",
+      "source": "Blender Foundation",
+      "category": "动画",
+      "year": "2010",
+      "badge": "1080P",
+      "addedAt": "2010-09-27T00:00:00Z",
+      "license": {
+        "name": "Creative Commons Attribution 3.0",
+        "url": "https://durian.blender.org/about/"
+      },
+      "streams": [
+        {
+          "label": "1080P 原画",
+          "url": "https://download.blender.org/demo/movies/Sintel.2010.1080p.mkv",
+          "mimeType": "video/x-matroska",
+          "subtitleUrl": "https://media.xiph.org/sintel/subtitles/sintel_en.srt"
+        },
+        {
+          "label": "流畅预览",
+          "url": "https://media.w3.org/2010/05/sintel/trailer.mp4",
+          "mimeType": "video/mp4",
+          "subtitleUrl": "https://media.xiph.org/sintel/subtitles/sintel_en.srt"
+        }
+      ]
+    },
+    {
+      "id": "blender-tears-of-steel",
+      "title": "钢铁之泪 Tears of Steel",
+      "summary": "未来的阿姆斯特丹，一群科学家和战士试图重现一段关键往事，以阻止失控机器人摧毁城市。真人表演与视觉特效结合的开放科幻短片。",
+      "posterUrl": "https://mango.blender.org/wp-content/uploads/2013/05/01_thom_celia_bridge.jpg",
+      "source": "Blender Foundation",
+      "category": "科幻",
+      "year": "2012",
+      "badge": "720P",
+      "addedAt": "2012-09-26T00:00:00Z",
+      "license": {
+        "name": "Creative Commons Attribution 3.0",
+        "url": "https://mango.blender.org/about/"
+      },
+      "streams": [
+        {
+          "label": "720P 原画",
+          "url": "https://download.blender.org/demo/movies/ToS/tears_of_steel_720p.mov",
+          "mimeType": "video/quicktime",
+          "subtitleUrl": "https://download.blender.org/demo/movies/ToS/subtitles/TOS-CH.srt"
+        }
+      ]
+    }
+  ]
+}

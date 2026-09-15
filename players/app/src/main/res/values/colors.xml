@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand">#27D37D</color>
+    <color name="brand_dark">#0BAE60</color>
+    <color name="surface">#0B0F14</color>
+    <color name="surface_raised">#141A22</color>
+    <color name="surface_soft">#1C2530</color>
+    <color name="text_primary">#F7F9FB</color>
+    <color name="text_secondary">#A9B4C2</color>
+    <color name="divider">#26313D</color>
+    <color name="warning">#FFBE55</color>
+</resources>
