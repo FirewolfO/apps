@@ -31,7 +31,7 @@
             android:ellipsize="end"
             android:maxLines="1"
             android:textColor="@color/cream"
-            android:textSize="18sp"
+            android:textSize="17sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -39,67 +39,82 @@
         android:id="@+id/media_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
+        android:layout_marginTop="2dp"
         android:textColor="@color/muted"
-        android:textSize="12sp" />
+        android:textSize="11sp" />
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="8dp"
         android:layout_weight="1"
-        android:background="@drawable/bg_subtitle"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="18dp">
+        android:background="@drawable/bg_subtitle">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/subtitle_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
+            android:scrollbars="none" />
 
         <TextView
-            android:id="@+id/subtitle_previous"
+            android:id="@+id/subtitle_empty"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:maxLines="3"
-            android:textColor="#687487"
-            android:textSize="15sp" />
+            android:padding="24dp"
+            android:text="正在加载双语台词…"
+            android:textColor="@color/muted"
+            android:textSize="16sp" />
 
         <TextView
-            android:id="@+id/subtitle_active"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="14dp"
-            android:layout_marginBottom="14dp"
+            android:layout_gravity="bottom"
+            android:background="#B00B0D11"
             android:gravity="center"
-            android:maxLines="5"
-            android:text="导入字幕后，当前台词会随播放变成黄色"
-            android:textColor="@color/brand"
-            android:textSize="22sp"
-            android:textStyle="bold" />
-
-        <TextView
-            android:id="@+id/subtitle_next"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:maxLines="3"
-            android:textColor="#7B8799"
-            android:textSize="15sp" />
-    </LinearLayout>
-
-    <androidx.media3.ui.PlayerView
-        android:id="@+id/player_view"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:layout_marginTop="10dp"
-        android:background="#0B0D11"
-        android:keepScreenOn="true"
-        app:show_buffering="always"
-        app:show_shuffle_button="false"
-        app:surface_type="none" />
+            android:paddingVertical="6dp"
+            android:text="上下拖动字幕，松手后音频跟随跳转"
+            android:textColor="@color/muted"
+            android:textSize="11sp" />
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="42dp"
+        android:layout_marginTop="5dp"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/current_time"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="00:00"
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
+
+        <SeekBar
+            android:id="@+id/playback_seek"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <TextView
+            android:id="@+id/duration_time"
+            android:layout_width="48dp"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="--:--"
+            android:textColor="@color/muted"
+            android:textSize="12sp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
         android:gravity="center"
         android:orientation="horizontal">
 
@@ -107,7 +122,7 @@
             android:id="@+id/previous_line"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="6dp"
+            android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
             android:text="上一句"
@@ -115,22 +130,33 @@
             android:textColor="@color/cream" />
 
         <Button
-            android:id="@+id/replay_line"
+            android:id="@+id/play_pause"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginHorizontal="3dp"
+            android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_primary"
-            android:text="重听本句"
+            android:text="播放"
             android:textAllCaps="false"
             android:textColor="@color/ink"
             android:textStyle="bold" />
 
         <Button
+            android:id="@+id/replay_line"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="4dp"
+            android:layout_weight="1"
+            android:background="@drawable/bg_secondary"
+            android:text="重听"
+            android:textAllCaps="false"
+            android:textColor="@color/cream" />
+
+        <Button
             android:id="@+id/next_line"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginStart="6dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
             android:text="下一句"
@@ -141,7 +167,7 @@
     <HorizontalScrollView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="6dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -154,8 +180,8 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="46dp"
+        android:layout_marginTop="6dp"
         android:orientation="horizontal">
 
         <Button

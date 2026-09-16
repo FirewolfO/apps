@@ -85,10 +85,10 @@ final class AppUpdateChecker {
             clearPending(preferences);
             return;
         }
-        String filename = safeFilename(preferences.getString(PENDING_FILENAME, "friends-speaking-update.apk"));
+        String filename = safeFilename(preferences.getString(PENDING_FILENAME, "film-audio-update.apk"));
         String version = preferences.getString(PENDING_VERSION, "新版");
         DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
-                .setTitle("老友记口语伴侣 " + version)
+                .setTitle("影视音频 " + version)
                 .setDescription("正在下载安装包")
                 .setMimeType("application/vnd.android.package-archive")
                 .addRequestHeader("User-Agent", browserUserAgent())
@@ -147,12 +147,12 @@ final class AppUpdateChecker {
     }
 
     private static String browserUserAgent() {
-        return "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36 FriendsSpeaking/"
+        return "Mozilla/5.0 (Linux; Android 16) AppleWebKit/537.36 Chrome/140.0 Mobile Safari/537.36 FilmAudio/"
                 + BuildConfig.VERSION_NAME;
     }
 
     private static String safeFilename(String value) {
-        String filename = value == null ? "friends-speaking-update.apk" : value.replaceAll("[^A-Za-z0-9._-]", "_");
+        String filename = value == null ? "film-audio-update.apk" : value.replaceAll("[^A-Za-z0-9._-]", "_");
         if (!filename.toLowerCase(Locale.ROOT).endsWith(".apk")) filename += ".apk";
         return filename;
     }

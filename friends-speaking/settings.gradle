@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = 'FriendsSpeaking'
+rootProject.name = 'FilmAudio'
 include ':app'

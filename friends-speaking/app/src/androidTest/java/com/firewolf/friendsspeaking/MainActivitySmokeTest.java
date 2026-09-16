@@ -14,10 +14,10 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(AndroidJUnit4.class)
 public class MainActivitySmokeTest {
     @Test
-    public void launchesTenSeasonLibrary() {
+    public void launchesFilmCatalog() {
         try (ActivityScenario<MainActivity> scenario = ActivityScenario.launch(
                 new Intent(getApplicationContext(), MainActivity.class))) {
-            scenario.onActivity(activity -> assertNotNull(activity.findViewById(R.id.episode_list)));
+            scenario.onActivity(activity -> assertNotNull(activity.findViewById(R.id.friends_card)));
         }
     }
 }

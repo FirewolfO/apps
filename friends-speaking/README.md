@@ -1,33 +1,40 @@
-# 老友记口语伴侣
+# 影视音频
 
-面向 Android 15 和 Android 16 的本地英语口语学习播放器。应用内建《老友记》十季共 236 集的季/集学习位，但不附带受版权保护的剧集音频、视频、字幕或下载源。用户导入自己合法持有的媒体后，可离线使用全部学习功能。
+面向 Android 15 和 Android 16 的影视原声音频播放器。应用首页是可扩展的影视目录，《老友记 Friends》是当前首个影视条目，进入后可按季、按集播放。
 
-## 内置试听
+应用 ID 仍为 `com.firewolf.friendsspeaking`，App Center 更新通道仍使用 `friends-speaking`，因此已安装“老友记口语伴侣”的设备可以直接覆盖升级并保留播放进度与已导入文件。
 
-1.0.1 起，`S01E01` 默认带有一段约一分钟的原创中英双语情景对话。安装后直接进入第 1 季第 1 集，即可体验变速、字幕高亮、逐句重听和断点续播。演示对话不是《老友记》剧情、台词或录音；导入自己的 S01E01 音频或字幕后，内置演示会自动让位给用户文件。
+## 《老友记》内网媒体
 
-演示音频由 Piper `en_US-ljspeech-medium` 本地生成，其模型卡标注训练数据为 public domain。可使用 `tools/generate_demo_audio.py` 和对应 Piper 模型重新生成。
+应用直接读取 `http://10.3.42.150:8000/` 中的媒体，不把剧集内容打进 APK：
 
-## 媒体导入
+- 234 集 WMA 音频由 LibVLC 解码并在线播放；服务器缺少 `S10E12`、`S10E18`。
+- 226 份中英双语 PDF 台词稿在设备端提取为滚动字幕；除上述两集外，各季最后一份台词稿也未出现在服务器上。
+- PDF 原稿没有字幕时间码。应用根据每条台词内容长度生成整集内容进度时间轴，播放时自动滚动；上下拖动字幕并松手、点击某条字幕、或使用上一句/重听/下一句都会让音频跳到对应进度。
+- 用户导入带时间码的 SRT 或 WebVTT 后，会覆盖 PDF 台词稿并使用精确时间轴。
 
-首页支持一次选择媒体目录并递归扫描最多 5000 个文件。音频和字幕文件名只要包含标准季集编号即可自动匹配，例如：
+媒体服务器使用内网明文 HTTP，网络安全配置只对 `10.3.42.150` 开放明文访问，其他地址仍要求 HTTPS。
+
+## 本地媒体覆盖
+
+剧集页支持一次选择媒体目录并递归扫描最多 5000 个文件。音频和字幕文件名只要包含标准季集编号即可自动匹配，例如：
 
 ```text
-Friends.S01E01.mp3
-Friends.S01E01.en.srt
+Friends.S01E01.wma
+Friends.S01E01.srt
 Season 02/Friends_S02E03.m4a
-Season 02/Friends_S02E03.vtt
+Season 02/Friends_S02E03.pdf
 ```
 
-支持 MP3、M4A、AAC、OGG、Opus、FLAC 和 WAV 音频，以及 SRT、WebVTT 字幕。字幕解析支持 UTF-8 和 GB18030。也可以进入任意一集后分别选择音频和字幕文件。应用通过 Android Storage Access Framework 保存只读访问权，不复制媒体，也不申请整个存储空间权限。
+支持 WMA、MP3、M4A、AAC、OGG、Opus、FLAC 和 WAV 音频，以及 PDF、SRT、WebVTT 字幕。SRT/VTT 解析支持 UTF-8 和 GB18030。也可以进入任意一集后分别选择音频和字幕文件。应用通过 Android Storage Access Framework 保存只读访问权，不复制媒体，也不申请整个存储空间权限。
 
-## 学习能力
+## 播放能力
 
-- 十季集数依次为 24、24、25、24、24、25、24、24、24、18，总计 236 集。
+- 十季集数依次为 24、24、25、24、24、25、24、24、24、18，共 236 个剧集位。
 - 播放速度支持 0.5x、0.75x、1.0x、1.25x、1.5x 和 2.0x。
-- 当前字幕随时间轴显示为黄色，上下句使用弱化颜色；支持上一句、重听本句和下一句。
-- 每集保存播放位置和时长，首页提供继续上次学习入口，季列表展示进度百分比。
-- 音频、字幕 URI、进度和语速均保存在本机，覆盖升级继续保留。
+- 字幕列表随播放滚动并高亮当前台词，可上下拖动或点击跳转。
+- 每集保存播放位置和时长，影视目录提供继续播放入口，剧集列表展示进度。
+- 本地音频、字幕 URI、进度和语速均保存在本机，覆盖升级继续保留。
 
 ## 软件更新
 
@@ -41,7 +48,9 @@ https://apps.lxvb.top/api/apps/friends-speaking/latest
 
 ## Android 15 / 16
 
-项目使用 `compileSdk 36`、`targetSdk 36`、`minSdk 26`，处理强制 edge-to-edge 系统栏。应用只有 Java 字节码和 Android 资源，不包含原生库。
+项目使用 `compileSdk 36`、`targetSdk 36`、`minSdk 26`，处理强制 edge-to-edge 系统栏。LibVLC 3.7.6 的 ARM64 原生库使用 16 KiB ELF LOAD 对齐，通用 APK 也通过 `zipalign -P 16` 检查。
+
+PDF 文本提取使用 Apache-2.0 许可的 PdfBox-Android；WMA 播放使用 LGPL-2.1 许可的 LibVLC Android。
 
 ## 构建
 
@@ -51,4 +60,10 @@ https://apps.lxvb.top/api/apps/friends-speaking/latest
 JAVA_HOME=/path/to/jdk-17 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。应用 ID 为 `com.firewolf.friendsspeaking`，当前版为 `1.0.1`（versionCode 2）。
+APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。当前版本为 `1.1.0`（versionCode 3）。
+
+App Center 的手机安装包只保留 ARM64 原生库，可减少约 150 MB 下载体积：
+
+```bash
+JAVA_HOME=/path/to/jdk-17 ./gradlew -PtargetAbi=arm64-v8a clean assembleDebug
+```

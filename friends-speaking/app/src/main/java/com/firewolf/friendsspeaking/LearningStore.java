@@ -1,30 +1,34 @@
 package com.firewolf.friendsspeaking;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.Uri;
 
 public final class LearningStore {
     private static final String PREFERENCES = "friends_learning";
-    private final Context context;
     private final SharedPreferences preferences;
 
     public LearningStore(Context context) {
-        this.context = context.getApplicationContext();
-        preferences = this.context.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        Context application = context.getApplicationContext();
+        preferences = application.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public Uri audio(Episode episode) {
-        Uri custom = uri("audio_" + episode.key);
-        if (custom != null) return custom;
-        return isBundledDemo(episode) ? resource(R.raw.demo_s01e01) : null;
+        Uri custom = customAudio(episode);
+        return custom != null ? custom : RemoteMediaCatalog.audio(episode);
     }
 
     public Uri subtitle(Episode episode) {
-        Uri custom = uri("subtitle_" + episode.key);
-        if (custom != null) return custom;
-        return isBundledDemo(episode) ? resource(R.raw.demo_s01e01_subtitle) : null;
+        Uri custom = customSubtitle(episode);
+        return custom != null ? custom : RemoteMediaCatalog.subtitle(episode);
+    }
+
+    public Uri customAudio(Episode episode) {
+        return uri("audio_" + episode.key);
+    }
+
+    public Uri customSubtitle(Episode episode) {
+        return uri("subtitle_" + episode.key);
     }
 
     public void saveAudio(Episode episode, Uri uri) {
@@ -39,15 +43,23 @@ public final class LearningStore {
         return audio(episode) != null && subtitle(episode) != null;
     }
 
-    public boolean isBundledDemo(Episode episode) {
-        return episode.season == 1 && episode.number == 1
-                && uri("audio_" + episode.key) == null
-                && uri("subtitle_" + episode.key) == null;
+    public boolean isRemoteAudio(Episode episode) {
+        return customAudio(episode) == null && RemoteMediaCatalog.hasAudio(episode);
+    }
+
+    public boolean isRemoteSubtitle(Episode episode) {
+        return customSubtitle(episode) == null && RemoteMediaCatalog.hasSubtitle(episode);
     }
 
     public int readyCount(int season) {
         int count = 0;
         for (Episode episode : Episode.season(season)) if (ready(episode)) count++;
+        return count;
+    }
+
+    public int readyCount() {
+        int count = 0;
+        for (Episode episode : Episode.all()) if (ready(episode)) count++;
         return count;
     }
 
@@ -93,7 +105,4 @@ public final class LearningStore {
         else preferences.edit().putString(key, value.toString()).apply();
     }
 
-    private Uri resource(int id) {
-        return Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.getPackageName() + "/" + id);
-    }
 }
