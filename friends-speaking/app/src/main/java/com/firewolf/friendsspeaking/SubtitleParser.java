@@ -56,6 +56,13 @@ public final class SubtitleParser {
     }
 
     public static int activeIndex(List<SubtitleCue> cues, long positionMs) {
+        int candidate = indexAtOrBefore(cues, positionMs);
+        if (candidate >= 0 && positionMs < cues.get(candidate).endMs) return candidate;
+        return -1;
+    }
+
+    /** Returns the last cue that has started, so gaps never reveal the next line too early. */
+    public static int indexAtOrBefore(List<SubtitleCue> cues, long positionMs) {
         int low = 0;
         int high = cues.size() - 1;
         int candidate = -1;
@@ -68,8 +75,7 @@ public final class SubtitleParser {
                 high = middle - 1;
             }
         }
-        if (candidate >= 0 && positionMs < cues.get(candidate).endMs) return candidate;
-        return -1;
+        return candidate;
     }
 
     private static long time(Matcher value, int offset) {

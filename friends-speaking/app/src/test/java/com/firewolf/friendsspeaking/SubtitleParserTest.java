@@ -18,6 +18,7 @@ public class SubtitleParserTest {
         assertEquals("How are you?\n你好吗？", cues.get(0).text);
         assertEquals(0, SubtitleParser.activeIndex(cues, 2_000));
         assertEquals(-1, SubtitleParser.activeIndex(cues, 3_750));
+        assertEquals(0, SubtitleParser.indexAtOrBefore(cues, 3_750));
         assertEquals(1, SubtitleParser.activeIndex(cues, 5_000));
     }
 

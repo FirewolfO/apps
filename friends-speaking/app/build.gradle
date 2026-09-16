@@ -10,8 +10,8 @@ android {
         applicationId 'com.firewolf.friendsspeaking'
         minSdk 26
         targetSdk 36
-        versionCode 3
-        versionName '1.1.0'
+        versionCode 4
+        versionName '1.2.0'
         buildConfigField 'String', 'APP_CENTER_URL', '"https://apps.lxvb.top"'
         buildConfigField 'String', 'MEDIA_BASE_URL', '"http://10.3.42.150:8000"'
 

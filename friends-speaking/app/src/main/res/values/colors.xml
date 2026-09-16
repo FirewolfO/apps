@@ -9,5 +9,6 @@
     <color name="brand">#FFD166</color>
     <color name="brand_dark">#A96F00</color>
     <color name="accent">#65D6C4</color>
+    <color name="completed">#7DDB91</color>
     <color name="danger">#FF7A90</color>
 </resources>

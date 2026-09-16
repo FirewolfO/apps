@@ -33,6 +33,31 @@
             android:textColor="@color/cream"
             android:textSize="17sp"
             android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/import_audio"
+            android:layout_width="52dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/bg_secondary"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="音频"
+            android:textAllCaps="false"
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
+
+        <Button
+            android:id="@+id/import_subtitle"
+            android:layout_width="52dp"
+            android:layout_height="36dp"
+            android:background="@drawable/bg_secondary"
+            android:minWidth="0dp"
+            android:padding="0dp"
+            android:text="字幕"
+            android:textAllCaps="false"
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
     </LinearLayout>
 
     <TextView
@@ -68,16 +93,6 @@
             android:textColor="@color/muted"
             android:textSize="16sp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:background="#B00B0D11"
-            android:gravity="center"
-            android:paddingVertical="6dp"
-            android:text="上下拖动字幕，松手后音频跟随跳转"
-            android:textColor="@color/muted"
-            android:textSize="11sp" />
     </FrameLayout>
 
     <LinearLayout
@@ -125,9 +140,12 @@
             android:layout_marginEnd="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
             android:text="上一句"
             android:textAllCaps="false"
-            android:textColor="@color/cream" />
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/play_pause"
@@ -136,9 +154,12 @@
             android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_primary"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
             android:text="播放"
             android:textAllCaps="false"
             android:textColor="@color/ink"
+            android:textSize="12sp"
             android:textStyle="bold" />
 
         <Button
@@ -148,9 +169,12 @@
             android:layout_marginHorizontal="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
             android:text="重听"
             android:textAllCaps="false"
-            android:textColor="@color/cream" />
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
 
         <Button
             android:id="@+id/next_line"
@@ -159,51 +183,25 @@
             android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
             android:text="下一句"
             android:textAllCaps="false"
-            android:textColor="@color/cream" />
-    </LinearLayout>
-
-    <HorizontalScrollView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
-        android:scrollbars="none">
-
-        <LinearLayout
-            android:id="@+id/speed_options"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:orientation="horizontal" />
-    </HorizontalScrollView>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_marginTop="6dp"
-        android:orientation="horizontal">
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
 
         <Button
-            android:id="@+id/import_audio"
+            android:id="@+id/playback_speed"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_marginEnd="5dp"
+            android:layout_marginStart="4dp"
             android:layout_weight="1"
             android:background="@drawable/bg_secondary"
-            android:text="选择本集音频"
+            android:minWidth="0dp"
+            android:paddingHorizontal="0dp"
+            android:text="1x"
             android:textAllCaps="false"
-            android:textColor="@color/cream" />
-
-        <Button
-            android:id="@+id/import_subtitle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_marginStart="5dp"
-            android:layout_weight="1"
-            android:background="@drawable/bg_secondary"
-            android:text="选择本集字幕"
-            android:textAllCaps="false"
-            android:textColor="@color/cream" />
+            android:textColor="@color/cream"
+            android:textSize="12sp" />
     </LinearLayout>
 </LinearLayout>

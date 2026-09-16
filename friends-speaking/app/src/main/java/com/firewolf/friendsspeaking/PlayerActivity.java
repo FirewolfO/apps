@@ -1,16 +1,23 @@
 package com.firewolf.friendsspeaking;
 
+import android.Manifest;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
-import android.os.ParcelFileDescriptor;
+import android.os.Build;
 import android.provider.OpenableColumns;
+import android.view.Menu;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +25,7 @@ import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -27,53 +35,64 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
 
-import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.Media;
-import org.videolan.libvlc.MediaPlayer;
-
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public final class PlayerActivity extends AppCompatActivity {
+public final class PlayerActivity extends AppCompatActivity implements PlaybackService.Listener {
     public static final String SEASON = "season";
     public static final String EPISODE = "episode";
     private static final float[] SPEEDS = {0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f};
     private static final long DEFAULT_EPISODE_DURATION_MS = 23L * 60L * 1000L;
 
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
-    private final ExecutorService playerLoader = Executors.newSingleThreadExecutor();
     private final ExecutorService subtitleLoader = Executors.newSingleThreadExecutor();
     private final Runnable updateProgress = new Runnable() {
         @Override public void run() {
-            if (player != null) {
-                long duration = currentDuration();
-                long position = Math.max(0L, player.getTime());
-                rebuildEstimatedTimeline(duration);
-                renderSubtitle(position);
-                renderProgress(position, duration);
-            }
-            progressHandler.postDelayed(this, 250);
+            long duration = currentDuration();
+            long position = currentPosition();
+            rebuildEstimatedTimeline(duration);
+            renderSubtitle(position);
+            renderProgress(position, duration);
+            progressHandler.postDelayed(this, 150L);
         }
+    };
+    private final Runnable resumeSubtitleFollowing = () -> {
+        subtitleDragging = false;
+        activeCue = Integer.MIN_VALUE;
+        renderSubtitle(currentPosition());
     };
     private final ActivityResultLauncher<String[]> audioPicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> savePicked(uri, true));
     private final ActivityResultLauncher<String[]> subtitlePicker = registerForActivityResult(
             new ActivityResultContracts.OpenDocument(), uri -> savePicked(uri, false));
+    private final ServiceConnection playbackConnection = new ServiceConnection() {
+        @Override public void onServiceConnected(ComponentName name, IBinder binder) {
+            playback = ((PlaybackService.LocalBinder) binder).service();
+            playbackBound = true;
+            playback.addListener(PlayerActivity.this);
+            playback.load(episode, false);
+            onPlaybackChanged();
+        }
+
+        @Override public void onServiceDisconnected(ComponentName name) {
+            playbackBound = false;
+            playback = null;
+            renderProgress(store.progress(episode), store.duration(episode));
+        }
+    };
 
     private Episode episode;
     private LearningStore store;
-    private LibVLC libVLC;
-    private MediaPlayer player;
-    private ParcelFileDescriptor localAudioDescriptor;
+    private PlaybackService playback;
+    private boolean playbackBound;
     private RecyclerView subtitleList;
     private LinearLayoutManager subtitleLayout;
     private SubtitleAdapter subtitleAdapter;
@@ -82,18 +101,15 @@ public final class PlayerActivity extends AppCompatActivity {
     private TextView currentTime;
     private TextView durationTime;
     private Button playPause;
+    private Button speedButton;
     private SeekBar playbackSeek;
+    private List<SubtitleCue> baseCues = Collections.emptyList();
     private List<SubtitleCue> cues = Collections.emptyList();
     private List<String> untimedLines = Collections.emptyList();
     private long timelineDuration;
     private int activeCue = Integer.MIN_VALUE;
     private boolean seekBarDragging;
     private boolean subtitleDragging;
-    private boolean resumeAfterSubtitleDrag;
-    private boolean restoredPosition;
-    private boolean playerLoading;
-    private boolean activityStarted;
-    private int playerRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,15 +120,18 @@ public final class PlayerActivity extends AppCompatActivity {
             return;
         }
         WindowCompat.enableEdgeToEdge(getWindow());
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_player);
         applyInsets(findViewById(R.id.root));
         store = new LearningStore(this);
         PDFBoxResourceLoader.init(getApplicationContext());
+        requestPlaybackNotificationPermission();
 
         mediaStatus = findViewById(R.id.media_status);
         currentTime = findViewById(R.id.current_time);
         durationTime = findViewById(R.id.duration_time);
         playPause = findViewById(R.id.play_pause);
+        speedButton = findViewById(R.id.playback_speed);
         playbackSeek = findViewById(R.id.playback_seek);
         subtitleList = findViewById(R.id.subtitle_list);
         subtitleEmpty = findViewById(R.id.subtitle_empty);
@@ -120,23 +139,25 @@ public final class PlayerActivity extends AppCompatActivity {
         subtitleAdapter = new SubtitleAdapter(this::seekToCue);
         subtitleList.setLayoutManager(subtitleLayout);
         subtitleList.setAdapter(subtitleAdapter);
-        subtitleList.post(() -> subtitleList.setPadding(
-                subtitleList.getPaddingLeft(), subtitleList.getHeight() / 2,
-                subtitleList.getPaddingRight(), subtitleList.getHeight() / 2));
+        subtitleList.post(() -> {
+            int vertical = Math.max(dp(24), subtitleList.getHeight() / 2);
+            subtitleList.setPadding(subtitleList.getPaddingLeft(), vertical,
+                    subtitleList.getPaddingRight(), vertical);
+            activeCue = Integer.MIN_VALUE;
+            renderSubtitle(currentPosition());
+        });
         bindSubtitleScrolling();
 
-        ((TextView) findViewById(R.id.episode_title)).setText("老友记 · " + episode.displayTitle() + " · " + episode.key);
+        ((TextView) findViewById(R.id.episode_title)).setText("老友记 · " + episode.key);
         findViewById(R.id.back).setOnClickListener(view -> finish());
-        findViewById(R.id.import_audio).setOnClickListener(view -> audioPicker.launch(
-                new String[]{"audio/*", "application/ogg", "video/x-ms-wmv", "audio/x-ms-wma"}));
-        findViewById(R.id.import_subtitle).setOnClickListener(view -> subtitlePicker.launch(
-                new String[]{"application/pdf", "application/x-subrip", "text/srt", "text/vtt", "text/plain"}));
+        findViewById(R.id.import_audio).setOnClickListener(view -> chooseAudio());
+        findViewById(R.id.import_subtitle).setOnClickListener(this::showSubtitleMenu);
         findViewById(R.id.previous_line).setOnClickListener(view -> seekRelativeCue(-1));
         findViewById(R.id.replay_line).setOnClickListener(view -> seekRelativeCue(0));
         findViewById(R.id.next_line).setOnClickListener(view -> seekRelativeCue(1));
         playPause.setOnClickListener(view -> togglePlayback());
+        speedButton.setOnClickListener(this::showSpeedMenu);
         bindSeekBar();
-        bindSpeedOptions();
         bindMediaStatus();
         loadSubtitles();
     }
@@ -144,134 +165,50 @@ public final class PlayerActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        activityStarted = true;
-        initializePlayer();
+        subtitleDragging = false;
+        Intent intent = PlaybackService.loadIntent(this, episode);
+        ContextCompat.startForegroundService(this, intent);
+        bindService(new Intent(this, PlaybackService.class), playbackConnection, Context.BIND_AUTO_CREATE);
+        progressHandler.removeCallbacks(updateProgress);
         progressHandler.post(updateProgress);
     }
 
     @Override
     protected void onStop() {
-        activityStarted = false;
-        playerRequest++;
-        playerLoading = false;
         progressHandler.removeCallbacks(updateProgress);
-        releasePlayer();
+        progressHandler.removeCallbacks(resumeSubtitleFollowing);
+        if (playbackBound) {
+            playback.removeListener(this);
+            unbindService(playbackConnection);
+            playbackBound = false;
+            playback = null;
+        }
         super.onStop();
     }
 
     @Override
     protected void onDestroy() {
-        playerLoader.shutdownNow();
         subtitleLoader.shutdownNow();
         super.onDestroy();
     }
 
-    private void initializePlayer() {
-        Uri audio = store.audio(episode);
-        if (player != null || playerLoading || audio == null) return;
-        playerLoading = true;
-        playPause.setText("加载中");
-        int request = ++playerRequest;
-        playerLoader.execute(() -> {
-            LibVLC candidate;
-            try {
-                candidate = new LibVLC(getApplicationContext(), new ArrayList<>(Arrays.asList(
-                        "--audio-time-stretch", "--network-caching=1800")));
-            } catch (RuntimeException error) {
-                runOnUiThread(() -> playerLoadFailed(request));
-                return;
-            }
-            runOnUiThread(() -> finishPlayerLoad(request, candidate, audio));
-        });
+    @Override public void onPlaybackChanged() {
+        if (isFinishing() || isDestroyed()) return;
+        renderProgress(currentPosition(), currentDuration());
+        bindMediaStatus();
     }
 
-    private void finishPlayerLoad(int request, LibVLC candidate, Uri audio) {
-        if (!activityStarted || request != playerRequest || isFinishing() || isDestroyed()) {
-            candidate.release();
-            return;
-        }
-        try {
-            libVLC = candidate;
-            player = new MediaPlayer(libVLC);
-            player.setEventListener(event -> runOnUiThread(() -> onPlayerEvent(event.type)));
-            Media media = openMedia(audio);
-            media.addOption(":network-caching=1800");
-            player.setMedia(media);
-            media.release();
-            player.play();
-            playPause.setText("暂停");
-            playerLoading = false;
-            bindMediaStatus();
-        } catch (Exception error) {
-            releasePlayer();
-            playerLoading = false;
-            Toast.makeText(this, "音频无法打开，请检查内网连接或选择本地文件", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void playerLoadFailed(int request) {
-        if (request != playerRequest || isFinishing() || isDestroyed()) return;
-        playerLoading = false;
-        playPause.setText("重试");
-        Toast.makeText(this, "播放器初始化失败，请重新打开本集", Toast.LENGTH_LONG).show();
-    }
-
-    private Media openMedia(Uri uri) throws Exception {
-        String scheme = uri.getScheme();
-        if ("content".equalsIgnoreCase(scheme) || "android.resource".equalsIgnoreCase(scheme)) {
-            localAudioDescriptor = getContentResolver().openFileDescriptor(uri, "r");
-            if (localAudioDescriptor == null) throw new IllegalStateException("audio unavailable");
-            return new Media(libVLC, localAudioDescriptor.getFileDescriptor());
-        }
-        return new Media(libVLC, uri);
-    }
-
-    private void onPlayerEvent(int type) {
-        if (player == null) return;
-        if (type == MediaPlayer.Event.Playing) {
-            player.setRate(store.speed());
-            if (!restoredPosition) {
-                restoredPosition = true;
-                long saved = store.progress(episode);
-                if (saved > 0) player.setTime(saved);
-            }
-            playPause.setText("暂停");
-        } else if (type == MediaPlayer.Event.Paused || type == MediaPlayer.Event.Stopped
-                || type == MediaPlayer.Event.EndReached) {
-            playPause.setText("播放");
-        } else if (type == MediaPlayer.Event.EncounteredError) {
-            playPause.setText("重试");
-            Toast.makeText(this, "音频播放失败，请检查是否连接到媒体服务器", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void releasePlayer() {
-        if (player != null) {
-            long position = Math.max(0L, player.getTime());
-            long duration = currentDuration();
-            store.saveProgress(episode, position, duration);
-            player.stop();
-            player.release();
-            player = null;
-        }
-        if (libVLC != null) {
-            libVLC.release();
-            libVLC = null;
-        }
-        if (localAudioDescriptor != null) {
-            try { localAudioDescriptor.close(); } catch (Exception ignored) {}
-            localAudioDescriptor = null;
-        }
-        restoredPosition = false;
+    @Override public void onPlaybackError(String message) {
+        if (!isFinishing() && !isDestroyed()) Toast.makeText(this, message, Toast.LENGTH_LONG).show();
     }
 
     private void loadSubtitles() {
         Uri subtitle = store.subtitle(episode);
         if (subtitle == null) {
             untimedLines = Collections.emptyList();
-            cues = Collections.emptyList();
-            subtitleAdapter.submit(cues);
-            subtitleEmpty.setText("本集台词稿缺失\n可在下方选择本地 PDF、SRT 或 VTT");
+            baseCues = Collections.emptyList();
+            applySubtitleOffset();
+            subtitleEmpty.setText("本集台词稿缺失\n可从右上角选择 PDF、SRT 或 VTT");
             subtitleEmpty.setVisibility(View.VISIBLE);
             bindMediaStatus();
             return;
@@ -304,13 +241,13 @@ public final class PlayerActivity extends AppCompatActivity {
                 if (isFinishing() || isDestroyed()) return;
                 untimedLines = transcriptResult;
                 timelineDuration = 0L;
-                cues = timedResult;
+                baseCues = timedResult;
                 if (!untimedLines.isEmpty()) rebuildEstimatedTimeline(currentDuration());
-                else subtitleAdapter.submit(cues);
+                else applySubtitleOffset();
                 activeCue = Integer.MIN_VALUE;
                 subtitleEmpty.setVisibility(cues.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!message.isEmpty()) subtitleEmpty.setText(message);
-                renderSubtitle(player == null ? store.progress(episode) : Math.max(0L, player.getTime()));
+                renderSubtitle(currentPosition());
                 bindMediaStatus();
             });
         });
@@ -350,45 +287,57 @@ public final class PlayerActivity extends AppCompatActivity {
         long target = duration > 0 ? duration : DEFAULT_EPISODE_DURATION_MS;
         if (target == timelineDuration) return;
         timelineDuration = target;
-        cues = SubtitleTimeline.distribute(untimedLines, target);
+        baseCues = SubtitleTimeline.distribute(untimedLines, target);
+        applySubtitleOffset();
+    }
+
+    private void applySubtitleOffset() {
+        long offset = store.subtitleOffset(episode);
+        List<SubtitleCue> adjusted = new ArrayList<>(baseCues.size());
+        for (SubtitleCue cue : baseCues) {
+            long start = Math.max(0L, cue.startMs + offset);
+            long end = Math.max(start + 1L, cue.endMs + offset);
+            adjusted.add(new SubtitleCue(start, end, cue.text));
+        }
+        cues = Collections.unmodifiableList(adjusted);
         subtitleAdapter.submit(cues);
         activeCue = Integer.MIN_VALUE;
         subtitleEmpty.setVisibility(cues.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void renderSubtitle(long position) {
-        if (cues.isEmpty()) return;
+        if (cues.isEmpty() || subtitleDragging) return;
         int index = SubtitleParser.activeIndex(cues, position);
-        if (index < 0) index = Math.max(0, Math.min(cues.size() - 1, firstAfter(position)));
-        if (subtitleDragging || index == activeCue) return;
+        if (index < 0) index = Math.max(0, SubtitleParser.indexAtOrBefore(cues, position));
+        if (index == activeCue) return;
         activeCue = index;
         subtitleAdapter.setActive(index);
-        int offset = Math.max(0, subtitleList.getHeight() / 2 - dp(48));
-        subtitleLayout.scrollToPositionWithOffset(index, offset);
+        centerSubtitle(index);
+    }
+
+    private void centerSubtitle(int index) {
+        if (index < 0 || subtitleList.getHeight() <= 0) return;
+        subtitleList.stopScroll();
+        // Padding already starts at the visual center; offset zero puts the row there.
+        subtitleLayout.scrollToPositionWithOffset(index, 0);
+        subtitleList.post(() -> {
+            View child = subtitleLayout.findViewByPosition(index);
+            if (child == null || subtitleDragging) return;
+            int childCenter = (child.getTop() + child.getBottom()) / 2;
+            subtitleList.scrollBy(0, childCenter - subtitleList.getHeight() / 2);
+        });
     }
 
     private void bindSubtitleScrolling() {
         subtitleList.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
+                    progressHandler.removeCallbacks(resumeSubtitleFollowing);
                     subtitleDragging = true;
-                    resumeAfterSubtitleDrag = player != null && player.isPlaying();
-                    if (resumeAfterSubtitleDrag) player.pause();
                 } else if (newState == RecyclerView.SCROLL_STATE_IDLE && subtitleDragging) {
-                    int target = centeredSubtitle();
-                    SubtitleCue cue = subtitleAdapter.cue(target);
-                    if (cue != null && player != null) {
-                        player.setTime(cue.startMs);
-                        if (resumeAfterSubtitleDrag) player.play();
-                    }
-                    activeCue = target;
-                    subtitleAdapter.setActive(target);
-                    subtitleDragging = false;
+                    progressHandler.removeCallbacks(resumeSubtitleFollowing);
+                    progressHandler.postDelayed(resumeSubtitleFollowing, 4_000L);
                 }
-            }
-
-            @Override public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (subtitleDragging) subtitleAdapter.setActive(centeredSubtitle());
             }
         });
     }
@@ -409,43 +358,36 @@ public final class PlayerActivity extends AppCompatActivity {
     }
 
     private void seekToCue(SubtitleCue cue) {
-        if (player == null || cue == null) return;
-        player.setTime(cue.startMs);
-        player.play();
+        if (playback == null || cue == null) return;
+        subtitleDragging = false;
+        progressHandler.removeCallbacks(resumeSubtitleFollowing);
+        playback.seekTo(cue.startMs, true);
+        activeCue = Integer.MIN_VALUE;
+        renderSubtitle(cue.startMs);
     }
 
     private void seekRelativeCue(int offset) {
-        if (player == null || cues.isEmpty()) return;
-        int base = SubtitleParser.activeIndex(cues, Math.max(0L, player.getTime()));
-        if (base < 0) base = Math.max(0, firstAfter(Math.max(0L, player.getTime())) - 1);
+        if (playback == null || cues.isEmpty()) return;
+        long position = currentPosition();
+        int base = SubtitleParser.activeIndex(cues, position);
+        if (base < 0) base = Math.max(0, SubtitleParser.indexAtOrBefore(cues, position));
         int target = Math.max(0, Math.min(cues.size() - 1, base + offset));
         seekToCue(cues.get(target));
-    }
-
-    private int firstAfter(long position) {
-        int low = 0;
-        int high = cues.size();
-        while (low < high) {
-            int middle = (low + high) >>> 1;
-            if (cues.get(middle).startMs <= position) low = middle + 1;
-            else high = middle;
-        }
-        return low;
     }
 
     private void bindSeekBar() {
         playbackSeek.setMax(1000);
         playbackSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (!fromUser || player == null) return;
+                if (!fromUser) return;
                 long duration = currentDuration();
                 if (duration > 0) currentTime.setText(time(duration * progress / seekBar.getMax()));
             }
             @Override public void onStartTrackingTouch(SeekBar seekBar) { seekBarDragging = true; }
             @Override public void onStopTrackingTouch(SeekBar seekBar) {
-                if (player != null) {
+                if (playback != null) {
                     long duration = currentDuration();
-                    if (duration > 0) player.setTime(duration * seekBar.getProgress() / seekBar.getMax());
+                    if (duration > 0) playback.seekTo(duration * seekBar.getProgress() / seekBar.getMax(), false);
                 }
                 seekBarDragging = false;
             }
@@ -459,41 +401,87 @@ public final class PlayerActivity extends AppCompatActivity {
             currentTime.setText(time(position));
         }
         durationTime.setText(duration > 0 ? time(duration) : "--:--");
-        playPause.setText(player != null && player.isPlaying() ? "暂停" : "播放");
+        if (playback != null && playback.isLoading()) playPause.setText("加载中");
+        else playPause.setText(playback != null && playback.isPlaying() ? "暂停" : "播放");
+        speedButton.setText(formatSpeed(store.speed()));
     }
 
     private void togglePlayback() {
-        if (player == null) {
-            initializePlayer();
-            return;
-        }
-        if (player.isPlaying()) player.pause();
-        else player.play();
+        if (playback != null) playback.toggle();
+        else ContextCompat.startForegroundService(this, PlaybackService.loadIntent(this, episode));
     }
 
-    private void bindSpeedOptions() {
-        LinearLayout group = findViewById(R.id.speed_options);
-        group.removeAllViews();
-        float saved = store.speed();
-        for (float speed : SPEEDS) {
-            TextView chip = new TextView(this);
-            chip.setText(formatSpeed(speed));
-            chip.setTextSize(13);
-            chip.setGravity(android.view.Gravity.CENTER);
-            chip.setSelected(Math.abs(speed - saved) < 0.01f);
-            chip.setTextColor(getColor(chip.isSelected() ? R.color.ink : R.color.muted));
-            chip.setBackgroundResource(R.drawable.bg_season_chip);
-            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(dp(64), dp(40));
-            params.setMarginEnd(dp(7));
-            chip.setLayoutParams(params);
-            chip.setOnClickListener(view -> {
-                store.saveSpeed(speed);
-                if (player != null) player.setRate(speed);
-                bindSpeedOptions();
-                bindMediaStatus();
-            });
-            group.addView(chip);
+    private void showSpeedMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        float selected = store.speed();
+        for (int index = 0; index < SPEEDS.length; index++) {
+            float speed = SPEEDS[index];
+            popup.getMenu().add(Menu.NONE, index, index,
+                    (Math.abs(speed - selected) < 0.01f ? "✓ " : "") + formatSpeed(speed));
         }
+        popup.setOnMenuItemClickListener(item -> {
+            float speed = SPEEDS[item.getItemId()];
+            if (playback != null) playback.setRate(speed);
+            else store.saveSpeed(speed);
+            speedButton.setText(formatSpeed(speed));
+            bindMediaStatus();
+            return true;
+        });
+        popup.show();
+    }
+
+    private void showSubtitleMenu(View anchor) {
+        PopupMenu popup = new PopupMenu(this, anchor);
+        popup.getMenu().add(Menu.NONE, 1, 1, "选择字幕文件");
+        if (!cues.isEmpty()) {
+            popup.getMenu().add(Menu.NONE, 2, 2, "将中间字幕对齐当前声音");
+            popup.getMenu().add(Menu.NONE, 3, 3, "字幕提前 0.5 秒");
+            popup.getMenu().add(Menu.NONE, 4, 4, "字幕延后 0.5 秒");
+            if (store.subtitleOffset(episode) != 0L) popup.getMenu().add(Menu.NONE, 5, 5, "重置字幕同步");
+        }
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == 1) chooseSubtitle();
+            else if (item.getItemId() == 2) alignCenteredSubtitle();
+            else if (item.getItemId() == 3) adjustSubtitleOffset(-500L);
+            else if (item.getItemId() == 4) adjustSubtitleOffset(500L);
+            else if (item.getItemId() == 5) setSubtitleOffset(0L, "字幕同步已重置");
+            return true;
+        });
+        popup.show();
+    }
+
+    private void alignCenteredSubtitle() {
+        int index = centeredSubtitle();
+        SubtitleCue cue = subtitleAdapter.cue(index);
+        if (cue == null) {
+            Toast.makeText(this, "请先把正在听到的字幕拖到中间", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        long updated = store.subtitleOffset(episode) + currentPosition() - cue.startMs;
+        setSubtitleOffset(updated, "已将中间字幕与当前声音对齐");
+    }
+
+    private void adjustSubtitleOffset(long delta) {
+        String message = delta < 0 ? "字幕已提前 0.5 秒" : "字幕已延后 0.5 秒";
+        setSubtitleOffset(store.subtitleOffset(episode) + delta, message);
+    }
+
+    private void setSubtitleOffset(long value, String message) {
+        store.saveSubtitleOffset(episode, value);
+        subtitleDragging = false;
+        progressHandler.removeCallbacks(resumeSubtitleFollowing);
+        applySubtitleOffset();
+        renderSubtitle(currentPosition());
+        bindMediaStatus();
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
+    private void chooseAudio() {
+        audioPicker.launch(new String[]{"audio/*", "application/ogg", "video/x-ms-wmv", "audio/x-ms-wma"});
+    }
+
+    private void chooseSubtitle() {
+        subtitlePicker.launch(new String[]{"application/pdf", "application/x-subrip", "text/srt", "text/vtt", "text/plain"});
     }
 
     private void savePicked(Uri uri, boolean audio) {
@@ -505,10 +493,11 @@ public final class PlayerActivity extends AppCompatActivity {
         }
         if (audio) {
             store.saveAudio(episode, uri);
-            releasePlayer();
-            initializePlayer();
+            if (playback != null) playback.load(episode, true);
+            else ContextCompat.startForegroundService(this, PlaybackService.loadIntent(this, episode));
         } else {
             store.saveSubtitle(episode, uri);
+            store.saveSubtitleOffset(episode, 0L);
             loadSubtitles();
         }
         bindMediaStatus();
@@ -520,15 +509,20 @@ public final class PlayerActivity extends AppCompatActivity {
         String value = audio == null ? "本集音频缺失" : store.isRemoteAudio(episode) ? "内网音频" : "本地音频";
         value += subtitle == null ? " · 台词稿缺失" : store.isRemoteSubtitle(episode) ? " · 双语 PDF 台词稿" : " · 本地字幕";
         if (!cues.isEmpty()) value += " · " + cues.size() + " 条";
-        if (!untimedLines.isEmpty()) value += " · 内容进度同步";
-        value += " · " + formatSpeed(store.speed());
+        if (!untimedLines.isEmpty()) value += " · 内容时间轴";
+        else if (!cues.isEmpty()) value += " · 精确时间码";
+        long offset = store.subtitleOffset(episode);
+        if (offset != 0L) value += String.format(Locale.CHINA, " · 同步%+.1f秒", offset / 1000d);
         mediaStatus.setText(value);
     }
 
+    private long currentPosition() {
+        return playback != null && playback.isCurrent(episode) ? playback.position() : store.progress(episode);
+    }
+
     private long currentDuration() {
-        if (player != null && player.getLength() > 0) return player.getLength();
-        long saved = store.duration(episode);
-        return saved > 0 ? saved : 0L;
+        long duration = playback != null && playback.isCurrent(episode) ? playback.duration() : store.duration(episode);
+        return Math.max(0L, duration);
     }
 
     private void applyInsets(View root) {
@@ -537,6 +531,14 @@ public final class PlayerActivity extends AppCompatActivity {
             view.setPadding(bars.left + dp(14), bars.top + dp(6), bars.right + dp(14), bars.bottom + dp(10));
             return insets;
         });
+    }
+
+    private void requestPlaybackNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+                && ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
+                != android.content.pm.PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, 41);
+        }
     }
 
     private int dp(int value) {

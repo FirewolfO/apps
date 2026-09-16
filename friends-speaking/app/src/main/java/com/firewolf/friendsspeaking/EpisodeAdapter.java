@@ -47,9 +47,19 @@ final class EpisodeAdapter extends RecyclerView.Adapter<EpisodeAdapter.Holder> {
                 : subtitle ? "已有字幕 · 本集音频缺失" : "服务器无本集资源 · 可导入本地文件");
         long progress = store.progress(episode);
         long duration = store.duration(episode);
-        if (progress > 0) {
+        boolean completed = store.completed(episode);
+        holder.number.setTextColor(holder.itemView.getContext().getColor(
+                completed ? R.color.completed : R.color.brand));
+        holder.title.setTextColor(holder.itemView.getContext().getColor(
+                completed ? R.color.completed : R.color.cream));
+        if (completed) {
+            holder.progress.setText("已播放完");
+            holder.progress.setTextColor(holder.itemView.getContext().getColor(R.color.completed));
+            holder.progress.setVisibility(View.VISIBLE);
+        } else if (progress > 0) {
             int percent = duration > 0 ? (int) Math.min(100, progress * 100 / duration) : 0;
             holder.progress.setText("继续 " + time(progress) + (percent > 0 ? " · " + percent + "%" : ""));
+            holder.progress.setTextColor(holder.itemView.getContext().getColor(R.color.accent));
             holder.progress.setVisibility(View.VISIBLE);
         } else {
             holder.progress.setVisibility(View.GONE);
