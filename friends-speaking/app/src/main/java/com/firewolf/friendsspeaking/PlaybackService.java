@@ -31,6 +31,8 @@ import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 
 import java.util.ArrayList;
+import java.io.File;
+import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -69,6 +71,7 @@ public final class PlaybackService extends Service {
     private LibVLC libVLC;
     private MediaPlayer player;
     private ParcelFileDescriptor localAudioDescriptor;
+    private File cachedAudioFile;
     private Episode episode;
     private MediaSession mediaSession;
     private PowerManager.WakeLock playbackWakeLock;
@@ -78,8 +81,11 @@ public final class PlaybackService extends Service {
     private boolean restoredPosition;
     private boolean loading;
     private boolean foreground;
-    private int loadRequest;
+    private volatile int loadRequest;
     private int progressTicks;
+    private long resumePosition;
+    private String audioFingerprint = "";
+    private boolean partialAudio;
 
     public static Intent loadIntent(Context context, Episode episode) {
         return new Intent(context, PlaybackService.class)
@@ -163,7 +169,10 @@ public final class PlaybackService extends Service {
         return loading;
     }
 
+    public String audioFingerprint() { return audioFingerprint; }
+
     public long position() {
+        if (loading || !restoredPosition) return resumePosition;
         return player == null ? (episode == null ? 0L : store.progress(episode))
                 : Math.max(0L, player.getTime());
     }
@@ -180,6 +189,9 @@ public final class PlaybackService extends Service {
         releasePlayer();
         episode = requested;
         restoredPosition = false;
+        resumePosition = store.progress(requested);
+        audioFingerprint = "";
+        partialAudio = false;
         if (mediaSession != null) mediaSession.setActive(true);
         ensureForeground();
         updateSessionMetadata();
@@ -194,14 +206,40 @@ public final class PlaybackService extends Service {
         int request = ++loadRequest;
         loader.execute(() -> {
             LibVLC candidate;
+            Uri playable = audio;
+            String fingerprint = "";
+            boolean incompleteSource = false;
             try {
+                AlignmentIndex index = null;
+                try (InputStream input = getAssets().open("alignments/" + requested.key + ".tsv")) {
+                    index = AlignmentIndex.read(input, requested.key);
+                } catch (Exception noIndex) { /* Audio is usable without a subtitle index. */ }
+                if ("http".equalsIgnoreCase(audio.getScheme()) || "https".equalsIgnoreCase(audio.getScheme())) {
+                    AudioCache.Result cached = AudioCache.prepare(new File(getCacheDir(), "audio-v1"),
+                            requested.key, audio.toString(), () -> request != loadRequest,
+                            index == null ? null : index.audioSha256);
+                    playable = Uri.fromFile(cached.file);
+                    fingerprint = cached.sha256;
+                } else {
+                    // A user may import an unchanged copy of the server audio.
+                    // Match its actual bytes too, not its filename or URI alone.
+                    try (InputStream input = getContentResolver().openInputStream(audio)) {
+                        if (input == null) throw new IllegalStateException("Audio unavailable");
+                        fingerprint = AudioCache.fingerprint(input, () -> request != loadRequest);
+                    }
+                }
+                incompleteSource = index != null && index.partialAudio() && index.audioSha256.equals(fingerprint);
+                if (request != loadRequest) return;
                 candidate = new LibVLC(getApplicationContext(), new ArrayList<>(Arrays.asList(
                         "--audio-time-stretch", "--network-caching=450")));
-            } catch (RuntimeException error) {
-                handler.post(() -> loadFailed(request, "播放器初始化失败，请重新打开本集"));
+            } catch (Exception error) {
+                handler.post(() -> loadFailed(request, "音频缓存失败，请检查内网连接和手机存储后重试"));
                 return;
             }
-            handler.post(() -> finishLoad(request, candidate, audio));
+            Uri preparedAudio = playable;
+            String preparedFingerprint = fingerprint;
+            boolean preparedPartial = incompleteSource;
+            handler.post(() -> finishLoad(request, candidate, preparedAudio, preparedFingerprint, preparedPartial));
         });
     }
 
@@ -256,20 +294,36 @@ public final class PlaybackService extends Service {
         notifyChanged();
     }
 
-    private void finishLoad(int request, LibVLC candidate, Uri audio) {
+    private void finishLoad(int request, LibVLC candidate, Uri audio, String fingerprint, boolean incompleteSource) {
         if (request != loadRequest || episode == null) {
             candidate.release();
             return;
         }
         try {
             libVLC = candidate;
+            audioFingerprint = fingerprint;
+            partialAudio = incompleteSource;
+            store.savePartialAudio(episode, partialAudio);
+            if ("file".equalsIgnoreCase(audio.getScheme()) && audio.getPath() != null) {
+                File file = new File(audio.getPath());
+                if (new File(getCacheDir(), "audio-v1").equals(file.getParentFile())) cachedAudioFile = file;
+            }
             player = new MediaPlayer(libVLC);
-            player.setEventListener(event -> handler.post(() -> onPlayerEvent(event.type)));
+            player.setEventListener(event -> {
+                // TimeChanged/PositionChanged are frequent; the UI samples the media
+                // clock itself. Do not rebuild notifications for every audio tick.
+                int type = event.type;
+                if (type != MediaPlayer.Event.Playing && type != MediaPlayer.Event.Paused
+                        && type != MediaPlayer.Event.Stopped && type != MediaPlayer.Event.EndReached
+                        && type != MediaPlayer.Event.EncounteredError) return;
+                handler.post(() -> {
+                    if (request == loadRequest) onPlayerEvent(type);
+                });
+            });
             Media media = openMedia(audio);
             media.addOption(":network-caching=450");
             player.setMedia(media);
             media.release();
-            loading = false;
             requestAudioFocus();
             player.play();
             updateNotification();
@@ -301,10 +355,13 @@ public final class PlaybackService extends Service {
     private void onPlayerEvent(int type) {
         if (player == null) return;
         if (type == MediaPlayer.Event.Playing) {
+            loading = false;
             player.setRate(store.speed());
             if (!restoredPosition && episode != null) {
                 restoredPosition = true;
-                long saved = store.progress(episode);
+                // Capture before loading: periodic progress writes must not erase
+                // the saved position while the new decoder is still at zero.
+                long saved = resumePosition;
                 long duration = duration();
                 if (saved > 0 && (duration <= 0 || saved < duration - 1_000L)) player.setTime(saved);
             }
@@ -314,11 +371,17 @@ public final class PlaybackService extends Service {
             saveProgress(false);
             releaseWakeLock();
         } else if (type == MediaPlayer.Event.EndReached) {
-            saveProgress(true);
+            saveProgress(!partialAudio);
             releaseWakeLock();
             abandonAudioFocus();
         } else if (type == MediaPlayer.Event.EncounteredError) {
-            releaseWakeLock();
+            File failedCache = cachedAudioFile;
+            releasePlayer();
+            audioFingerprint = "";
+            abandonAudioFocus();
+            // A broken/captive-portal response must not poison all future retries.
+            // Only our own downloaded cache is eligible, never an imported file.
+            if (failedCache != null) loader.execute(() -> failedCache.delete());
             notifyError("音频播放失败，请检查是否连接到媒体服务器");
         }
         updateNotification();
@@ -327,7 +390,7 @@ public final class PlaybackService extends Service {
     }
 
     private void saveProgress(boolean completed) {
-        if (episode == null) return;
+        if (episode == null || loading || !restoredPosition) return;
         long position = position();
         long duration = duration();
         if (completed && duration > 0) position = duration;
@@ -339,6 +402,7 @@ public final class PlaybackService extends Service {
         loadRequest++;
         loading = false;
         if (player != null) {
+            player.setEventListener(null);
             player.stop();
             player.release();
             player = null;
@@ -352,6 +416,7 @@ public final class PlaybackService extends Service {
             localAudioDescriptor = null;
         }
         restoredPosition = false;
+        cachedAudioFile = null;
         releaseWakeLock();
     }
 

@@ -45,6 +45,7 @@ final class TranscriptCache {
     }
 
     private static File file(Context context, Episode episode) {
-        return new File(new File(context.getFilesDir(), "transcript-cache-v1"), episode.key + ".txt");
+        // v1 could contain contents/synopsis/vocabulary; never reuse that data.
+        return new File(new File(context.getFilesDir(), "transcript-cache-v2"), episode.key + ".txt");
     }
 }

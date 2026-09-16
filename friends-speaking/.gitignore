@@ -5,3 +5,5 @@ build/
 *.jks
 *.keystore
 dist/*.apk
+__pycache__/
+*.pyc

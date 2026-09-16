@@ -82,6 +82,7 @@ public final class LearningStore {
     }
 
     public boolean completed(Episode episode) {
+        if (preferences.getBoolean("partial_audio_" + episode.key, false)) return false;
         if (preferences.getBoolean("completed_" + episode.key, false)) return true;
         long duration = duration(episode);
         return duration > 0 && progress(episode) >= Math.max(0L, duration - 30_000L);
@@ -91,6 +92,12 @@ public final class LearningStore {
         preferences.edit().putBoolean("completed_" + episode.key, value).apply();
     }
 
+    public void savePartialAudio(Episode episode, boolean partial) {
+        SharedPreferences.Editor editor = preferences.edit().putBoolean("partial_audio_" + episode.key, partial);
+        if (partial) editor.putBoolean("completed_" + episode.key, false);
+        editor.apply();
+    }
+
     public long subtitleOffset(Episode episode) {
         return preferences.getLong("subtitle_offset_" + episode.key, 0L);
     }
@@ -98,6 +105,15 @@ public final class LearningStore {
     public void saveSubtitleOffset(Episode episode, long value) {
         preferences.edit().putLong("subtitle_offset_" + episode.key,
                 Math.max(-120_000L, Math.min(120_000L, value))).apply();
+    }
+
+    public void useAlignmentRevision(Episode episode, String revision) {
+        String key = "alignment_revision_" + episode.key;
+        if (revision.equals(preferences.getString(key, ""))) return;
+        // Offsets used to compensate a guessed PDF timeline are invalid for the
+        // real audio-derived timeline. Migrate once, preserve later user tuning.
+        preferences.edit().putString(key, revision)
+                .putLong("subtitle_offset_" + episode.key, 0L).apply();
     }
 
     public Episode lastEpisode() {

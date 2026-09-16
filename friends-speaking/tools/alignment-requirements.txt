@@ -1,0 +1,7 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.8.0+cpu
+torchaudio==2.8.0+cpu
+numpy==1.26.4
+ctc-segmentation==1.7.4
+pypdf==6.19.0
+num2words==0.5.14

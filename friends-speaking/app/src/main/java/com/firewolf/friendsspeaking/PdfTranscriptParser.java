@@ -25,18 +25,82 @@ final class PdfTranscriptParser {
         List<String> result = new ArrayList<>();
         if (extractedText == null || extractedText.trim().isEmpty()) return result;
         boolean bodyStarted = false;
+        StringBuilder body = new StringBuilder();
         for (String page : extractedText.split("\\f")) {
-            String compact = page.replaceAll("\\s+", "");
-            if (!bodyStarted && compact.contains("2.正文")) bodyStarted = true;
+            String heading = firstLine(page).replaceAll("\\s+", "");
+            // A table of contents mentions BOTH headings. Only an actual page
+            // heading starts the dialogue; otherwise the fallback included the
+            // synopsis and vocabulary pages as if they were spoken dialogue.
+            if (!bodyStarted && heading.equals("2.正文")) bodyStarted = true;
             if (!bodyStarted) continue;
-            if (compact.contains("3.四级词汇")) break;
-            parsePage(page, result);
+            if (heading.startsWith("3.四级词汇") || heading.startsWith("4.六级词汇")) break;
+            body.append(page).append('\n');
         }
-        if (!result.isEmpty()) return result;
+        // A sentence can continue on the next page; page breaks are not cue breaks.
+        parsePage(body.toString(), result);
+        if (!result.isEmpty()) return removeRepeatedTranscript(result);
 
         // Generic fallback for user-selected PDFs without the supplied document's section headings.
         for (String page : extractedText.split("\\f")) parsePage(page, result);
         return result;
+    }
+
+    private static List<String> removeRepeatedTranscript(List<String> lines) {
+        List<String> canonical = new ArrayList<>();
+        for (String line : lines) canonical.add(line.replaceAll("\\s+", ""));
+        for (int period = 10; period <= lines.size() / 2; period++) {
+            if (lines.size() % period != 0) continue;
+            boolean repeated = true;
+            for (int i = period; i < lines.size(); i++) {
+                if (!canonical.get(i).equals(canonical.get(i % period))) { repeated = false; break; }
+            }
+            if (repeated) return new ArrayList<>(lines.subList(0, period));
+        }
+        // A few study notes truncate the repeated copy by one to three final
+        // lines. Keep the longer copy only when the WHOLE shared prefix matches.
+        for (int split = Math.max(10, lines.size() / 2 - 2);
+             split < Math.min(lines.size() - 9, lines.size() / 2 + 3); split++) {
+            int left = split;
+            int right = lines.size() - split;
+            if (Math.abs(left - right) > 3) continue;
+            int matched = 0;
+            while (matched < Math.min(left, right)
+                    && canonical.get(matched).equals(canonical.get(split + matched))) {
+                matched++;
+            }
+            if (matched < Math.min(left, right) - 3) continue;
+            String leftTail = String.join("", canonical.subList(matched, split));
+            String rightTail = String.join("", canonical.subList(split + matched, lines.size()));
+            // PDFBox can recover the Chinese part of a truncated final cue while
+            // its English text is outside the page. Require exact containment.
+            if (leftTail.contains(rightTail) || rightTail.contains(leftTail)) {
+                return removeRepeatedTranscript(new ArrayList<>(leftTail.length() >= rightTail.length() ? lines.subList(0, split)
+                        : lines.subList(split, lines.size())));
+            }
+            String leftChinese = chineseText(lines.subList(matched, split));
+            if (!leftChinese.isEmpty() && leftChinese.equals(chineseText(lines.subList(split + matched, lines.size())))) {
+                // The final English line of the repeated copy sometimes overlaps
+                // the footer URL. Its Chinese tail and whole preceding body match.
+                return removeRepeatedTranscript(new ArrayList<>(lines.subList(0, split)));
+            }
+        }
+        return lines;
+    }
+
+    private static String chineseText(List<String> cues) {
+        StringBuilder result = new StringBuilder();
+        for (String cue : cues) for (int i = 0; i < cue.length(); i++) {
+            char value = cue.charAt(i);
+            if ((value >= '\u3400' && value <= '\u9fff') || (value >= '\uf900' && value <= '\ufaff')) {
+                result.append(value);
+            }
+        }
+        return result.toString();
+    }
+
+    private static String firstLine(String page) {
+        for (String line : page.split("\\R")) if (!line.trim().isEmpty()) return line.trim();
+        return "";
     }
 
     private static void parsePage(String page, List<String> output) {

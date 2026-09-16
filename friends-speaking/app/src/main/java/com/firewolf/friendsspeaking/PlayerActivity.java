@@ -15,6 +15,7 @@ import android.os.Build;
 import android.provider.OpenableColumns;
 import android.view.Menu;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.PopupMenu;
@@ -50,7 +51,6 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
     public static final String SEASON = "season";
     public static final String EPISODE = "episode";
     private static final float[] SPEEDS = {0.5f, 0.75f, 1f, 1.25f, 1.5f, 2f};
-    private static final long DEFAULT_EPISODE_DURATION_MS = 23L * 60L * 1000L;
 
     private final Handler progressHandler = new Handler(Looper.getMainLooper());
     private final ExecutorService subtitleLoader = Executors.newSingleThreadExecutor();
@@ -58,7 +58,6 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
         @Override public void run() {
             long duration = currentDuration();
             long position = currentPosition();
-            rebuildEstimatedTimeline(duration);
             renderSubtitle(position);
             renderProgress(position, duration);
             progressHandler.postDelayed(this, 150L);
@@ -106,7 +105,11 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
     private List<SubtitleCue> baseCues = Collections.emptyList();
     private List<SubtitleCue> cues = Collections.emptyList();
     private List<String> untimedLines = Collections.emptyList();
-    private long timelineDuration;
+    private AlignmentIndex alignment;
+    private List<SubtitleCue> alignedCues = Collections.emptyList();
+    private boolean audioAlignmentVerified;
+    private String subtitleTimingStatus = "";
+    private int subtitleRequest;
     private int activeCue = Integer.MIN_VALUE;
     private boolean seekBarDragging;
     private boolean subtitleDragging;
@@ -194,6 +197,7 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
 
     @Override public void onPlaybackChanged() {
         if (isFinishing() || isDestroyed()) return;
+        verifyAlignedAudio();
         renderProgress(currentPosition(), currentDuration());
         bindMediaStatus();
     }
@@ -203,7 +207,16 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
     }
 
     private void loadSubtitles() {
+        int request = ++subtitleRequest;
         Uri subtitle = store.subtitle(episode);
+        boolean useAlignment = RemoteMediaCatalog.hasSubtitle(episode);
+        alignment = null;
+        alignedCues = Collections.emptyList();
+        audioAlignmentVerified = false;
+        subtitleTimingStatus = "";
+        untimedLines = Collections.emptyList();
+        baseCues = Collections.emptyList();
+        applySubtitleOffset();
         if (subtitle == null) {
             untimedLines = Collections.emptyList();
             baseCues = Collections.emptyList();
@@ -218,6 +231,9 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
         subtitleLoader.execute(() -> {
             List<SubtitleCue> timed = Collections.emptyList();
             List<String> transcript = Collections.emptyList();
+            AlignmentIndex index = null;
+            List<SubtitleCue> aligned = Collections.emptyList();
+            String timingStatus = "";
             String error = "";
             try {
                 boolean pdf = isPdf(subtitle);
@@ -231,21 +247,39 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
                     if (pdf && store.isRemoteSubtitle(episode)) TranscriptCache.write(this, episode, transcript);
                 }
                 if (timed.isEmpty() && transcript.isEmpty()) error = "字幕中没有识别到有效台词";
+                if (!transcript.isEmpty()) {
+                    timingStatus = "台词稿无时间码，仅供浏览";
+                    if (useAlignment) {
+                        try (InputStream input = getAssets().open("alignments/" + episode.key + ".tsv")) {
+                            index = AlignmentIndex.read(input, episode.key);
+                            aligned = index.bind(transcript);
+                            timingStatus = "正在核对音频版本…";
+                        } catch (Exception unavailable) {
+                            index = null;
+                            timingStatus = "暂无匹配时间码，仅供浏览";
+                        }
+                    }
+                } else if (!timed.isEmpty()) timingStatus = "文件时间码";
             } catch (Exception exception) {
                 error = "字幕读取失败，请检查内网连接或重新选择文件";
             }
             List<SubtitleCue> timedResult = timed;
             List<String> transcriptResult = transcript;
             String message = error;
+            AlignmentIndex indexResult = index;
+            List<SubtitleCue> alignedResult = aligned;
+            String timingResult = timingStatus;
             runOnUiThread(() -> {
-                if (isFinishing() || isDestroyed()) return;
+                if (isFinishing() || isDestroyed() || request != subtitleRequest) return;
                 untimedLines = transcriptResult;
-                timelineDuration = 0L;
                 baseCues = timedResult;
-                if (!untimedLines.isEmpty()) rebuildEstimatedTimeline(currentDuration());
-                else applySubtitleOffset();
+                alignment = indexResult;
+                alignedCues = alignedResult;
+                subtitleTimingStatus = timingResult;
+                applySubtitleOffset();
+                verifyAlignedAudio();
                 activeCue = Integer.MIN_VALUE;
-                subtitleEmpty.setVisibility(cues.isEmpty() ? View.VISIBLE : View.GONE);
+                subtitleEmpty.setVisibility(cues.isEmpty() && untimedLines.isEmpty() ? View.VISIBLE : View.GONE);
                 if (!message.isEmpty()) subtitleEmpty.setText(message);
                 renderSubtitle(currentPosition());
                 bindMediaStatus();
@@ -282,13 +316,19 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
         return false;
     }
 
-    private void rebuildEstimatedTimeline(long duration) {
-        if (untimedLines.isEmpty()) return;
-        long target = duration > 0 ? duration : DEFAULT_EPISODE_DURATION_MS;
-        if (target == timelineDuration) return;
-        timelineDuration = target;
-        baseCues = SubtitleTimeline.distribute(untimedLines, target);
+    private void verifyAlignedAudio() {
+        if (alignment == null || playback == null || !playback.isCurrent(episode)) return;
+        String fingerprint = playback.audioFingerprint();
+        if (fingerprint.isEmpty() || playback.isLoading()) return;
+        boolean matches = alignment.matchesAudio(fingerprint, currentDuration());
+        subtitleTimingStatus = matches ? (alignment.partialAudio() ? "原音片段对齐 · 后续音频缺失" : "原音逐句对齐")
+                : "音频版本不匹配，仅供浏览";
+        if (matches == audioAlignmentVerified) return;
+        audioAlignmentVerified = matches;
+        baseCues = matches ? alignedCues : Collections.emptyList();
+        if (matches) store.useAlignmentRevision(episode, "audio-ctc-v1-" + alignment.audioSha256);
         applySubtitleOffset();
+        renderSubtitle(currentPosition());
     }
 
     private void applySubtitleOffset() {
@@ -300,32 +340,45 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
             adjusted.add(new SubtitleCue(start, end, cue.text));
         }
         cues = Collections.unmodifiableList(adjusted);
-        subtitleAdapter.submit(cues);
+        if (!cues.isEmpty()) subtitleAdapter.submit(cues);
+        else {
+            List<SubtitleCue> browseOnly = new ArrayList<>();
+            for (String text : untimedLines) browseOnly.add(new SubtitleCue(-1L, -1L, text));
+            subtitleAdapter.submit(browseOnly);
+        }
         activeCue = Integer.MIN_VALUE;
-        subtitleEmpty.setVisibility(cues.isEmpty() ? View.VISIBLE : View.GONE);
+        subtitleEmpty.setVisibility(cues.isEmpty() && untimedLines.isEmpty() ? View.VISIBLE : View.GONE);
     }
 
     private void renderSubtitle(long position) {
         if (cues.isEmpty() || subtitleDragging) return;
         int index = SubtitleParser.activeIndex(cues, position);
-        if (index < 0) index = Math.max(0, SubtitleParser.indexAtOrBefore(cues, position));
         if (index == activeCue) return;
         activeCue = index;
         subtitleAdapter.setActive(index);
-        centerSubtitle(index);
+        // Silence, scene changes and rejected alignment intervals have no active
+        // speech. Keep the scroll position but do not highlight the preceding line.
+        if (index >= 0) centerSubtitle(index);
     }
 
     private void centerSubtitle(int index) {
         if (index < 0 || subtitleList.getHeight() <= 0) return;
         subtitleList.stopScroll();
-        // Padding already starts at the visual center; offset zero puts the row there.
-        subtitleLayout.scrollToPositionWithOffset(index, 0);
-        subtitleList.post(() -> {
-            View child = subtitleLayout.findViewByPosition(index);
-            if (child == null || subtitleDragging) return;
-            int childCenter = (child.getTop() + child.getBottom()) / 2;
-            subtitleList.scrollBy(0, childCenter - subtitleList.getHeight() / 2);
+        // Highlighting changes row height. Center only AFTER RecyclerView has
+        // laid out that height; posting immediately can measure the old row.
+        subtitleList.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override public boolean onPreDraw() {
+                subtitleList.getViewTreeObserver().removeOnPreDrawListener(this);
+                if (subtitleDragging || activeCue != index) return true;
+                View child = subtitleLayout.findViewByPosition(index);
+                if (child != null) {
+                    int childCenter = (child.getTop() + child.getBottom()) / 2;
+                    subtitleList.scrollBy(0, childCenter - subtitleList.getHeight() / 2);
+                }
+                return true;
+            }
         });
+        subtitleLayout.scrollToPositionWithOffset(index, 0);
     }
 
     private void bindSubtitleScrolling() {
@@ -359,6 +412,10 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
 
     private void seekToCue(SubtitleCue cue) {
         if (playback == null || cue == null) return;
+        if (cue.startMs < 0L || cues.isEmpty()) {
+            Toast.makeText(this, "这份台词没有匹配时间码，请选择对应音频的 SRT 或 VTT", Toast.LENGTH_LONG).show();
+            return;
+        }
         subtitleDragging = false;
         progressHandler.removeCallbacks(resumeSubtitleFollowing);
         playback.seekTo(cue.startMs, true);
@@ -493,6 +550,8 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
         }
         if (audio) {
             store.saveAudio(episode, uri);
+            store.saveSubtitleOffset(episode, 0L);
+            loadSubtitles();
             if (playback != null) playback.load(episode, true);
             else ContextCompat.startForegroundService(this, PlaybackService.loadIntent(this, episode));
         } else {
@@ -509,8 +568,10 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
         String value = audio == null ? "本集音频缺失" : store.isRemoteAudio(episode) ? "内网音频" : "本地音频";
         value += subtitle == null ? " · 台词稿缺失" : store.isRemoteSubtitle(episode) ? " · 双语 PDF 台词稿" : " · 本地字幕";
         if (!cues.isEmpty()) value += " · " + cues.size() + " 条";
-        if (!untimedLines.isEmpty()) value += " · 内容时间轴";
-        else if (!cues.isEmpty()) value += " · 精确时间码";
+        if (!subtitleTimingStatus.isEmpty()) value += " · " + subtitleTimingStatus;
+        if (audioAlignmentVerified && alignment != null && baseCues.size() < alignment.sourceLineCount) {
+            value += " · " + (alignment.sourceLineCount - baseCues.size()) + " 句未确认";
+        }
         long offset = store.subtitleOffset(episode);
         if (offset != 0L) value += String.format(Locale.CHINA, " · 同步%+.1f秒", offset / 1000d);
         mediaStatus.setText(value);
