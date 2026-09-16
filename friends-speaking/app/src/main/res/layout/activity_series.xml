@@ -63,7 +63,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
-        android:text="默认使用内网资源；本地文件名包含 S01E01 即可覆盖，支持 WMA/MP3 和 PDF/SRT/VTT"
+        android:text="联网即可播放；也可导入本地文件，文件名包含 S01E01 即可匹配"
         android:textColor="@color/muted"
         android:textSize="12sp" />
 

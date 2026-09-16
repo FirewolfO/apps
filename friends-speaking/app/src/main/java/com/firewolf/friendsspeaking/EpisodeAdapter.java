@@ -42,7 +42,7 @@ final class EpisodeAdapter extends RecyclerView.Adapter<EpisodeAdapter.Holder> {
         boolean subtitle = store.subtitle(episode) != null;
         holder.status.setText(audio && subtitle
                 ? (store.isRemoteAudio(episode) || store.isRemoteSubtitle(episode)
-                    ? "内网音频 + 双语台词稿" : "本地音频 + 字幕已就绪")
+                    ? "在线音频 + 双语字幕" : "本地音频 + 字幕已就绪")
                 : audio ? "已有音频 · 本集台词稿缺失"
                 : subtitle ? "已有字幕 · 本集音频缺失" : "服务器无本集资源 · 可导入本地文件");
         long progress = store.progress(episode);

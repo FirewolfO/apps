@@ -4,12 +4,14 @@ import android.net.Uri;
 
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
-/** Maps the private media server's directory layout without publishing any media in the APK. */
+/** Versioned HTTPS media; the APK contains timing indexes, not audio or dialogue. */
 final class RemoteMediaCatalog {
     private static final Set<String> MISSING_AUDIO = new HashSet<>(Arrays.asList(
+            // These eight files were not in the processed cache and the original
+            // source was unavailable during migration. Do not advertise dead URLs.
+            "S02E24", "S03E25", "S04E24", "S05E24", "S06E25", "S07E24", "S08E24", "S09E24",
             "S10E12", "S10E18"));
     private static final Set<String> MISSING_SUBTITLES = new HashSet<>(Arrays.asList(
             "S02E24", "S03E25", "S04E24", "S05E24", "S06E25", "S07E24",
@@ -27,18 +29,12 @@ final class RemoteMediaCatalog {
 
     static Uri audio(Episode episode) {
         if (!hasAudio(episode)) return null;
-        return build(
-                "老友记.Friends.全10季音频",
-                String.format(Locale.ROOT, "老友记.Friends.S%02d", episode.season),
-                "老友记.friends." + episode.key + ".wma");
+        return build(episode.key, "audio.m4a");
     }
 
     static Uri subtitle(Episode episode) {
         if (!hasSubtitle(episode)) return null;
-        return build(
-                "老友记.Friends.全10季字幕",
-                String.format(Locale.ROOT, "老友记.Friends.S%02d.240806", episode.season),
-                "老友记.friends." + episode.key + ".chs&eng.240806.pdf");
+        return build(episode.key, "transcript.txt");
     }
 
     private static Uri build(String... segments) {

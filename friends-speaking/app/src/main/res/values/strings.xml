@@ -4,9 +4,9 @@
     <string name="library_title">影视音频</string>
     <string name="library_subtitle">选择一部影视，跟随滚动字幕听原声音频</string>
     <string name="friends_title">老友记 Friends</string>
-    <string name="friends_summary">10 季 · 236 集 · 内网音频与双语台词稿</string>
+    <string name="friends_summary">10 季 · 236 集 · 在线音频与双语字幕</string>
     <string name="import_library">导入本地媒体目录</string>
     <string name="check_update">检查软件更新</string>
     <string name="resume_learning">继续上次播放</string>
-    <string name="media_notice">内网资源不可用时，也可导入本地音频与字幕</string>
+    <string name="media_notice">支持在线播放，也可导入本地音频与字幕</string>
 </resources>

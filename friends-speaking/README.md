@@ -4,19 +4,19 @@
 
 应用 ID 仍为 `com.firewolf.friendsspeaking`，App Center 更新通道仍使用 `friends-speaking`，因此已安装“老友记口语伴侣”的设备可以直接覆盖升级并保留播放进度与已导入文件。
 
-## 《老友记》内网媒体
+## 《老友记》在线媒体
 
-应用直接读取 `http://10.3.42.150:8000/` 中的媒体，不把剧集内容打进 APK：
+应用通过 `https://apps.lxvb.top/media/friends/20260916-v1/` 读取部署在自有服务器的媒体，无需连接内网，不把剧集内容打进 APK：
 
-- 234 集 WMA 音频由 LibVLC 解码；服务器缺少 `S10E12`、`S10E18`。由于来源不支持 HTTP Range，当前集先完整缓存到设备再播放，保证按句重听、拖动进度和恢复位置能准确寻址。缓存按最近使用顺序淘汰，最多 256 MiB。
+- 已处理的 226 集原声音频在开发机转为 96 kbps 双声道 AAC/M4A，由 LibVLC 解码；源资源缺少 `S10E12`、`S10E18`；另外 `S02E24`、`S03E25`、`S04E24`、`S05E24`、`S06E25`、`S07E24`、`S08E24`、`S09E24` 未进入原处理缓存，迁移时源服务器无法连接，当前版本如实显示资源缺失。补齐后需发布新资源版本并更新目录。域名支持 HTTP Range，当前播放器仍先校验并缓存当前集再播放，保持按句重听、拖动进度和恢复位置的行为。缓存最多 256 MiB，自动淘汰，不作为离线下载承诺。
 - `S07E22` 的来源文件只有前 7 分 26 秒，`S08E18` 只有前 16 分 50 秒，并非完整一集。对齐只覆盖实际存在的音频，播放页显示“后续音频缺失”，听完片段不标记整集已完成；需补齐源文件后重新生成对应索引。已核实的片段边界以音频及末句摘要记录在 `tools/source-exceptions.json`，不适用于摘要不同的新音频。
-- 226 份中英双语 PDF 台词稿在设备端提取；除了 `S10E12`、`S10E18`，`S02E24`、`S03E25`、`S04E24`、`S05E24`、`S06E25`、`S07E24`、`S08E24`、`S09E24` 也缺少 PDF。
-- PDF 没有时间码。默认字幕改用开发机上根据对应 WMA 实际声音计算的逐句对齐索引；**不再按字数、句数、总时长分摊时间**。设备会核对音频 SHA-256、时长及每句台词摘要，只有匹配才启用同步；导入的同源文件也支持这一检查。
+- 226 份中英双语 PDF 已在开发机提取为 UTF-8 `transcript.txt`（以换页符分隔台词，保留句内中英文换行），手机直接读取处理结果；除了 `S10E12`、`S10E18`，`S02E24`、`S03E25`、`S04E24`、`S05E24`、`S06E25`、`S07E24`、`S08E24`、`S09E24` 也缺少 PDF。
+- PDF 没有时间码。默认字幕改用开发机上根据对应 WMA 实际声音计算的逐句对齐索引；**不再按字数、句数、总时长分摊时间**。设备会核对音频 SHA-256、时长及每句台词摘要，只有匹配才启用同步；原 WMA 与经时长校验的 AAC 版本分别保留摘要，导入的同源文件也支持这一检查。
 - 解析只读取正文，排除目录、简介、词汇表，合并跨页句子，并识别完整重复或末尾截断的重复台词稿。旧的 PDF 提取缓存及估算时间轴偏移不会污染新时间码。
 - 片头、转场、笑声和其他台词空档不高亮上一句；PDF 中的剧集标题不当作人声台词，声音匹配置信度不足的句子不生成可跳转时间，页面显示未确认句数。没有匹配索引的 PDF 仅供手动浏览，不伪装为同步字幕。
 - 用户导入 SRT 或 WebVTT 后优先使用文件本身的时间码。右上角保留 0.5 秒微调，供音频输出设备延迟等情况使用。上下拖动只浏览，不暂停或跳转音频；点击有时间码的字幕以及上一句/重听/下一句会显式跳转。
 
-媒体服务器使用内网明文 HTTP，网络安全配置只对 `10.3.42.150` 开放明文访问，其他地址仍要求 HTTPS。
+应用的媒体地址及更新地址均使用 HTTPS；网络安全配置禁止所有明文 HTTP，没有内网回退地址。服务器上的 `alignment.tsv` 与 APK 内的索引一致，资源整体按 `SHA256SUMS` 校验后发布。
 
 ## 本地媒体覆盖
 
@@ -66,7 +66,7 @@ PDF 文本提取使用 Apache-2.0 许可的 PdfBox-Android；WMA 播放使用 LG
 JAVA_HOME=/path/to/jdk-17 ./gradlew testDebugUnitTest lintDebug assembleDebug
 ```
 
-APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。当前版本为 `1.2.1`（versionCode 5）。
+APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。当前版本为 `1.3.0`（versionCode 6）。
 
 App Center 的手机安装包只保留 ARM64 原生库，可减少约 150 MB 下载体积：
 
@@ -99,4 +99,28 @@ FRIENDS_ALIGNMENT_CACHE=/path/to/private-alignment-cache \
 
 发布前还应检查整集开头、中段、结尾的诊断记录，以及手机上正常播放、暂停恢复、倍速、拖动进度、按句跳转和锁屏恢复。模型评分不是人工逐句听审，不应将低置信度输出标记为已确认。
 
-`PlayerSynchronizationTest` 是设备端实际媒体测试，默认跳过下载；在可访问内网的测试设备安装测试 APK 后，通过 `am instrument -e real_media true` 启用，检查进度恢复、逐句索引绑定、三处跳转、暂停、倍速和退后台继续播放。没有可用设备或模拟器未完成启动时，不应将这项测试记为通过。
+`PlayerSynchronizationTest` 是设备端实际媒体测试，默认跳过下载；在可访问公网域名的测试设备安装测试 APK 后，通过 `am instrument -e real_media true` 启用，检查进度恢复、逐句索引绑定、三处跳转、暂停、倍速和退后台继续播放。没有可用设备或模拟器未完成启动时，不应将这项测试记为通过。
+
+## 发布域名媒体
+
+在开发机安装 FFmpeg 5.1+，使用对齐环境及相同版本的 PDFBox 生成资源：
+
+```bash
+PATH=/usr/bin:/bin /path/to/alignment-venv/bin/python tools/publish_media.py \
+  --cache /path/to/private-alignment-cache \
+  --output /path/outside/repository/20260916-v1 \
+  --indexes app/src/main/assets/alignments \
+  --pdfbox /path/to/pdfbox-app-2.0.27.jar --java /path/to/jdk-17/bin/java
+```
+
+原始媒体源不可访问时，可用 `--skip-unavailable-audio` 只发布本地已存在的文件；缺失项写入 manifest，发布前必须同步 `RemoteMediaCatalog` 的可用目录。首次迁移时可用 `--source-url` 指定原媒体源，补齐没有 PDF、未进入对齐缓存的 8 集音频；手机从不读取该参数。工具逐集验证源音频/PDF 摘要、字幕逐句摘要、转码前后时长差小于 250 ms，再给索引增加 `remote=<AAC SHA-256>`。时间戳与缺失片段范围保持原样。重新生成对齐索引后必须再次运行发布工具。
+
+输出包含音频、处理后的双语文本、时间索引、manifest 和校验清单；`rendition.json` 仅供开发机复用转码结果，无需上传。所有音频、字幕正文和诊断文件留在仓库外。上传到 App Center 持久化卷的隐藏暂存目录，服务端校验后原子改名为版本目录；不要覆盖已经发布的版本路径。最后构建并上传 APK 至原 `friends-speaking` 更新通道。
+
+发布前验证原文件和域名媒体同时匹配同一套时间索引：
+
+```bash
+FRIENDS_ALIGNMENT_CACHE=/path/to/private-alignment-cache \
+FRIENDS_PUBLISHED_MEDIA=/path/outside/repository/20260916-v1 \
+JAVA_HOME=/path/to/jdk-17 ./gradlew testDebugUnitTest lintDebug
+```

@@ -16,15 +16,17 @@ final class AlignmentIndex {
             "^Friends\\s+S\\d{2}E\\d{2}\\b", java.util.regex.Pattern.CASE_INSENSITIVE);
     final String episodeKey;
     final String audioSha256;
+    final String remoteAudioSha256;
     final String pdfSha256;
     final long durationMs;
     final int sourceLineCount;
     private final List<Entry> entries;
 
-    private AlignmentIndex(String episodeKey, String audioSha256, String pdfSha256,
+    private AlignmentIndex(String episodeKey, String audioSha256, String remoteAudioSha256, String pdfSha256,
                            long durationMs, List<Entry> entries, int sourceLineCount) {
         this.episodeKey = episodeKey;
         this.audioSha256 = audioSha256;
+        this.remoteAudioSha256 = remoteAudioSha256;
         this.pdfSha256 = pdfSha256;
         this.durationMs = durationMs;
         this.entries = entries;
@@ -36,13 +38,19 @@ final class AlignmentIndex {
         try {
             String header = reader.readLine();
             String[] fields = header == null ? new String[0] : header.split("\t");
-            if ((fields.length != 5 && fields.length != 6) || !fields[0].equals("FA1") || !fields[1].equals(episodeKey)
+            if (fields.length < 5 || fields.length > 7 || !fields[0].equals("FA1") || !fields[1].equals(episodeKey)
                     || !hash(fields[2]) || !hash(fields[3])) throw new IOException("Invalid alignment header");
             long duration = Long.parseLong(fields[4]);
             int prefix = -1;
-            if (fields.length == 6) {
-                if (!fields[5].matches("prefix=[1-9][0-9]*")) throw new IOException("Invalid source scope");
-                prefix = Integer.parseInt(fields[5].substring(7));
+            String remoteHash = fields[2];
+            boolean hasRemote = false;
+            for (int i = 5; i < fields.length; i++) {
+                if (fields[i].matches("prefix=[1-9][0-9]*") && prefix < 0) {
+                    prefix = Integer.parseInt(fields[i].substring(7));
+                } else if (fields[i].startsWith("remote=") && hash(fields[i].substring(7)) && !hasRemote) {
+                    remoteHash = fields[i].substring(7);
+                    hasRemote = true;
+                } else throw new IOException("Invalid alignment metadata");
             }
             if (duration <= 0) throw new IOException("Invalid duration");
             List<Entry> entries = new ArrayList<>();
@@ -63,7 +71,7 @@ final class AlignmentIndex {
             }
             if (entries.isEmpty()) throw new IOException("Empty alignment");
             if (prefix > entries.size()) throw new IOException("Invalid source scope");
-            return new AlignmentIndex(episodeKey, fields[2], fields[3], duration, entries,
+            return new AlignmentIndex(episodeKey, fields[2], remoteHash, fields[3], duration, entries,
                     prefix < 0 ? entries.size() : prefix);
         } catch (NumberFormatException exception) {
             throw new IOException("Invalid alignment number", exception);
@@ -91,7 +99,8 @@ final class AlignmentIndex {
     }
 
     boolean matchesAudio(String sha256, long duration) {
-        return audioSha256.equals(sha256) && (duration <= 0 || Math.abs(durationMs - duration) < 1_000L);
+        return (audioSha256.equals(sha256) || remoteAudioSha256.equals(sha256))
+                && (duration <= 0 || Math.abs(durationMs - duration) < 1_000L);
     }
 
     boolean partialAudio() { return sourceLineCount < entries.size(); }

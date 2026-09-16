@@ -19,6 +19,7 @@ GET  /api/health
 GET  /api/apps
 GET  /api/apps/{appId}/latest
 GET  /downloads/{appId}/{filename}
+GET  /media/friends/{revision}/{episode}/{filename}
 GET  /api/auth/oauth/url
 POST /api/auth/oauth/callback
 GET  /api/auth/me
@@ -29,6 +30,12 @@ DELETE /api/admin/apps/{appId}
 ```
 
 生产 Compose 只监听宿主机 `127.0.0.1:18083`，公网入口由 Cloudflare Tunnel 提供，域名为 `https://apps.lxvb.top`。
+
+## 影视音频资源
+
+`/media/friends/` 只读映射持久化数据卷的 `/data/media/friends/`，与 APK、登录会话和学习进度数据隔离。媒体在开发机完成转码和校验后上传，不进入 Git 或 Docker 镜像。路径带不可变版本（例如 `20260916-v1/S01E01/audio.m4a`），支持 HEAD、HTTP Range 和长期缓存；缺失文件直接返回 404，不回退到首页 HTML。
+
+音频、处理后的双语 `transcript.txt` 和 `alignment.tsv` 应一起上传到隐藏暂存目录，按 `SHA256SUMS` 核对后原子改名为正式版本目录，再发布引用该版本的 APK。保留现有环境变量及 `app-center-data` 数据卷。生成资源的方法见 `../friends-speaking/README.md`。
 
 ## 小林学习进度同步
 

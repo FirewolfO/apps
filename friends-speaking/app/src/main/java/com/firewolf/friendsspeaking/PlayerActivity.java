@@ -237,14 +237,15 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
             String error = "";
             try {
                 boolean pdf = isPdf(subtitle);
-                if (pdf && store.isRemoteSubtitle(episode)) transcript = TranscriptCache.read(this, episode);
+                boolean processed = store.isRemoteSubtitle(episode);
+                if (processed) transcript = TranscriptCache.read(this, episode);
                 if (transcript.isEmpty()) {
                     try (InputStream input = openInput(subtitle)) {
                         if (input == null) throw new IllegalStateException("subtitle unavailable");
-                        if (pdf) transcript = PdfTranscriptParser.parse(input);
+                        if (processed) transcript = TranscriptCache.parse(input);
+                        else if (pdf) transcript = PdfTranscriptParser.parse(input);
                         else timed = SubtitleParser.parse(input);
                     }
-                    if (pdf && store.isRemoteSubtitle(episode)) TranscriptCache.write(this, episode, transcript);
                 }
                 if (timed.isEmpty() && transcript.isEmpty()) error = "字幕中没有识别到有效台词";
                 if (!transcript.isEmpty()) {
@@ -253,6 +254,7 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
                         try (InputStream input = getAssets().open("alignments/" + episode.key + ".tsv")) {
                             index = AlignmentIndex.read(input, episode.key);
                             aligned = index.bind(transcript);
+                            if (processed) TranscriptCache.write(this, episode, transcript);
                             timingStatus = "正在核对音频版本…";
                         } catch (Exception unavailable) {
                             index = null;
@@ -261,7 +263,7 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
                     }
                 } else if (!timed.isEmpty()) timingStatus = "文件时间码";
             } catch (Exception exception) {
-                error = "字幕读取失败，请检查内网连接或重新选择文件";
+                error = "字幕读取失败，请检查网络连接或重新选择文件";
             }
             List<SubtitleCue> timedResult = timed;
             List<String> transcriptResult = transcript;
@@ -565,8 +567,8 @@ public final class PlayerActivity extends AppCompatActivity implements PlaybackS
     private void bindMediaStatus() {
         Uri audio = store.audio(episode);
         Uri subtitle = store.subtitle(episode);
-        String value = audio == null ? "本集音频缺失" : store.isRemoteAudio(episode) ? "内网音频" : "本地音频";
-        value += subtitle == null ? " · 台词稿缺失" : store.isRemoteSubtitle(episode) ? " · 双语 PDF 台词稿" : " · 本地字幕";
+        String value = audio == null ? "本集音频缺失" : store.isRemoteAudio(episode) ? "在线音频" : "本地音频";
+        value += subtitle == null ? " · 台词稿缺失" : store.isRemoteSubtitle(episode) ? " · 双语字幕" : " · 本地字幕";
         if (!cues.isEmpty()) value += " · " + cues.size() + " 条";
         if (!subtitleTimingStatus.isEmpty()) value += " · " + subtitleTimingStatus;
         if (audioAlignmentVerified && alignment != null && baseCues.size() < alignment.sourceLineCount) {

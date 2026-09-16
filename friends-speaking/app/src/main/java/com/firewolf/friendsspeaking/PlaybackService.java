@@ -217,7 +217,7 @@ public final class PlaybackService extends Service {
                 if ("http".equalsIgnoreCase(audio.getScheme()) || "https".equalsIgnoreCase(audio.getScheme())) {
                     AudioCache.Result cached = AudioCache.prepare(new File(getCacheDir(), "audio-v1"),
                             requested.key, audio.toString(), () -> request != loadRequest,
-                            index == null ? null : index.audioSha256);
+                            index == null ? null : index.remoteAudioSha256);
                     playable = Uri.fromFile(cached.file);
                     fingerprint = cached.sha256;
                 } else {
@@ -228,12 +228,12 @@ public final class PlaybackService extends Service {
                         fingerprint = AudioCache.fingerprint(input, () -> request != loadRequest);
                     }
                 }
-                incompleteSource = index != null && index.partialAudio() && index.audioSha256.equals(fingerprint);
+                incompleteSource = index != null && index.partialAudio() && index.matchesAudio(fingerprint, 0);
                 if (request != loadRequest) return;
                 candidate = new LibVLC(getApplicationContext(), new ArrayList<>(Arrays.asList(
                         "--audio-time-stretch", "--network-caching=450")));
             } catch (Exception error) {
-                handler.post(() -> loadFailed(request, "音频缓存失败，请检查内网连接和手机存储后重试"));
+                handler.post(() -> loadFailed(request, "音频加载失败，请检查网络连接和手机存储后重试"));
                 return;
             }
             Uri preparedAudio = playable;
@@ -331,7 +331,7 @@ public final class PlaybackService extends Service {
         } catch (Exception error) {
             releasePlayer();
             loading = false;
-            notifyError("音频无法打开，请检查内网连接或重新选择音频");
+            notifyError("音频无法打开，请检查网络连接或重新选择音频");
         }
     }
 

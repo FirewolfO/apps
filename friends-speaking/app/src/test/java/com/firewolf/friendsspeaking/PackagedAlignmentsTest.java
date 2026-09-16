@@ -80,4 +80,23 @@ public class PackagedAlignmentsTest {
             }
         }
     }
+
+    @Test public void publishedAudioAndProcessedDialogueMatchEveryPackagedIndex() throws Exception {
+        String published = System.getenv("FRIENDS_PUBLISHED_MEDIA");
+        Assume.assumeTrue("Set FRIENDS_PUBLISHED_MEDIA to verify the HTTPS release", published != null);
+        for (File file : indexes()) {
+            String key = file.getName().replace(".tsv", "");
+            File directory = new File(published, key);
+            try (FileInputStream input = new FileInputStream(file);
+                 FileInputStream audio = new FileInputStream(new File(directory, "audio.m4a"));
+                 FileInputStream transcript = new FileInputStream(new File(directory, "transcript.txt"))) {
+                AlignmentIndex index = AlignmentIndex.read(input, key);
+                String fingerprint = AudioCache.fingerprint(audio, () -> false);
+                assertEquals(key, index.remoteAudioSha256, fingerprint);
+                assertTrue(key, index.matchesAudio(fingerprint, index.durationMs));
+                List<SubtitleCue> cues = index.bind(TranscriptCache.parse(transcript));
+                assertTrue(key, cues.size() >= index.sourceLineCount * 0.75);
+            }
+        }
+    }
 }

@@ -24,7 +24,7 @@ import java.util.function.BooleanSupplier;
 
 import static org.junit.Assert.*;
 
-/** Opt in with `am instrument -e real_media true ...` on a device on the media LAN. */
+/** Opt in with `am instrument -e real_media true ...` on an Internet-connected device. */
 @RunWith(AndroidJUnit4.class)
 public class PlayerSynchronizationTest {
     @Test(timeout = 420000) public void realAudioRestoresSeeksAndContinuesWithoutTheScreen() throws Exception {

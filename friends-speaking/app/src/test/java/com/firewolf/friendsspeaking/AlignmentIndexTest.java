@@ -53,6 +53,27 @@ public class AlignmentIndexTest {
         assertEquals(1, index.bind(List.of("Hello\nthere\n你 好")).size());
     }
 
+    @Test public void publishedRenditionAndOriginalAudioShareOnlyVerifiedTimings() throws Exception {
+        String remote = "c".repeat(64);
+        AlignmentIndex index = read(row("First", 1000, 2000) + row("Absent", -1, -1),
+                "\tprefix=1\tremote=" + remote);
+        assertTrue(index.matchesAudio(AUDIO, 120000));
+        assertTrue(index.matchesAudio(remote, 120050));
+        assertFalse(index.matchesAudio(remote, 122000));
+        assertFalse(index.matchesAudio(PDF, 120000));
+        assertEquals(remote, index.remoteAudioSha256);
+        assertTrue(index.partialAudio());
+        assertEquals(1, index.bind(List.of("First", "Absent")).size());
+    }
+
+    @Test(expected = IOException.class) public void refusesInvalidRenditionFingerprint() throws Exception {
+        read(row("Hi", 1000, 2000), "\tremote=invalid");
+    }
+
+    @Test(expected = IOException.class) public void refusesDuplicateRenditionMetadata() throws Exception {
+        read(row("Hi", 1000, 2000), "\tremote=" + AUDIO + "\tremote=" + PDF);
+    }
+
     @Test public void repeatedUtterancesKeepTheirOwnTimes() throws Exception {
         AlignmentIndex index = read(row("Yes", 1000, 2000) + row("Yes", 5000, 6000));
         List<SubtitleCue> cues = index.bind(Arrays.asList("Yes", "Yes"));

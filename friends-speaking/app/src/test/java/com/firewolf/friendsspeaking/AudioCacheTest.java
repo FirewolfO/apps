@@ -60,6 +60,23 @@ public class AudioCacheTest {
         }
     }
 
+    @Test public void wrongPublishedBytesCannotReplacePlayableCache() throws Exception {
+        byte[] previous = "previous valid audio".getBytes(StandardCharsets.UTF_8);
+        try (Origin server = new Origin("unexpected response".getBytes(StandardCharsets.UTF_8))) {
+            File cache = temporary.newFolder("checksum");
+            File audio = new File(cache, "S01E01.wma");
+            Files.write(audio.toPath(), previous);
+            try {
+                AudioCache.prepare(cache, "S01E01", server.url(), () -> false, "a".repeat(64));
+                fail("Wrong audio was accepted");
+            } catch (java.io.IOException expected) {
+                assertEquals("Audio checksum mismatch", expected.getMessage());
+            }
+            assertArrayEquals(previous, Files.readAllBytes(audio.toPath()));
+            assertEquals(1, cache.listFiles().length);
+        }
+    }
+
     private static final class Origin implements AutoCloseable {
         private final ServerSocket socket = new ServerSocket(0, 10, java.net.InetAddress.getLoopbackAddress());
         final AtomicInteger requests = new AtomicInteger();

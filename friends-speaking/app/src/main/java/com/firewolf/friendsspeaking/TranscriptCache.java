@@ -3,6 +3,9 @@ package com.firewolf.friendsspeaking;
 import android.content.Context;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -10,11 +13,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-/** Keeps parsed remote PDFs so each episode only pays the extraction cost once. */
+/** Processed bilingual dialogue, bound to the packaged cue hashes before synchronization. */
 final class TranscriptCache {
     private static final String SEPARATOR = "\f";
 
     private TranscriptCache() {}
+
+    static List<String> parse(InputStream input) throws IOException {
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        byte[] buffer = new byte[8192];
+        int count;
+        while ((count = input.read(buffer)) != -1) {
+            if (output.size() + count > 4 * 1024 * 1024) throw new IOException("Transcript too large");
+            output.write(buffer, 0, count);
+        }
+        String value = new String(output.toByteArray(), StandardCharsets.UTF_8);
+        if (value.trim().isEmpty()) throw new IOException("Empty transcript");
+        return new ArrayList<>(Arrays.asList(value.split(SEPARATOR, -1)));
+    }
 
     static List<String> read(Context context, Episode episode) {
         File file = file(context, episode);

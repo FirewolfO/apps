@@ -197,6 +197,21 @@ export async function createApplication(config) {
       response.set('Content-Disposition', `attachment; filename="${path.basename(filename).replace(/[^A-Za-z0-9._-]/g, '_')}"`);
     },
   }));
+  // Media is uploaded separately into the existing persistent data volume.
+  // Missing resources must be 404s, never the App Center HTML fallback.
+  app.use('/media/friends', express.static(path.join(config.dataDir, 'media', 'friends'), {
+    fallthrough: false,
+    index: false,
+    redirect: false,
+    dotfiles: 'deny',
+    maxAge: '365d',
+    immutable: true,
+    setHeaders(response, filename) {
+      const extension = path.extname(filename);
+      if (extension === '.m4a') response.type('audio/mp4');
+      if (extension === '.txt' || extension === '.tsv') response.type('text/plain; charset=utf-8');
+    },
+  }));
   app.get('/', (_request, response) => {
     response.set('Cache-Control', 'no-store');
     response.status(200).type('html').send('');

@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.function.BooleanSupplier;
 
-/** Makes playback and exact seeking independent of the origin's missing HTTP Range support. */
+/** Verifies published audio and keeps exact seeking independent of network buffering. */
 final class AudioCache {
     private static final long MAX_BYTES = 256L * 1024L * 1024L;
 
@@ -68,16 +68,20 @@ final class AudioCache {
                     actual = copy(input, output, digest, cancelled);
                 }
                 if (actual == 0 || (expected >= 0 && actual != expected)) throw new IOException("Incomplete audio");
+                String downloadedHash = AlignmentIndex.hex(digest.digest());
+                if (expectedSha256 != null && !expectedSha256.equals(downloadedHash)) {
+                    throw new IOException("Audio checksum mismatch");
+                }
                 if (cancelled.getAsBoolean()) throw new IOException("Cancelled");
                 Files.move(temporary.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                target.setLastModified(System.currentTimeMillis());
+                trim(directory, target);
+                return new Result(target, downloadedHash);
             } finally {
                 connection.disconnect();
                 Files.deleteIfExists(temporary.toPath());
             }
         }
-        target.setLastModified(System.currentTimeMillis());
-        trim(directory, target);
-        return new Result(target, AlignmentIndex.hex(digest.digest()));
     }
 
     private static long copy(InputStream input, OutputStream output, MessageDigest digest,
